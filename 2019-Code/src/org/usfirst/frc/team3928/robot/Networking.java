@@ -11,6 +11,12 @@ public class Networking {
 	public static NetworkTableEntry entry = new NetworkTableEntry(instance, 5800);
 	private static byte[] defaultArray = new byte[0];
 	
+	public static void sendBytes(byte[] bytes) {
+		
+		entry.setRaw(bytes);
+		
+	}
+	
 	public static byte[] getBytes() {
 		
 		return entry.getRaw(defaultArray);

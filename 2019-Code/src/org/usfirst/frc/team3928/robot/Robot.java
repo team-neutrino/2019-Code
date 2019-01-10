@@ -25,6 +25,7 @@ public class Robot extends TimedRobot {
 	private static final String kCustomAuto = "My Auto";
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
+	private byte[] bytes = new byte[1];
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -37,6 +38,7 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putData("Auto choices", m_chooser);
 		Networking.instance.startClient();
 		Networking.instance.startServer();
+		Networking.sendBytes(bytes);
 		System.out.print(Networking.getBytes());
 	}
 
