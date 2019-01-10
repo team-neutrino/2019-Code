@@ -11,6 +11,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTableInstance;
+
+import java.util.Arrays;
+
 import org.usfirst.frc.team3928.robot.Networking;
 
 /**
@@ -39,7 +42,7 @@ public class Robot extends TimedRobot {
 		Networking.instance.startClient();
 		Networking.instance.startServer();
 		Networking.sendBytes(bytes);
-		System.out.print(Networking.getBytes());
+		System.out.print(Arrays.toString(Networking.getBytes()));
 	}
 
 	/**

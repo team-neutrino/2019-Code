@@ -13,7 +13,7 @@ public class Networking {
 	
 	public static void sendBytes(byte[] bytes) {
 		
-		entry.setRaw(bytes);
+		entry.forceSetRaw(bytes);
 		
 	}
 	
