@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
 	private static final String kCustomAuto = "My Auto";
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
-	private byte[] bytes = new byte[1];
+	private byte[] bytes = new byte[40];
 	
 	/**
 	 * This function is run when the robot is first started up and should be
