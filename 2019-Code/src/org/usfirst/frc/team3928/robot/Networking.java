@@ -12,7 +12,7 @@ public class Networking {
 	
 	public static NetworkTableInstance instance = NetworkTableInstance.getDefault();
 	public static NetworkTableEntry entry = new NetworkTableEntry(instance, 5800);
-	public static byte[] defaultArray;
+	public static byte[] defaultArray = new byte[]{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 	
 	public static void sendBytes(byte[] bytes) {
 		
