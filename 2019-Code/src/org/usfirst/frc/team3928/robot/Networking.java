@@ -9,12 +9,13 @@ public class Networking {
 	
 	public static NetworkTableInstance instance = NetworkTableInstance.getDefault();
 	public static NetworkTable table = instance.getTable("networkingTest");
+	public static byte[] defaultBytes = new byte[] {};
 	
 	public static void sendBytes(String name, byte[] input) {
 		
-		table.getKeys().add("test"); 
+		table.getKeys().add(name); 
 		
-		table.getEntry("test").setRaw(input);
+		table.getEntry(name).setRaw(input);
 		
 		System.out.println("Set " + Arrays.toString(input));
 		
@@ -23,7 +24,7 @@ public class Networking {
 	public static byte[] getBytes(String entry) {
 		
 		System.out.println("Returned " + table);
-		return table.getKeys().toString();
+		return table.getEntry(entry).getRaw(defaultBytes);
 		
 	}
 
