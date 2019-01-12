@@ -37,7 +37,7 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putData("Auto choices", m_chooser);
 		Networking.instance.startClient();
 		Networking.instance.startServer();
-		Networking.sendBytes("3928");
+		Networking.sendBytes("3928"); 
 		System.out.print(Networking.getString());
 	}
 

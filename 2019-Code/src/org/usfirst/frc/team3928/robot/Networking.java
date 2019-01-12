@@ -12,7 +12,7 @@ public class Networking {
 	
 	public static void sendBytes(String name, byte[] input) {
 		
-		table.getKeys().add("test");
+		table.getKeys().add("test"); 
 		
 		table.getEntry("test").setRaw(input);
 		
