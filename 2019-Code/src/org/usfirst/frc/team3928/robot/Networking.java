@@ -23,7 +23,7 @@ public class Networking {
 	
 	public static byte[] getBytes(String entry) {
 		
-		System.out.println("Returned " + table);
+		System.out.println("Returned " + Arrays.toString(table.getEntry(entry).getRaw(defaultBytes)));
 		return table.getEntry(entry).getRaw(defaultBytes);
 		
 	}

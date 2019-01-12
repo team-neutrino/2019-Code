@@ -38,7 +38,7 @@ public class Robot extends TimedRobot {
 		Networking.instance.startClient();
 		Networking.instance.startServer();
 		Networking.sendBytes("test", "3928".getBytes()); 
-		System.out.print(Networking.getBytes("test"));
+		System.out.print(Arrays.toString(Networking.getBytes("test")));
 	}
 
 	/**
