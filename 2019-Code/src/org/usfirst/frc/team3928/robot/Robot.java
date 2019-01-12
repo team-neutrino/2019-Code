@@ -7,14 +7,11 @@
 
 package org.usfirst.frc.team3928.robot;
 
+import java.util.Arrays;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.networktables.NetworkTableInstance;
-
-import java.util.Arrays;
-
-import org.usfirst.frc.team3928.robot.Networking;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -28,7 +25,6 @@ public class Robot extends TimedRobot {
 	private static final String kCustomAuto = "My Auto";
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
-	private byte[] bytes = "3928".getBytes();
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -41,9 +37,8 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putData("Auto choices", m_chooser);
 		Networking.instance.startClient();
 		Networking.instance.startServer();
-		Networking.entry.setDefaultRaw(Networking.defaultArray);
-		Networking.sendBytes(bytes);
-		System.out.print(Arrays.toString(Networking.getBytes()));
+		Networking.sendBytes("3928");
+		System.out.print(Networking.getString());
 	}
 
 	/**
