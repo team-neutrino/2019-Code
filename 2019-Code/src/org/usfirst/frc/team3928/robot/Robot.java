@@ -38,6 +38,9 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
+		Odometry.encoder.setDistancePerPulse(Math.PI/90);
+		Odometry.navx.zeroYaw();
+		Odometry.encoder.reset();
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
