@@ -9,6 +9,8 @@ package org.usfirst.frc.team3928.robot;
 
 import java.util.Arrays;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,6 +27,10 @@ public class Robot extends TimedRobot {
 	private static final String kCustomAuto = "My Auto";
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
+	public NetworkTable limelightTable = Networking.instance.getTable("limelight");
+	public NetworkTableEntry offsetX = limelightTable.getEntry("tx");
+	public NetworkTableEntry offsetY = limelightTable.getEntry("ty");
+	public NetworkTableEntry targetArea = limelightTable.getEntry("ta");
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -59,12 +65,21 @@ public class Robot extends TimedRobot {
 		// 		kDefaultAuto);
 		System.out.println("Auto selected: " + m_autoSelected);
 	}
+	
+	public void generalPeriodic() {
+		
+		SmartDashboard.putNumber("LimelightX", offsetX.getDouble(0));
+		SmartDashboard.putNumber("LimelightY", offsetY.getDouble(0));
+		SmartDashboard.putNumber("LimelightArea", targetArea.getDouble(0));
+		
+	}
 
 	/**
 	 * This function is called periodically during autonomous.
 	 */
 	@Override
 	public void autonomousPeriodic() {
+		generalPeriodic();
 		switch (m_autoSelected) {
 			case kCustomAuto:
 				// Put custom auto code here
@@ -81,6 +96,7 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		generalPeriodic();
 	}
 
 	/**
