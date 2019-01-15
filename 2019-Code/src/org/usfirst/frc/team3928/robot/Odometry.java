@@ -10,7 +10,8 @@ import edu.wpi.first.wpilibj.Encoder;
 public class Odometry {
 
 	public static Encoder encoder;
-	public static AHRS navx;
-	public static Array position;
+	public static AHRS navx;	
+	
+	
 	
 }

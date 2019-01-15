@@ -47,7 +47,9 @@ public class Robot extends TimedRobot {
 		Networking.instance.startClient();
 		Networking.instance.startServer();
 		Networking.sendBytes("test", "3928".getBytes());
-		System.out.print(Arrays.toString(Drive.getRaw("test")));
+		System.out.print(Arrays.toString(Fak3Drive.getRaw("test")));
+		
+		
 	}
 
 	/**
