@@ -12,15 +12,15 @@ public class Odometry {
 	public static AHRS navX;	
 	public static double positionX;
 	public static double positionY;
-	//Average of the distance travelled by the two wheels since the last time it was calculated
+	//Average of the distance traveled by the two wheels since the last time it was calculated
 	static double totalDistance = 0;
-	//Distance travelled by the left wheel, as found by the previous calculation
+	//Distance traveled by the left wheel, as found by the previous calculation
 	static double formerLeftDistance = 0;
-	//Distance travelled by the right wheel, as found by the previous calculation
+	//Distance traveled by the right wheel, as found by the previous calculation
 	static double formerRightDistance = 0;
-	//Distance travelled by the left wheel since the previous calculation
+	//Distance traveled by the left wheel since the previous calculation
 	static double currentLeftDistance = 0;
-	//Distance travelled by the left wheel since the previous calculation
+	//Distance traveled by the left wheel since the previous calculation
 	static double currentRightDistance = 0;
 	
 	public static void calculateDistance(){

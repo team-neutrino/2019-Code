@@ -9,6 +9,7 @@ package org.usfirst.frc.team3928.robot;
 
 import java.util.Arrays;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -44,6 +45,7 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
+		Drive drive = new Drive();
 		leftJoystick = new Joystick(1);
 		rightJoystick = new Joystick(0);
 		Odometry.navX = new AHRS(SPI.Port.kMXP);
@@ -59,8 +61,7 @@ public class Robot extends TimedRobot {
 		Networking.instance.startServer();
 		Networking.sendBytes("test", "3928".getBytes());
 		System.out.print(Arrays.toString(Fak3Drive.getRaw("test")));
-		Odometry.calculateDistance();
-		
+				
 	}
 
 	/**
@@ -84,6 +85,7 @@ public class Robot extends TimedRobot {
 	
 	public void generalPeriodic() {
 		
+		Odometry.calculateDistance();
 		SmartDashboard.putNumber("LimelightX", offsetX.getDouble(0));
 		SmartDashboard.putNumber("LimelightY", offsetY.getDouble(0));
 		SmartDashboard.putNumber("LimelightArea", targetArea.getDouble(0));
@@ -113,6 +115,12 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		generalPeriodic();
+		
+		Drive.talonRight1.set(ControlMode.PercentOutput, rightJoystick.getY());
+		Drive.talonRight2.set(ControlMode.PercentOutput, rightJoystick.getY());
+		Drive.talonLeft1.set(ControlMode.PercentOutput, leftJoystick.getY());
+		Drive.talonLeft2.set(ControlMode.PercentOutput, leftJoystick.getY());
+		
 	}
 
 	/**

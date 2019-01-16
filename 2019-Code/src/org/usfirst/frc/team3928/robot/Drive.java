@@ -9,10 +9,10 @@ public class Drive implements Printer
 {
 	public static Encoder leftEncoder;
 	public static Encoder rightEncoder;
-	private TalonSRX talonRight1;
-	private TalonSRX talonRight2;
-	private TalonSRX talonLeft1;
-	private TalonSRX talonLeft2;
+	public static TalonSRX talonRight1;
+	public static TalonSRX talonRight2;
+	public static TalonSRX talonLeft1;
+	public static TalonSRX talonLeft2;
 
 	public Drive()
 	{
