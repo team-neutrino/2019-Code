@@ -31,6 +31,8 @@ public class Robot extends TimedRobot {
 	public NetworkTableEntry offsetX = limelightTable.getEntry("tx");
 	public NetworkTableEntry offsetY = limelightTable.getEntry("ty");
 	public NetworkTableEntry targetArea = limelightTable.getEntry("ta");
+	private Joystick rightJoystick;
+	private Joystick leftJoystick;
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -38,6 +40,8 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
+		leftJoystick = new Joystick(1);
+		rightJoystick = new Joystick(0);
 		Odometry.navX = new AHRS(SPI.Port.kMXP);
 		Odometry.encoder.setDistancePerPulse(Math.PI/90);
 		Odometry.navx.zeroYaw();
