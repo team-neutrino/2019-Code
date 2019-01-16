@@ -9,8 +9,12 @@ package org.usfirst.frc.team3928.robot;
 
 import java.util.Arrays;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -43,9 +47,11 @@ public class Robot extends TimedRobot {
 		leftJoystick = new Joystick(1);
 		rightJoystick = new Joystick(0);
 		Odometry.navX = new AHRS(SPI.Port.kMXP);
-		Odometry.encoder.setDistancePerPulse(Math.PI/90);
-		Odometry.navx.zeroYaw();
-		Odometry.encoder.reset();
+		Drive.leftEncoder.setDistancePerPulse(Math.PI/90);
+		Drive.rightEncoder.setDistancePerPulse(Math.PI/90);
+		Odometry.navX.zeroYaw();
+		Drive.leftEncoder.reset();
+		Drive.rightEncoder.reset();
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
