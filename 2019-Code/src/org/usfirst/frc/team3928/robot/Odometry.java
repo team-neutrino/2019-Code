@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.Encoder;
 
 public class Odometry {
 
-	public static AHRS navx;	
+	public AHRS navx;	
 	public static double positionX;
 	public static double positionY;
 	//Average of the distance travelled by the two wheels since the last time it was calculated
