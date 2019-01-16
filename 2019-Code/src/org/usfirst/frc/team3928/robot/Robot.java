@@ -48,7 +48,7 @@ public class Robot extends TimedRobot {
 		Networking.instance.startServer();
 		Networking.sendBytes("test", "3928".getBytes());
 		System.out.print(Arrays.toString(Fak3Drive.getRaw("test")));
-		
+		Odometry.calculateDistance();
 		
 	}
 
