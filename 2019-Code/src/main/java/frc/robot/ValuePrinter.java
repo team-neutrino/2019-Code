@@ -8,9 +8,9 @@
 package frc.robot;
 
 /**
- * Inter
+ * Interface for the value printer.
  */
 public interface ValuePrinter 
 {
-
+    
 }

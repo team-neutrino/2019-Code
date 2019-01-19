@@ -9,9 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
-
-import java.io.IOException;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
@@ -59,6 +56,9 @@ public class Drive
      */
     private static Encoder rEncoder;
 
+    /**
+     * The pixycam object
+     */
     private static PixyCam pixy;
 
     /**
@@ -119,21 +119,40 @@ public class Drive
 
     }
 
+    /**
+     * Returns the distance travelled recoreded by the left encoder.
+     * @return
+     *  The distance travelled in inches
+     */
     public static double getLeftDistance()
     {
         return lEncoder.getDistance();
     }
 
+     /**
+     * Returns the distance travelled recoreded by the right encoder.
+     * @return
+     *  The distance travelled in inches
+     */
     public static double getRightDistance()
     {
         return rEncoder.getDistance();
     }
 
+    /**
+     * Returns the Navx yaw.
+     * @return
+     *  The degrees recordede by the Navz yaw
+     */
     public static double getNavxYaw()
     {
         return navx.getYaw();
     }
 
+    /**
+     * Estimates the angle to turn the robot to deliver game pieces
+     * using the white lines in front of the bays.
+     */
     public static void estimateAngle()
     {
         if(pixy.getWidth() != 0)

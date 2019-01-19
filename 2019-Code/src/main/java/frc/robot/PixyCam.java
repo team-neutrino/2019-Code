@@ -51,8 +51,11 @@ public class PixyCam implements Runnable
 	/**
 	 * The height of the object
 	 */
-    private int height;
-    
+  	private int height;
+	
+	/**
+	 * The system time when new data was last processed  
+	 */
     private long timeGot;
 		
 	/**
@@ -112,8 +115,6 @@ public class PixyCam implements Runnable
 
 	/**
 	 * Checks the values using the checksum in index 0 to verify the data is correct.
-	 * @param values
-	 * 	The values that are being checked wit the checksum in index 0
 	 * @return
 	 * 	True if the data is correct, false of the data contains an error
 	 */
@@ -123,7 +124,15 @@ public class PixyCam implements Runnable
 			
 		return sum == checkSum;
     }
-    
+	
+	/**
+	 * Returns whether the pixy is currently tracking an object based
+	 * on if the checkSum is 0 and the last time data was processed.
+	 * 
+	 * @return
+	 * 	True if the pixy has sent non-zero data within
+	 * 	the last 100 milliseconds, false otherwise
+	 */
     public boolean isTracking()
     {
         return checkSum != 0 && System.currentTimeMillis() - timeGot < 100;
@@ -131,16 +140,7 @@ public class PixyCam implements Runnable
 	
 	@Override
 	public void run() 
-	{		
-		try 
-		{
-			Thread.sleep(1000);
-		} 
-		catch (InterruptedException e1) 
-		{
-			e1.printStackTrace();
-		}
-		
+	{				
 		while(true)
 		{
 			byte[] bytes = new byte[2];
@@ -163,10 +163,6 @@ public class PixyCam implements Runnable
 				{
 					startFound = true;
 				}
-			// 	System.out.println("looking");
-			// 	System.out.printf("0x%02X, ", bytes[0]);
-			// 	System.out.printf("0x%02X, ", bytes[1]);
-			// 	System.out.printf("0x%02X, ", ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF)));
 			 }
 
 			pixyConnection.read(true, bytes, 2);
@@ -177,40 +173,23 @@ public class PixyCam implements Runnable
 
 			}
 			
-			//Set values from bytes
+			//Set values from bytes received
 			checkSum = ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
-			//System.out.println(checkSum);
 			
 			pixyConnection.read(true, bytes, 2);
 			signature = ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
-//			System.out.println("signature: ");
-//			System.out.printf("0x%02X, ", bytes[0]);
-//			System.out.printf("0x%02X, ", bytes[1]);
-//
-//			System.out.println(signature);
 			
 			pixyConnection.read(true, bytes, 2);
 			x = ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
-//			System.out.println("x: ");
-//			System.out.printf("0x%02X, ", bytes[0]);
-//			System.out.printf("0x%02X, ", bytes[1]);
-//
-//			System.out.println(x);
 			
 			pixyConnection.read(true, bytes, 2);
 			y = ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
-			//System.out.println(y);
 			
 			pixyConnection.read(true, bytes, 2);
 			width = ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
-			//System.out.println(width);
 
 			pixyConnection.read(true, bytes, 2);
 			height = ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
-			//System.out.println(height);
-
-			//System.out.println(checkData());
-            //System.out.println(signature + ", " + x + ", " + y + ", " + width + ", " + height + ", ");
             
             timeGot = System.currentTimeMillis();
 
