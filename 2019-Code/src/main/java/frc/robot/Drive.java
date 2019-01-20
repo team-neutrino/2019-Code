@@ -153,14 +153,14 @@ public class Drive
      * Estimates the angle to turn the robot to deliver game pieces
      * using the white lines in front of the bays.
      */
-    public static void estimateAngle()
+    public static int estimateAngle()
     {
         if(pixy.getWidth() != 0)
         {
             System.out.println("Width: " + pixy.getWidth() + " Height: " + pixy.getHeight());
 
             double angle = Math.tan((double) pixy.getHeight() / pixy.getWidth() );
-    
+            
             System.out.println("Angle: " + Math.toDegrees(angle));
 
             try
@@ -171,6 +171,9 @@ public class Drive
             {
 
             }
+            return (int) angle;
         }
+
+        return 0;
     }
 }

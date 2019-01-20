@@ -29,6 +29,8 @@ public class Robot extends TimedRobot
    */
   private Joystick  rJoy;
 
+  private boolean initTurn;
+
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -61,15 +63,7 @@ public class Robot extends TimedRobot
   }
 
   /**
-   * This autonomous (along with the chooser code above) shows how to select
-   * between different autonomous modes using the dashboard. The sendable
-   * chooser code works with the Java SmartDashboard. If you prefer the
-   * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-   * getString line to get the auto name from the text box below the Gyro
-   *
-   * <p>You can add additional auto modes by adding additional comparisons to
-   * the switch structure below with additional strings. If using the
-   * SendableChooser make sure to add them to the chooser code above as well.
+   * Called once before the sandstorm period.
    */
   @Override
   public void autonomousInit() 
@@ -92,10 +86,53 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic() 
   {
-    double rPower = -rJoy.getY();
-    double lPower = -lJoy.getY();
-    Drive.setRight(rPower);
-    Drive.setLeft(lPower);
+    if(lJoy.getRawButton(8) || rJoy.getRawButton(6)) //Turn using Pixy
+    {
+      if(initTurn)
+      {
+        int angle = Drive.estimateAngle();
+        if(lJoy.getRawButton(8))
+        {
+          angle = -angle;
+        }
+
+        Drive.turnDegrees(angle);
+        initTurn = false;
+      }
+    }
+    else //Control drive train using joysticks with a dead zone
+    {
+      //Disable PIDs from driver assist
+      if(!initTurn)
+      {
+        //TODO disable turn pid
+        initTurn = true;
+      }
+
+      double rPower = -rJoy.getY();
+      if(Math.abs(rPower) < 0.1)
+      {
+        rPower = 0.0;
+      }
+      Drive.setRight(rPower);
+
+      double lPower = - lJoy.getY();
+      if(Math.abs(lPower) < 0.1)
+      {
+        lPower = 0.0;
+      }
+      Drive.setLeft(lPower);
+    }
+
+    try
+    {
+      Thread.sleep(1);
+    }
+    catch(InterruptedException e)
+    {
+      e.printStackTrace();
+    }
+
   }
 
   /**
