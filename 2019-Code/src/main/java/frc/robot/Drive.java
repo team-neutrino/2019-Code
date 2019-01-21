@@ -8,6 +8,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.SPI;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -19,52 +21,57 @@ import com.kauailabs.navx.frc.AHRS;
  * @author Team Neutrino
  * 
  */
-public class Drive 
+public class Drive implements PIDOutput
 {
     /**
      * The first motor controller for the left side drive train
      */
-    private static TalonSRX lMotor1;
+    private TalonSRX lMotor1;
 
     /**
      * The second motor controller for the left side drive train
      */
-    private static TalonSRX lMotor2;
+    private TalonSRX lMotor2;
 
     /**
      * The first motor controller for the right side drive train
      */
-    private static TalonSRX rMotor1;
+    private TalonSRX rMotor1;
 
     /**
      * The second motor controller for the right side the drive train
      */
-    private static TalonSRX rMotor2;
+    private TalonSRX rMotor2;
 
     /**
      * The navx IMU
      */
-    private static AHRS navx;
+    private AHRS navx;
 
     /**
      * The encoder of the left side drive train
      */
-    private static Encoder lEncoder;
+    private Encoder lEncoder;
 
     /**
      * The encoder of the right side drive train
      */
-    private static Encoder rEncoder;
+    private Encoder rEncoder;
 
     /**
      * The pixycam object
      */
-    private static PixyCam pixy;
+    private PixyCam pixy;
+
+    /**
+     * A PID object that makes the robot turn
+     */
+    private PIDController pid;      
 
     /**
      * Does all setup tasks for the drive train.
      */
-    public static void setup()
+    public void setup()
     {
         lMotor1 = new TalonSRX(0);
         lMotor2 = new TalonSRX(1);
@@ -85,6 +92,11 @@ public class Drive
         rEncoder.reset();
 
         pixy = new PixyCam();
+
+        pid = new PIDController(0.03, 0.0, 0.045, navx, this);
+        pid.setInputRange(-180.0, 180.0);
+        pid.setOutputRange(-1.0, 1.0);
+        pid.setAbsoluteTolerance(2);
     }
 
     /**
@@ -92,7 +104,7 @@ public class Drive
      * @param power
      *  The power to set the motor to from -1 to 1     
      */
-    public static void setLeft(double power)
+    public void setLeft(double power)
     {
         lMotor1.set(ControlMode.PercentOutput, power);
         lMotor2.set(ControlMode.PercentOutput, power);
@@ -103,7 +115,7 @@ public class Drive
      * @param power
      *  The power to set the motor to from -1 to 1     
      */
-    public static void setRight(double power)
+    public void setRight(double power)
     {
         rMotor1.set(ControlMode.PercentOutput, power);
         rMotor2.set(ControlMode.PercentOutput, power);
@@ -114,9 +126,9 @@ public class Drive
      * @param degrees
      *  The amount of degrees to turn from -180 to 180
      */
-    public static void turnDegrees(int degrees)
+    public void turnDegrees(int degrees)
     {
-
+        pid.setSetpoint(degrees);
     }
 
     /**
@@ -124,7 +136,7 @@ public class Drive
      * @return
      *  The distance travelled in inches
      */
-    public static double getLeftDistance()
+    public double getLeftDistance()
     {
         return lEncoder.getDistance();
     }
@@ -134,7 +146,7 @@ public class Drive
      * @return
      *  The distance travelled in inches
      */
-    public static double getRightDistance()
+    public double getRightDistance()
     {
         return rEncoder.getDistance();
     }
@@ -144,7 +156,7 @@ public class Drive
      * @return
      *  The degrees recordede by the Navz yaw
      */
-    public static double getNavxYaw()
+    public double getNavxYaw()
     {
         return navx.getYaw();
     }
@@ -153,7 +165,7 @@ public class Drive
      * Estimates the angle to turn the robot to deliver game pieces
      * using the white lines in front of the bays.
      */
-    public static void estimateAngle()
+    public void estimateAngle()
     {
         if(pixy.getWidth() != 0)
         {
@@ -173,4 +185,12 @@ public class Drive
             }
         }
     }
+
+    @Override
+    public void pidWrite(double output)
+    {
+        setLeft(output); 
+        setRight(-output);
+    }
+
 }

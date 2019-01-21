@@ -28,6 +28,11 @@ public class Robot extends TimedRobot
    * The right drive joystick
    */
   private Joystick  rJoy;
+  
+  /**
+   * A drive class object
+   */
+  private Drive Drive;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -39,6 +44,7 @@ public class Robot extends TimedRobot
     new Thread(new Odometry()).start();
     lJoy = new Joystick(0);
     rJoy = new Joystick(1);
+    Drive = new Drive();
     Drive.setup();
     /*Networking.instance.startClient();
 		Networking.instance.startServer();
@@ -74,7 +80,7 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit() 
   {
-
+    Drive.turnDegrees(90);
   }
 
   /**
