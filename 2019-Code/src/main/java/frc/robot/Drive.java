@@ -165,14 +165,18 @@ public class Drive implements PIDOutput
      * Estimates the angle to turn the robot to deliver game pieces
      * using the white lines in front of the bays.
      */
+<<<<<<< HEAD
     public void estimateAngle()
+=======
+    public static int estimateAngle()
+>>>>>>> e7d1e30a1fb0f4ecfbe8da7ee361289a9c6165db
     {
         if(pixy.getWidth() != 0)
         {
             System.out.println("Width: " + pixy.getWidth() + " Height: " + pixy.getHeight());
 
             double angle = Math.tan((double) pixy.getHeight() / pixy.getWidth() );
-    
+            
             System.out.println("Angle: " + Math.toDegrees(angle));
 
             try
@@ -183,7 +187,10 @@ public class Drive implements PIDOutput
             {
 
             }
+            return (int) angle;
         }
+
+        return 0;
     }
 
     @Override
