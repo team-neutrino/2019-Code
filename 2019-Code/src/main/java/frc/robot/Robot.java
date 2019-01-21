@@ -86,7 +86,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic() 
   {
-    if(lJoy.getRawButton(8) || rJoy.getRawButton(6)) //Turn using Pixy
+    if(lJoy.getRawButton(8) || rJoy.getRawButton(7)) //Turn using Pixy
     {
       if(initTurn)
       {
