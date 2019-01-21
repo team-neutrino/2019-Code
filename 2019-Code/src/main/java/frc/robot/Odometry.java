@@ -12,18 +12,18 @@ package frc.robot;
  */
 public class Odometry implements Runnable
 {
-    private static double positionX;
-	private static double positionY;
+    private double positionX;
+	private double positionY;
 	//Average of the distance traveled by the two wheels since the last time it was calculated
-	private static double totalDistance = 0;
+	private double totalDistance = 0;
 	//Distance traveled by the left wheel, as found by the previous calculation
-	private static double formerLeftDistance = 0;
+	private double formerLeftDistance = 0;
 	//Distance traveled by the right wheel, as found by the previous calculation
-    private static double formerRightDistance = 0;
+    private double formerRightDistance = 0;
 	//Distance traveled by the left wheel since the previous calculation
-	private static double currentLeftDistance = 0;
+	private double currentLeftDistance = 0;
 	//Distance traveled by the left wheel since the previous calculation
-	private static double currentRightDistance = 0;
+	private double currentRightDistance = 0;
 
     @Override
     public void run() 

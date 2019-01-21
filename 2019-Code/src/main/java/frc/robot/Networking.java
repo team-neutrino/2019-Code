@@ -19,11 +19,11 @@ import java.util.Arrays;
  */
 public class Networking 
 {
-    private static NetworkTableInstance instance = NetworkTableInstance.getDefault();
-	private static NetworkTable table = instance.getTable("networkingTest");
-	private static byte[] defaultBytes = new byte[] {};
+    private NetworkTableInstance instance = NetworkTableInstance.getDefault();
+	private NetworkTable table = instance.getTable("networkingTest");
+	private byte[] defaultBytes = new byte[] {};
 	
-	public static void sendBytes(String name, byte[] input) {
+	public void sendBytes(String name, byte[] input) {
 		
 		table.getKeys().add(name); 
 		
@@ -33,7 +33,7 @@ public class Networking
 		
 	}
 	
-	public static byte[] getBytes(String entry) {
+	public byte[] getBytes(String entry) {
 		
 		System.out.println("Returned " + Arrays.toString(table.getEntry(entry).getRaw(defaultBytes)));
 		return table.getEntry(entry).getRaw(defaultBytes);
