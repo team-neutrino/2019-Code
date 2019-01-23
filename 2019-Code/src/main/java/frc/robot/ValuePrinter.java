@@ -12,5 +12,5 @@ package frc.robot;
  */
 public interface ValuePrinter 
 {
-    
+    void print();
 }

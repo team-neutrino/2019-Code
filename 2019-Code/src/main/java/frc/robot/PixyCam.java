@@ -8,6 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Class for the PixyCam that reads data form the serial port and parses data of the 
@@ -16,7 +17,7 @@ import edu.wpi.first.wpilibj.SPI;
  * @author JoelNeppel
  *
  */
-public class PixyCam implements Runnable
+public class PixyCam implements Runnable, ValuePrinter
 {
 	/**
 	 * The pixyCam connection
@@ -69,7 +70,7 @@ public class PixyCam implements Runnable
 		pixyConnection.setClockRate(1000000);
 		pixyConnection.setClockActiveHigh();
 		
-		new Thread(this).start();
+		//new Thread(this).start();
 	}
 	
 	/**
@@ -202,5 +203,14 @@ public class PixyCam implements Runnable
 				e.printStackTrace();
 			}
 		}
+	}
+
+	@Override
+	public void print()
+	{
+		SmartDashboard.putNumber("X", getX());
+		SmartDashboard.putNumber("Y", getY());
+		SmartDashboard.putNumber("Width", getWidth());
+		SmartDashboard.putNumber("Height", getHeight());
 	}
 }

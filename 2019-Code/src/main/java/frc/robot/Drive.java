@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
@@ -21,7 +23,7 @@ import com.kauailabs.navx.frc.AHRS;
  * @author Team Neutrino
  * 
  */
-public class Drive implements PIDOutput
+public class Drive implements PIDOutput, ValuePrinter
 {
     /**
      * The first motor controller for the left side drive train
@@ -69,9 +71,9 @@ public class Drive implements PIDOutput
     private PIDController pid;      
 
     /**
-     * Does all setup tasks for the drive train.
+     * Constructor for the drive train.
      */
-    public void setup()
+    public Drive()
     {
         lMotor1 = new TalonSRX(0);
         lMotor2 = new TalonSRX(1);
@@ -80,18 +82,13 @@ public class Drive implements PIDOutput
 
         navx = new AHRS(SPI.Port.kMXP);
 
+        pixy = new PixyCam();
+
         lEncoder = new Encoder(0, 1);
         rEncoder = new Encoder(2, 3);
-        
-        navx.zeroYaw();
 
         lEncoder.setDistancePerPulse(Math.PI/90);
         rEncoder.setDistancePerPulse(Math.PI/90);
-
-        lEncoder.reset();
-        rEncoder.reset();
-
-        pixy = new PixyCam();
 
         pid = new PIDController(0.03, 0.0, 0.045, navx, this);
         pid.setInputRange(-180.0, 180.0);
@@ -117,8 +114,8 @@ public class Drive implements PIDOutput
      */
     public void setRight(double power)
     {
-        rMotor1.set(ControlMode.PercentOutput, power);
-        rMotor2.set(ControlMode.PercentOutput, power);
+        rMotor1.set(ControlMode.PercentOutput, -power);
+        rMotor2.set(ControlMode.PercentOutput, -power);
     }
 
     /**
@@ -129,6 +126,19 @@ public class Drive implements PIDOutput
     public void turnDegrees(int degrees)
     {
         pid.setSetpoint(degrees);
+        pid.enable();
+        while(!pid.onTarget())
+        {
+            try 
+            {
+                Thread.sleep(1);
+            } 
+            catch (InterruptedException e) 
+            {
+                e.printStackTrace();
+            }
+        }
+        pid.disable();
     }
 
     /**
@@ -165,28 +175,12 @@ public class Drive implements PIDOutput
      * Estimates the angle to turn the robot to deliver game pieces
      * using the white lines in front of the bays.
      */
-<<<<<<< HEAD
-    public void estimateAngle()
-=======
-    public static int estimateAngle()
->>>>>>> e7d1e30a1fb0f4ecfbe8da7ee361289a9c6165db
+    public int estimateAngle()
     {
         if(pixy.getWidth() != 0)
         {
-            System.out.println("Width: " + pixy.getWidth() + " Height: " + pixy.getHeight());
-
             double angle = Math.tan((double) pixy.getHeight() / pixy.getWidth() );
             
-            System.out.println("Angle: " + Math.toDegrees(angle));
-
-            try
-            {
-                Thread.sleep(1000);
-            }
-            catch(InterruptedException e)
-            {
-
-            }
             return (int) angle;
         }
 
@@ -196,8 +190,17 @@ public class Drive implements PIDOutput
     @Override
     public void pidWrite(double output)
     {
-        setLeft(output); 
-        setRight(-output);
+        setLeft(-output); 
+        setRight(output);
     }
 
+    @Override
+    public void print()
+    {
+        SmartDashboard.putNumber("Navx", navx.getYaw());
+        SmartDashboard.putNumber("Left Encoder", lEncoder.getDistance());
+        SmartDashboard.putNumber("Right Encoder", rEncoder.getDistance());
+        SmartDashboard.putNumber("Line Angle", estimateAngle());
+        pixy.print();
+    }
 }

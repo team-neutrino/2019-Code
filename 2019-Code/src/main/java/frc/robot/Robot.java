@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -43,15 +44,28 @@ public class Robot extends TimedRobot
   @Override
   public void robotInit() 
   {
-    new Thread(new Odometry()).start();
     lJoy = new Joystick(0);
     rJoy = new Joystick(1);
     Drive = new Drive();
-    Drive.setup();
-    /*Networking.instance.startClient();
-		Networking.instance.startServer();
-		Networking.sendBytes("test", "3928".getBytes());
-		System.out.print(Arrays.toString(Fak3Drive.getRaw("test")));*/
+        
+    new Thread(() -> 
+    { 
+      while(true)
+      {
+        SmartDashboard.putNumber("Left Joystick", lJoy.getY());
+        SmartDashboard.putNumber("Right Joystick", rJoy.getY());
+        Drive.print();
+
+        try
+        {
+          Thread.sleep(500);
+        }
+        catch(InterruptedException e)
+        {
+          e.printStackTrace();
+        }
+      }
+    }).start();
   }
 
   /**
@@ -65,7 +79,7 @@ public class Robot extends TimedRobot
   @Override
   public void robotPeriodic()  
   {
-    Drive.estimateAngle();
+
   }
 
   /**

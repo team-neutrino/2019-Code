@@ -24,6 +24,15 @@ public class Odometry implements Runnable
 	private double currentLeftDistance = 0;
 	//Distance traveled by the left wheel since the previous calculation
 	private double currentRightDistance = 0;
+	private Drive Drive;
+
+	/**
+	 * Constructor for the odometry to use the given drive class.
+	 */
+	public Odometry(Drive drive)
+	{
+		Drive = drive;
+	}
 
     @Override
     public void run() 
