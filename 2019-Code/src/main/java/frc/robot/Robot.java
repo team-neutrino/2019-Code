@@ -7,8 +7,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.hal.sim.RoboRioSim;
-import edu.wpi.first.hal.sim.mockdata.RoboRioDataJNI;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -58,14 +56,7 @@ public class Robot extends TimedRobot
                 SmartDashboard.putNumber("Right Joystick", rJoy.getY());
                 Drive.print();
 
-                try
-                {
-                    Thread.sleep(500);
-                }
-                catch(InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
+                Util.threadSleep(500);
             }
         }).start();
     }
@@ -146,14 +137,7 @@ public class Robot extends TimedRobot
             Drive.setLeft(lPower);
         }
 
-        try
-        {
-            Thread.sleep(1);
-        }
-        catch(InterruptedException e)
-        {
-            e.printStackTrace();
-        }
+        Util.threadSleep(1);
     }
 
     /**

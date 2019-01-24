@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
- * Class for the PixyCam that reads data form the serial port and parses data of the 
+ * Class for the PixyCam that reads data form the SPI and parses data of the 
  * object being tracked.
  * 
  * @author JoelNeppel
@@ -112,7 +112,6 @@ public class PixyCam implements Runnable, ValuePrinter
 	{
 		return height;
 	}
-	
 
 	/**
 	 * Checks the values using the checksum in index 0 to verify the data is correct.
@@ -150,14 +149,8 @@ public class PixyCam implements Runnable, ValuePrinter
 			boolean startFound = false;
 			while(!startFound)
 			{
-				try 
-				{
-					Thread.sleep(10);
-				} 
-				catch (InterruptedException e) 
-				{
-					e.printStackTrace();
-				}
+				Util.threadSleep(1);
+
 				pixyConnection.read(true, bytes, 2);
 				
 				if(((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF)) == 0xaa55)
@@ -194,14 +187,7 @@ public class PixyCam implements Runnable, ValuePrinter
             
             timeGot = System.currentTimeMillis();
 
-			try 
-			{
-				Thread.sleep(1);
-			}
-			catch (InterruptedException e) 
-			{
-				e.printStackTrace();
-			}
+			Util.threadSleep(1);
 		}
 	}
 

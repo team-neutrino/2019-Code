@@ -9,8 +9,13 @@ package frc.robot;
 
 /**
  * Interface for the value printer.
+ * 
+ * @author Team Neutrino
  */
 public interface ValuePrinter 
 {
+    /**
+     * Prints all values wanted to the SmartDashboard.
+     */
     void print();
 }

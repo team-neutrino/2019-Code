@@ -129,14 +129,7 @@ public class Drive implements PIDOutput, ValuePrinter
         pid.enable();
         while(!pid.onTarget())
         {
-            try 
-            {
-                Thread.sleep(1);
-            } 
-            catch (InterruptedException e) 
-            {
-                e.printStackTrace();
-            }
+            Util.threadSleep(1);
         }
         pid.disable();
     }
