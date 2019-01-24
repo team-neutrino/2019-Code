@@ -60,7 +60,7 @@ public class PixyCam implements Runnable, ValuePrinter
     private long timeGot;
 		
 	/**
-	 * Constructs a pixyCam connected to the serial port with a buffer size of 100.
+	 * Constructs a pixyCam connected to the SPI with a buffer size of 100.
 	 */
 	public PixyCam()
 	{
@@ -208,9 +208,10 @@ public class PixyCam implements Runnable, ValuePrinter
 	@Override
 	public void print()
 	{
-		SmartDashboard.putNumber("X", getX());
-		SmartDashboard.putNumber("Y", getY());
-		SmartDashboard.putNumber("Width", getWidth());
-		SmartDashboard.putNumber("Height", getHeight());
+		SmartDashboard.putBoolean("Pixy Tracking", isTracking());
+		SmartDashboard.putNumber("X", x);
+		SmartDashboard.putNumber("Y", y);
+		SmartDashboard.putNumber("Width", width);
+		SmartDashboard.putNumber("Height", height);
 	}
 }
