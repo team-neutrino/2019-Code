@@ -24,7 +24,10 @@ public class Odometry implements Runnable
 	private double currentLeftDistance = 0;
 	//Distance traveled by the left wheel since the previous calculation
 	private double currentRightDistance = 0;
+	//Drive class reference
 	private Drive Drive;
+	//Whether this is the first frame the program is running
+	private boolean firstFrame = true;
 
 	/**
 	 * Constructor for the odometry to use the given drive class.
@@ -37,6 +40,10 @@ public class Odometry implements Runnable
     @Override
     public void run() 
     {
+		if(firstFrame){
+			Drive.resetNavx();
+			firstFrame = false;
+		}
     	currentRightDistance = Drive.getRightDistance()-formerRightDistance;
 		currentLeftDistance = Drive.getLeftDistance()-formerLeftDistance;
 		formerLeftDistance = Drive.getLeftDistance();

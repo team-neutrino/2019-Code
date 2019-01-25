@@ -164,6 +164,11 @@ public class Drive implements PIDOutput, ValuePrinter
         return navx.getYaw();
     }
 
+    public void resetNavx()
+    {
+        navx.reset();
+    }
+
     /**
      * Estimates the angle to turn the robot to deliver game pieces
      * using the white lines in front of the bays.
