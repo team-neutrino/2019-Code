@@ -8,13 +8,14 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Controller for the LEDs through the PCM.
  * 
  * @author JoelNeppel
  */
-public class LEDController implements Runnable
+public class LEDController implements Runnable, ValuePrinter
 {
     /**
      * Enum for the LED control mode
@@ -136,6 +137,12 @@ public class LEDController implements Runnable
     public void setMode(Mode mode)
     {
         this.mode = mode;
+    }
+
+    @Override
+    public void print()
+    {
+        SmartDashboard.putString("LED State", mode.toString());
     }
 
     @Override
