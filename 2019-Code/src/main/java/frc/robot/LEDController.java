@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.Solenoid;
  * 
  * @author JoelNeppel
  */
-public class LEDController extends Thread
+public class LEDController implements Runnable
 {
     /**
      * Enum for the LED control mode
@@ -52,6 +52,11 @@ public class LEDController extends Thread
     private int numPulses;
 
     /**
+     * The mode the LEDs are in
+     */
+    private Mode mode;
+
+    /**
      * Constructor for an LED Controller with the given parameters.
      * @param channel
      *  The PCM channel the LEDs are plugged into
@@ -69,11 +74,13 @@ public class LEDController extends Thread
     public LEDController(int channel, Mode mode, int interval, int onTime, int offTime, int numPulses)
     {
         ledPort = new Solenoid(channel);
-        setMode(mode);
+        this.mode = mode;
         this.interval = interval;
         this.onTime = onTime;
         this.offTime = offTime;
         this.numPulses = numPulses;
+
+        new Thread(this).start();
     }
 
     /**
@@ -128,33 +135,34 @@ public class LEDController extends Thread
      */
     public void setMode(Mode mode)
     {
-        if(mode == Mode.ON)
-        {
-            interrupt();
-            ledPort.set(true);
-        }
-        if(mode == Mode.OFF)
-        {
-            interrupt();
-            ledPort.set(false);
-        }
-        else
-        {
-            start();
-        }
+        this.mode = mode;
     }
 
     @Override
     public void run()
     {
-        for(int i = 0; i < numPulses; i++)
+        while(true)
         {
-            ledPort.set(true);
-            Util.threadSleep(onTime);
-            ledPort.set(false);
-            Util.threadSleep(offTime);
-        }
+            if(mode == Mode.FLASH)
+            {
+                for(int i = 0; i < numPulses; i++)
+                {
+                    ledPort.set(true);
+                    Util.threadSleep(onTime);
+                    ledPort.set(false);
+                    Util.threadSleep(offTime);
+                }
+            }
+            else if(mode == Mode.ON)
+            {
+                ledPort.set(true);
+            }
+            else
+            {
+                ledPort.set(false);
+            }
 
-        Util.threadSleep(Math.max(0, interval - offTime));
+            Util.threadSleep(Math.max(0, interval - offTime) + 1);
+        }
     }
 }

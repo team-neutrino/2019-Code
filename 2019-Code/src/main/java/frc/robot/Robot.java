@@ -37,6 +37,8 @@ public class Robot extends TimedRobot
 
     private boolean initTurn;
 
+    private LEDController white;
+
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -48,6 +50,8 @@ public class Robot extends TimedRobot
         rJoy = new Joystick(1);
         Drive = new Drive();
         
+        white = new LEDController(3);
+
         new Thread(() -> 
         { 
             while(true)
@@ -59,6 +63,8 @@ public class Robot extends TimedRobot
                 Util.threadSleep(500);
             }
         }).start();
+
+        
     }
 
     /**
@@ -99,6 +105,19 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic() 
     {
+        if(rJoy.getRawButton(1))
+        {
+            white.setMode(LEDController.Mode.FLASH);
+        }
+        else if(rJoy.getRawButton(2))
+        {
+            white.setMode(LEDController.Mode.ON);
+        }
+        else if(rJoy.getRawButton(3))
+        {
+            white.setMode(LEDController.Mode.OFF);            
+        }
+
         if(lJoy.getRawButton(8) || rJoy.getRawButton(7)) //Turn using Pixy
         {
             if(initTurn)

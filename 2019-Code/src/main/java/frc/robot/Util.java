@@ -23,7 +23,7 @@ public class Util
     {
         try 
 		{
-			Thread.sleep(millis);
+			Thread.sleep(Math.max(0, millis));
 		} 
 		catch (InterruptedException e) 
 		{
