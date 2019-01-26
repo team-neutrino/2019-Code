@@ -49,11 +49,11 @@ public class Robot extends TimedRobot
     @Override
     public void robotInit() 
     {
-        lJoy = new Joystick(0);
-        rJoy = new Joystick(1);
+        lJoy = new Joystick(Constants.LEFT_JOYSTICK_PORT);
+        rJoy = new Joystick(Constants.RIGHT_JOYSTICK_PORT);
         Drive = new Drive();
         
-        white = new LEDController(3, LEDController.Mode.ON);
+        white = new LEDController(Constants.LED_CONTROLLER_PORT, LEDController.Mode.ON);
 
         new Thread(() -> 
         { 

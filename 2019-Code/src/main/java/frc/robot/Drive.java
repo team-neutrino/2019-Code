@@ -75,25 +75,25 @@ public class Drive implements PIDOutput, ValuePrinter
      */
     public Drive()
     {
-        lMotor1 = new TalonSRX(0);
-        lMotor2 = new TalonSRX(1);
-        rMotor1 = new TalonSRX(2);
-        rMotor2 = new TalonSRX(3);
+        lMotor1 = new TalonSRX(Constants.LEFT_MOTOR_ONE_PORT);
+        lMotor2 = new TalonSRX(Constatns.LEFT_MOTOR_TWO_PORT);
+        rMotor1 = new TalonSRX(Constants.RIGHT_MOTOR_ONE_PORT);
+        rMotor2 = new TalonSRX(Constants.RIGHT_MOTOR_TWO_PORT);
 
-        navx = new AHRS(SPI.Port.kMXP);
+        navx = new AHRS(Constants.NAVX_PORT);
 
         pixy = new PixyCam();
 
-        lEncoder = new Encoder(0, 1);
-        rEncoder = new Encoder(2, 3);
+        lEncoder = new Encoder(Constants.LEFT_ENCODER_PORT_ONE, Constants.LEFT_ENCODER_PORT_TWO);
+        rEncoder = new Encoder(Constants.RIGHT_ENCODER_PORT_ONE, Constants.RIGHT_ENCODER_PORT_TWO);
 
-        lEncoder.setDistancePerPulse(Math.PI/90);
-        rEncoder.setDistancePerPulse(Math.PI/90);
+        lEncoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);
+        rEncoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);
 
-        pid = new PIDController(0.03, 0.0, 0.045, navx, this);
+        pid = new PIDController(Constants.PID_P, Constants.PID_I, Constants.PID_D, navx, this);
         pid.setInputRange(-180.0, 180.0);
         pid.setOutputRange(-1.0, 1.0);
-        pid.setAbsoluteTolerance(2);
+        pid.setAbsoluteTolerance(Constants.PID_TOLERANCE);
     }
 
     /**
