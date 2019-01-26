@@ -159,9 +159,9 @@ public class Drive implements PIDOutput, ValuePrinter
      * @return
      *  The degrees recordede by the Navz yaw
      */
-    public double getNavxYaw()
+    public double getNavxAngle()
     {
-        return navx.getYaw();
+        return navx.getAngle();
     }
 
     public void resetNavx()
