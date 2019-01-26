@@ -177,9 +177,9 @@ public class Drive implements PIDOutput, ValuePrinter
     {
         if(pixy.getWidth() != 0)
         {
-            double angle = Math.tan((double) pixy.getHeight() / pixy.getWidth() );
-            
-            return (int) angle;
+            double angle = Math.tanh((double) (pixy.getHeight()) / pixy.getWidth());
+
+            return (int) Math.toDegrees(angle);
         }
 
         return 0;

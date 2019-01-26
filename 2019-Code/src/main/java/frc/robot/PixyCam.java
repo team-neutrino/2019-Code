@@ -70,7 +70,7 @@ public class PixyCam implements Runnable, ValuePrinter
 		pixyConnection.setClockRate(1000000);
 		pixyConnection.setClockActiveHigh();
 		
-		//new Thread(this).start();
+		new Thread(this).start();
 	}
 	
 	/**
@@ -198,6 +198,6 @@ public class PixyCam implements Runnable, ValuePrinter
 		SmartDashboard.putNumber("X", x);
 		SmartDashboard.putNumber("Y", y);
 		SmartDashboard.putNumber("Width", width);
-		SmartDashboard.putNumber("Height", height);
-	}
+        SmartDashboard.putNumber("Height", height);
+    }
 }
