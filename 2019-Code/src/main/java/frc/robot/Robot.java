@@ -117,16 +117,17 @@ public class Robot extends TimedRobot
                     angle = -angle;
                 }
 
-                Drive.turnDegrees(angle);
                 initTurn = false;
+                Drive.beginTurn(angle);
             }
+
         }
         else //Control drive train using joysticks with a dead zone
         {
             //Disable PIDs from driver assist
             if(!initTurn)
             {
-                //TODO disable turn pid
+                Drive.disablePID();
                 initTurn = true;
             }
 
@@ -143,6 +144,9 @@ public class Robot extends TimedRobot
                 lPower = 0.0;
             }
             Drive.setLeft(lPower);
+
+            
+
         }
 
         Util.threadSleep(1);

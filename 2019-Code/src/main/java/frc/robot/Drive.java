@@ -10,7 +10,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -76,7 +75,7 @@ public class Drive implements PIDOutput, ValuePrinter
     public Drive()
     {
         lMotor1 = new TalonSRX(Constants.LEFT_MOTOR_ONE_PORT);
-        lMotor2 = new TalonSRX(Constatns.LEFT_MOTOR_TWO_PORT);
+        lMotor2 = new TalonSRX(Constants.LEFT_MOTOR_TWO_PORT);
         rMotor1 = new TalonSRX(Constants.RIGHT_MOTOR_ONE_PORT);
         rMotor2 = new TalonSRX(Constants.RIGHT_MOTOR_TWO_PORT);
 
@@ -119,19 +118,15 @@ public class Drive implements PIDOutput, ValuePrinter
     }
 
     /**
-     * Turns the robot the given amount of degrees.
+     * Zeros the yaw and turns the robot the given amount of degrees.
      * @param degrees
      *  The amount of degrees to turn from -180 to 180
      */
-    public void turnDegrees(int degrees)
+    public void beginTurn(double degrees)
     {
+        navx.zeroYaw();
         pid.setSetpoint(degrees);
         pid.enable();
-        while(!pid.onTarget())
-        {
-            Util.threadSleep(1);
-        }
-        pid.disable();
     }
 
     /**
@@ -200,5 +195,13 @@ public class Drive implements PIDOutput, ValuePrinter
         SmartDashboard.putNumber("Right Encoder", rEncoder.getDistance());
         SmartDashboard.putNumber("Line Angle", estimateAngle());
         pixy.print();
+    }
+
+    /**
+     * Disables the PID thread
+     */
+    public void disablePID()
+    {
+        pid.disable();
     }
 }
