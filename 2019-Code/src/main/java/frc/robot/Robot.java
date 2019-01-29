@@ -53,8 +53,9 @@ public class Robot extends TimedRobot
         rJoy = new Joystick(Constants.RIGHT_JOYSTICK_PORT);
         Drive = new Drive();
         
-        white = new LEDController(Constants.LED_CONTROLLER_PORT, LEDController.Mode.ON);
+        white = new LEDController(Constants.WHITE_LED_PORT, LEDController.Mode.ON);
 
+        //Thread for printing to Smart Dashboard
         new Thread(() -> 
         { 
             while(true)
@@ -89,7 +90,7 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit() 
     {
-        Drive.turnDegrees(90);
+        Drive.beginTurn(90);
     }
 
     /**
@@ -144,9 +145,6 @@ public class Robot extends TimedRobot
                 lPower = 0.0;
             }
             Drive.setLeft(lPower);
-
-            
-
         }
 
         Util.threadSleep(1);

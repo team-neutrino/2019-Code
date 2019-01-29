@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /**
  * Controller for the LEDs through the PCM.
  * 
+ * Warning: Make sure PCM is in 12V mode to prevent damage to LEDs
+ * 
  * @author JoelNeppel
  */
 public class LEDController implements Runnable, ValuePrinter

@@ -152,16 +152,27 @@ public class Drive implements PIDOutput, ValuePrinter
     /**
      * Returns the Navx yaw.
      * @return
-     *  The degrees recordede by the Navz yaw
+     *  The degrees recorded by the Navz yaw
      */
     public double getNavxAngle()
     {
         return navx.getAngle();
     }
 
+    /**
+     * Resets the Navx.
+     */
     public void resetNavx()
     {
         navx.reset();
+    }
+
+    /**
+     * Disables the PID thread.
+     */
+    public void disablePID()
+    {
+        pid.disable();
     }
 
     /**
@@ -195,13 +206,5 @@ public class Drive implements PIDOutput, ValuePrinter
         SmartDashboard.putNumber("Right Encoder", rEncoder.getDistance());
         SmartDashboard.putNumber("Line Angle", estimateAngle());
         pixy.print();
-    }
-
-    /**
-     * Disables the PID thread
-     */
-    public void disablePID()
-    {
-        pid.disable();
     }
 }

@@ -65,7 +65,7 @@ public class PixyCam implements Runnable, ValuePrinter
 	public PixyCam()
 	{
 		pixyConnection = new SPI(Constants.PIXY_PORT);
-		pixyConnection.initAuto(Constants.PIXY_INIT_AUTO);
+		pixyConnection.initAuto(Constants.PIXY_BUFFER_SIZE);
 		pixyConnection.setMSBFirst();
 		pixyConnection.setClockRate(Constants.PIXY_CLOCKRATE);
 		pixyConnection.setClockActiveHigh();
