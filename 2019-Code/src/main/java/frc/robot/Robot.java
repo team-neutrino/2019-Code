@@ -42,6 +42,8 @@ public class Robot extends TimedRobot
      */
     private LEDController white;
 
+    private Odometry odometry;
+
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -55,6 +57,7 @@ public class Robot extends TimedRobot
         
         white = new LEDController(Constants.WHITE_LED_PORT, LEDController.Mode.ON);
 
+        odometry = new Odometry(Drive);
         //Thread for printing to Smart Dashboard
         new Thread(() -> 
         { 

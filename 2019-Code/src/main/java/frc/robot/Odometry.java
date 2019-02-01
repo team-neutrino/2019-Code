@@ -35,22 +35,27 @@ public class Odometry implements Runnable
 	public Odometry(Drive drive)
 	{
 		Drive = drive;
+		new Thread(this).start();
 	}
 
     @Override
     public void run() 
     {
-		if(firstFrame){
-			Drive.resetNavx();
-			firstFrame = false;
+		while(true)
+		{
+			if(firstFrame)
+			{
+				Drive.resetNavx();
+				firstFrame = false;
+			}
+			currentRightDistance = Drive.getRightDistance()-formerRightDistance;
+			currentLeftDistance = Drive.getLeftDistance()-formerLeftDistance;
+			formerLeftDistance = Drive.getLeftDistance();
+			formerRightDistance = Drive.getRightDistance();
+			totalDistance = (currentLeftDistance + currentRightDistance)/2;
+			positionX += totalDistance * Math.sin(Drive.getNavxAngle());
+			positionY += totalDistance * Math.cos(Drive.getNavxAngle());
+			System.out.println(Drive.getNavxAngle());
 		}
-    		currentRightDistance = Drive.getRightDistance()-formerRightDistance;
-		currentLeftDistance = Drive.getLeftDistance()-formerLeftDistance;
-		formerLeftDistance = Drive.getLeftDistance();
-		formerRightDistance = Drive.getRightDistance();
-		totalDistance = (currentLeftDistance + currentRightDistance)/2;
-		positionX += totalDistance * Math.sin(Drive.getNavxAngle());
-		positionY += totalDistance * Math.cos(Drive.getNavxAngle());
-		System.out.println(positionX + ", " + positionY);
 	}
 }
