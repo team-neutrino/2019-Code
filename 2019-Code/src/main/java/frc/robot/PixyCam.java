@@ -35,12 +35,12 @@ public class PixyCam implements Runnable, ValuePrinter
 	private int signature;
 	
 	/**
-	 * The x coordinate of the object
+	 * The x coordinate of the object's center
 	 */
 	private int x;
 	
 	/**
-	 * The y coordinate of the object
+	 * The y coordinate of the object's center
 	 */
 	private int y;
 	

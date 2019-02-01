@@ -31,10 +31,14 @@ public class Robot extends TimedRobot
     private Joystick  rJoy;
   
     /**
-     * A drive class object
+     * The drive object
      */
-    private Drive Drive;
+    private Drive drive;
 
+    /**
+     * Flag for the beginning of turn used to begin turn 
+     * and disable PID when turn is finished
+     */
     private boolean initTurn;
 
     /**
@@ -42,6 +46,9 @@ public class Robot extends TimedRobot
      */
     private LEDController white;
 
+    /**
+     * The odometry object
+     */
     private Odometry odometry;
 
     /**
@@ -53,11 +60,12 @@ public class Robot extends TimedRobot
     {
         lJoy = new Joystick(Constants.LEFT_JOYSTICK_PORT);
         rJoy = new Joystick(Constants.RIGHT_JOYSTICK_PORT);
-        Drive = new Drive();
+        drive = new Drive();
         
         white = new LEDController(Constants.WHITE_LED_PORT, LEDController.Mode.ON);
 
-        odometry = new Odometry(Drive);
+        odometry = new Odometry(drive);
+
         //Thread for printing to Smart Dashboard
         new Thread(() -> 
         { 
@@ -65,7 +73,7 @@ public class Robot extends TimedRobot
             {
                 SmartDashboard.putNumber("Left Joystick", lJoy.getY());
                 SmartDashboard.putNumber("Right Joystick", rJoy.getY());
-                Drive.print();
+                drive.print();
                 white.print();
 
                 Util.threadSleep(500);
@@ -93,7 +101,7 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit() 
     {
-        Drive.beginTurn(90);
+        drive.beginTurn(90);
     }
 
     /**
@@ -115,14 +123,14 @@ public class Robot extends TimedRobot
         {
             if(initTurn)
             {
-                int angle = Drive.estimateAngle();
+                int angle = drive.estimateAngle();
                 if(lJoy.getRawButton(8))
                 {
                     angle = -angle;
                 }
 
                 initTurn = false;
-                Drive.beginTurn(angle);
+                drive.beginTurn(angle);
             }
 
         }
@@ -131,7 +139,7 @@ public class Robot extends TimedRobot
             //Disable PIDs from driver assist
             if(!initTurn)
             {
-                Drive.disablePID();
+                drive.disablePID();
                 initTurn = true;
             }
 
@@ -140,14 +148,14 @@ public class Robot extends TimedRobot
             {
                 rPower = 0.0;
             }
-            Drive.setRight(rPower);
+            drive.setRight(rPower);
 
             double lPower = - lJoy.getY();
             if(Math.abs(lPower) < 0.1)
             {
                 lPower = 0.0;
             }
-            Drive.setLeft(lPower);
+            drive.setLeft(lPower);
         }
 
         Util.threadSleep(1);

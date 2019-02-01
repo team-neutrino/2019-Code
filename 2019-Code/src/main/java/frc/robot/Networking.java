@@ -23,20 +23,18 @@ public class Networking
 	private NetworkTable table = instance.getTable("networkingTest");
 	private byte[] defaultBytes = new byte[] {};
 	
-	public void sendBytes(String name, byte[] input) {
-		
+	public void sendBytes(String name, byte[] input) 
+	{
 		table.getKeys().add(name); 
 		
 		table.getEntry(name).setRaw(input);
 		
 		System.out.println("Set " + Arrays.toString(input));
-		
 	}
 	
-	public byte[] getBytes(String entry) {
-		
+	public byte[] getBytes(String entry) 
+	{
 		System.out.println("Returned " + Arrays.toString(table.getEntry(entry).getRaw(defaultBytes)));
 		return table.getEntry(entry).getRaw(defaultBytes);
-		
 	}
 }

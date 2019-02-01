@@ -8,7 +8,7 @@
 package frc.robot;
 
 /**
- * Utility class for Thread.sleep() without having try catch.
+ * Utility class for Thread.sleep() without having a try catch block.
  * 
  * @author Team Neutrino
  */
