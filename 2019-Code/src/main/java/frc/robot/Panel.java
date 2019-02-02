@@ -34,11 +34,17 @@ public class Panel {
         hold = new Solenoid(7);
     }
 
+    /**
+     * Turns the "push" Solenoid on or off
+     */
     public void togglePushSolenoid()
     {
         push.set(!push.get());
     }
 
+    /**
+     * Turns the "push" Solenoid on or off
+     */
     public void toggleHoldSolenoid()
     {
         hold.set(!hold.get());
