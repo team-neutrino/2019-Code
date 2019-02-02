@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import javax.net.ssl.TrustManager;
+
 import edu.wpi.first.wpilibj.Solenoid;
 
 /**
@@ -30,6 +32,16 @@ public class Panel {
     {
         push = new Solenoid(5);
         hold = new Solenoid(7);
+    }
+
+    public void togglePushSolenoid()
+    {
+        push.set(!push.get());
+    }
+
+    public void toggleHoldSolenoid()
+    {
+        hold.set(!hold.get());
     }
 
 }
