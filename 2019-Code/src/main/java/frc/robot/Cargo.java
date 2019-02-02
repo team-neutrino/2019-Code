@@ -10,9 +10,12 @@ package frc.robot;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
+import edu.wpi.first.wpilibj.PIDSourceType;
+
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 
 /**
  * Add your docs here.
@@ -35,6 +38,10 @@ public class Cargo implements PIDSource, PIDOutput, ValuePrinter {
      * Controls the arm position
      */
     private PIDController pid;
+    /**
+     * A the type returned by getPIDSourceType
+     */
+    private PIDSourceType type;
 
     /**
      * Contructor for the cargo manipulator. Port numbers are not final.
@@ -48,6 +55,18 @@ public class Cargo implements PIDSource, PIDOutput, ValuePrinter {
         pid.setAbsoluteTolerance(3);
         pid.setInputRange(0, 200);
         pid.setOutputRange(-1, 1);
+    }
+
+    @Override
+    public PIDSourceType getPIDSourceType()
+    {
+        return type;
+    }
+
+    @Override
+    public void setPIDSourceType(PIDSourceType sourceType)
+    {
+        type = sourceType;
     }
 
     @Override
@@ -69,7 +88,7 @@ public class Cargo implements PIDSource, PIDOutput, ValuePrinter {
      */
     public void setIntake(double power)
     {
-        intakeMotor.Set(ControlMode.PercentOutput, power);
+        intakeMotor.set(ControlMode.PercentOutput, power);
     }
 
     public void print(){
