@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * @author JoelNeppel
  *
  */
-public class PixyCam implements Runnable, ValuePrinter
+public class PixyCam implements Runnable
 {
 	/**
 	 * The pixyCam connection
@@ -70,6 +70,16 @@ public class PixyCam implements Runnable, ValuePrinter
 		pixyConnection.setClockRate(Constants.PIXY_CLOCKRATE);
 		pixyConnection.setClockActiveHigh();
 		
+		new ValuePrinter(()->
+		{
+			SmartDashboard.putBoolean("Pixy Tracking", isTracking());
+			SmartDashboard.putNumber("X", x);
+			SmartDashboard.putNumber("Y", y);
+			SmartDashboard.putNumber("Width", width);
+			SmartDashboard.putNumber("Height", height);
+		}, 
+		ValuePrinter.HIGH_PRIORITY);
+
 		new Thread(this).start();
 	}
 	
@@ -190,14 +200,4 @@ public class PixyCam implements Runnable, ValuePrinter
 			Util.threadSleep(1);
 		}
 	}
-
-	@Override
-	public void print()
-	{
-		SmartDashboard.putBoolean("Pixy Tracking", isTracking());
-		SmartDashboard.putNumber("X", x);
-		SmartDashboard.putNumber("Y", y);
-		SmartDashboard.putNumber("Width", width);
-        SmartDashboard.putNumber("Height", height);
-    }
 }

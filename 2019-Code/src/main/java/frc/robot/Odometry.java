@@ -12,18 +12,21 @@ package frc.robot;
  */
 public class Odometry implements Runnable
 {
+	//TODO java doc style comments /** */
+	//TODO integrate with Lidar & make image/map
+	
     private double positionX;
 	private double positionY;
 	//Average of the distance traveled by the two wheels since the last time it was calculated
-	private double totalDistance = 0;
+	private double totalDistance;
 	//Distance traveled by the left wheel, as found by the previous calculation
-	private double formerLeftDistance = 0;
+	private double formerLeftDistance;
 	//Distance traveled by the right wheel, as found by the previous calculation
-    private double formerRightDistance = 0;
+    private double formerRightDistance;
 	//Distance traveled by the left wheel since the previous calculation
-	private double currentLeftDistance = 0;
+	private double currentLeftDistance;
 	//Distance traveled by the left wheel since the previous calculation
-	private double currentRightDistance = 0;
+	private double currentRightDistance;
 	//Drive class reference
 	private Drive Drive;
 	//Whether this is the first frame the program is running

@@ -19,6 +19,7 @@ import java.util.Arrays;
  */
 public class Networking 
 {
+	//TODO comments 
     private NetworkTableInstance instance = NetworkTableInstance.getDefault();
 	private NetworkTable table = instance.getTable("networkingTest");
 	private byte[] defaultBytes = new byte[] {};

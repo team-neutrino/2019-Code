@@ -62,23 +62,18 @@ public class Robot extends TimedRobot
         rJoy = new Joystick(Constants.RIGHT_JOYSTICK_PORT);
         drive = new Drive();
         
+        //TODO turn on only when needed
         white = new LEDController(Constants.WHITE_LED_PORT, LEDController.Mode.ON);
 
+        //TODO do stuff with odometry
         odometry = new Odometry(drive);
 
-        //Thread for printing to Smart Dashboard
-        new Thread(() -> 
-        { 
-            while(true)
-            {
-                SmartDashboard.putNumber("Left Joystick", lJoy.getY());
-                SmartDashboard.putNumber("Right Joystick", rJoy.getY());
-                drive.print();
-                white.print();
-
-                Util.threadSleep(500);
-            }
-        }).start();      
+        new ValuePrinter(()->
+        {
+            SmartDashboard.putNumber("Left Joystick", lJoy.getY());
+            SmartDashboard.putNumber("Right Joystick", rJoy.getY());
+        }, 
+        ValuePrinter.NORMAL_PRIORITY);    
     }
 
     /**

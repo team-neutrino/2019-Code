@@ -30,9 +30,9 @@ public class Constants
     public static final double PID_TOLERANCE = 2;
 
     public static final SPI.Port NAVX_PORT = SPI.Port.kMXP;
-    public static final SPI.Port PIXY_PORT = SPI.Port.kOnboardCS0; 
 
     //Pixy
+    public static final SPI.Port PIXY_PORT = SPI.Port.kOnboardCS0; 
     public static final int PIXY_BUFFER_SIZE = 100;
     public static final int PIXY_CLOCKRATE = 1000000;
 }

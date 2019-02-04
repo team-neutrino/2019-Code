@@ -7,19 +7,20 @@
 
 package frc.robot;
 
-import javax.net.ssl.TrustManager;
-
 import edu.wpi.first.wpilibj.Solenoid;
 
 /**
  * Add your docs here.
  */
-public class Panel {
+public class Panel 
+{    
+    //TODO look into DoubleSolenoid
     
     /**
      * Pushes panels. Name not final.
      */
     private Solenoid push;
+   
     /**
      * Holds panels in place. Name not final.
      */
@@ -32,6 +33,12 @@ public class Panel {
     {
         push = new Solenoid(5);
         hold = new Solenoid(7);
+
+        new ValuePrinter(()->
+        {
+            //TODO print values to SmartDashboard
+        }, 
+        ValuePrinter.NORMAL_PRIORITY);
     }
 
     /**
@@ -49,5 +56,4 @@ public class Panel {
     {
         hold.set(!hold.get());
     }
-
 }

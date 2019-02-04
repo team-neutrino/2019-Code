@@ -18,26 +18,30 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 /**
- * Add your docs here.
+ * Class for the cargo arm abd roller intake
  */
-public class Cargo implements PIDSource, PIDOutput, ValuePrinter {
-
+public class Cargo implements PIDSource, PIDOutput
+{
     /**
      * Controls the intake/output of cargo
      */
     private TalonSRX intakeMotor;
+    
     /**
-     * Moves the arm
+     * Motor that controls the arm
      */
     private TalonSRX armMotor;
+    
     /**
-     * Encoder attatched to the motor that moves the arm
+     * Encoder for the arm
      */
     private AnalogPotentiometer armEncoder;
+    
     /**
      * Controls the arm position
      */
     private PIDController pid;
+    
     /**
      * A the type returned by getPIDSourceType
      */
@@ -55,7 +59,25 @@ public class Cargo implements PIDSource, PIDOutput, ValuePrinter {
         pid.setAbsoluteTolerance(3);
         pid.setInputRange(0, 200);
         pid.setOutputRange(-1, 1);
+
+        new ValuePrinter(()-> 
+        {
+            SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
+        }, 
+        ValuePrinter.NORMAL_PRIORITY);
     }
+
+    /**
+     * Sets the power of the intake/output motor
+     * @param power
+     * The power to set
+     */
+    public void setIntake(double power)
+    {
+        intakeMotor.set(ControlMode.PercentOutput, power);
+    }
+
+    //TODO set arm position
 
     @Override
     public PIDSourceType getPIDSourceType()
@@ -80,19 +102,4 @@ public class Cargo implements PIDSource, PIDOutput, ValuePrinter {
     {
         armMotor.set(ControlMode.PercentOutput, output);
     }
-
-    /**
-     * Sets the power of the intake/output motor
-     * @param power
-     * The power to set
-     */
-    public void setIntake(double power)
-    {
-        intakeMotor.set(ControlMode.PercentOutput, power);
-    }
-
-    public void print(){
-        SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
-    }
-
 }

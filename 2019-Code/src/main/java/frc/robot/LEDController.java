@@ -16,8 +16,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * Warning: Make sure PCM is in 12V mode to prevent damage to LEDs
  * 
  * @author JoelNeppel
+ * 
  */
-public class LEDController implements Runnable, ValuePrinter
+public class LEDController implements Runnable
 {
     /**
      * Enum for the LED control mode
@@ -83,6 +84,12 @@ public class LEDController implements Runnable, ValuePrinter
         this.offTime = offTime;
         this.numPulses = numPulses;
 
+        new ValuePrinter(()->
+        {
+            SmartDashboard.putString("LED State", mode.toString());
+        }, 
+        ValuePrinter.LOWEST_PRIORITY);
+
         new Thread(this).start();
     }
 
@@ -139,12 +146,6 @@ public class LEDController implements Runnable, ValuePrinter
     public void setMode(Mode mode)
     {
         this.mode = mode;
-    }
-
-    @Override
-    public void print()
-    {
-        SmartDashboard.putString("LED State", mode.toString());
     }
 
     @Override

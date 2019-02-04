@@ -10,7 +10,7 @@ package frc.robot;
 /**
  * Utility class for Thread.sleep() without having a try catch block.
  * 
- * @author Team Neutrino
+ * @author NicoleEssner
  */
 public class Util 
 {

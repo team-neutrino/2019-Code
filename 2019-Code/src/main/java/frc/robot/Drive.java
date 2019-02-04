@@ -22,7 +22,7 @@ import com.kauailabs.navx.frc.AHRS;
  * @author Team Neutrino
  * 
  */
-public class Drive implements PIDOutput, ValuePrinter
+public class Drive implements PIDOutput
 {
     /**
      * The first motor controller for the left side drive train
@@ -93,6 +93,15 @@ public class Drive implements PIDOutput, ValuePrinter
         pid.setInputRange(-180.0, 180.0);
         pid.setOutputRange(-1.0, 1.0);
         pid.setAbsoluteTolerance(Constants.PID_TOLERANCE);
+
+        new ValuePrinter(()-> 
+        {
+            SmartDashboard.putNumber("Navx", navx.getYaw());
+            SmartDashboard.putNumber("Left Encoder", lEncoder.getDistance());
+            SmartDashboard.putNumber("Right Encoder", rEncoder.getDistance());
+            SmartDashboard.putNumber("Line Angle", estimateAngle());
+        },
+        ValuePrinter.NORMAL_PRIORITY);
     }
 
     /**
@@ -196,15 +205,5 @@ public class Drive implements PIDOutput, ValuePrinter
     {
         setLeft(-output); 
         setRight(output);
-    }
-
-    @Override
-    public void print()
-    {
-        SmartDashboard.putNumber("Navx", navx.getYaw());
-        SmartDashboard.putNumber("Left Encoder", lEncoder.getDistance());
-        SmartDashboard.putNumber("Right Encoder", rEncoder.getDistance());
-        SmartDashboard.putNumber("Line Angle", estimateAngle());
-        pixy.print();
     }
 }
