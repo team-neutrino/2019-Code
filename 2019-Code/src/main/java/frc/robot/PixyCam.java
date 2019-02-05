@@ -72,11 +72,11 @@ public class PixyCam implements Runnable
 		
 		new ValuePrinter(()->
 		{
-			SmartDashboard.putBoolean("Pixy Tracking", isTracking());
-			SmartDashboard.putNumber("X", x);
-			SmartDashboard.putNumber("Y", y);
-			SmartDashboard.putNumber("Width", width);
-			SmartDashboard.putNumber("Height", height);
+			SmartDashboard.putBoolean("Pixy Tracking: ", isTracking());
+			SmartDashboard.putNumber("X: ", x);
+			SmartDashboard.putNumber("Y :", y);
+			SmartDashboard.putNumber("Width: ", width);
+			SmartDashboard.putNumber("Height: ", height);
 		}, 
 		ValuePrinter.HIGH_PRIORITY);
 

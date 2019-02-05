@@ -96,10 +96,10 @@ public class Drive implements PIDOutput
 
         new ValuePrinter(()-> 
         {
-            SmartDashboard.putNumber("Navx", navx.getYaw());
-            SmartDashboard.putNumber("Left Encoder", lEncoder.getDistance());
-            SmartDashboard.putNumber("Right Encoder", rEncoder.getDistance());
-            SmartDashboard.putNumber("Line Angle", estimateAngle());
+            SmartDashboard.putNumber("Navx: ", navx.getYaw());
+            SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
+            SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
+            SmartDashboard.putNumber("Line Angle: ", estimateAngle());
         },
         ValuePrinter.NORMAL_PRIORITY);
     }

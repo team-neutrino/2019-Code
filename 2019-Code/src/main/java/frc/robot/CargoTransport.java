@@ -20,7 +20,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 /**
  * Class for the cargo arm abd roller intake
  */
-public class Cargo implements PIDSource, PIDOutput
+public class CargoTransport implements PIDSource, PIDOutput
 {
     /**
      * Controls the intake/output of cargo
@@ -48,9 +48,9 @@ public class Cargo implements PIDSource, PIDOutput
     private PIDSourceType type;
 
     /**
-     * Contructor for the cargo manipulator. Port numbers are not final.
+     * Contructor for the cargo manipulator.
      */
-    public Cargo()
+    public CargoTransport()
     {
         intakeMotor = new TalonSRX(6);
         armMotor = new TalonSRX(4);
@@ -59,6 +59,7 @@ public class Cargo implements PIDSource, PIDOutput
         pid.setAbsoluteTolerance(3);
         pid.setInputRange(0, 200);
         pid.setOutputRange(-1, 1);
+        pid.enable();
 
         new ValuePrinter(()-> 
         {
@@ -77,7 +78,15 @@ public class Cargo implements PIDSource, PIDOutput
         intakeMotor.set(ControlMode.PercentOutput, power);
     }
 
-    //TODO set arm position
+    /**
+     * Sets the position of the cargo arm.
+     * @param angle
+     *  The encoder angle to hold the arm at
+     */
+    public void setArmPosition(int angle)
+    {
+        pid.setSetpoint(angle);
+    }
 
     @Override
     public PIDSourceType getPIDSourceType()

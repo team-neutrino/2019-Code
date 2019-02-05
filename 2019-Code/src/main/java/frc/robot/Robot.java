@@ -70,8 +70,8 @@ public class Robot extends TimedRobot
 
         new ValuePrinter(()->
         {
-            SmartDashboard.putNumber("Left Joystick", lJoy.getY());
-            SmartDashboard.putNumber("Right Joystick", rJoy.getY());
+            SmartDashboard.putNumber("Left Joystick: ", lJoy.getY());
+            SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
         }, 
         ValuePrinter.NORMAL_PRIORITY);    
     }

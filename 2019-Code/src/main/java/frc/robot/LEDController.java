@@ -86,7 +86,7 @@ public class LEDController implements Runnable
 
         new ValuePrinter(()->
         {
-            SmartDashboard.putString("LED State", mode.toString());
+            SmartDashboard.putString("LED State: ", mode.toString());
         }, 
         ValuePrinter.LOWEST_PRIORITY);
 
