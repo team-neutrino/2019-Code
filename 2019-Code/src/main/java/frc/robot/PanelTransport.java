@@ -16,12 +16,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class PanelTransport 
 {    
     /**
-     * Pushes panels. Name not final.
+     * Pushes panels
      */
     private DoubleSolenoid pushers;
    
     /**
-     * Holds panels in place. Name not final.
+     * Holds panels in place
      */
     private DoubleSolenoid holder;
 
