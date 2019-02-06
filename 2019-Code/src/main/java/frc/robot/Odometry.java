@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /**
  * Add your docs here.
  */
@@ -38,7 +40,18 @@ public class Odometry implements Runnable
 	public Odometry(Drive drive)
 	{
 		Drive = drive;
-		new Thread(this).start();
+        new Thread(this).start();
+        
+        new ValuePrinter(()->
+        {
+            SmartDashboard.putNumber("X", positionX);
+            SmartDashboard.putNumber("Y", positionY);
+            SmartDashboard.putNumber("leftDistance", currentLeftDistance);
+            SmartDashboard.putNumber("rightDistance", currentRightDistance);
+            SmartDashboard.putNumber("left distance ", formerLeftDistance);
+            SmartDashboard.putNumber("real right ", formerRightDistance);
+        },
+        ValuePrinter.HIGH_PRIORITY);
 	}
 
     @Override
@@ -56,9 +69,8 @@ public class Odometry implements Runnable
 			formerLeftDistance = Drive.getLeftDistance();
 			formerRightDistance = Drive.getRightDistance();
 			totalDistance = (currentLeftDistance + currentRightDistance)/2;
-			positionX += totalDistance * Math.sin(Drive.getNavxAngle());
-			positionY += totalDistance * Math.cos(Drive.getNavxAngle());
-			System.out.println(Drive.getNavxAngle());
+			positionX += totalDistance * Math.sin(Math.toRadians(Drive.getNavxAngle()));
+			positionY += totalDistance * Math.cos(Math.toRadians(Drive.getNavxAngle()));
 		}
 	}
 }

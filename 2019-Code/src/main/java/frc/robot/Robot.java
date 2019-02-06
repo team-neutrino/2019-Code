@@ -143,14 +143,14 @@ public class Robot extends TimedRobot
             {
                 rPower = 0.0;
             }
-            drive.setRight(rPower);
+            drive.setRight(-rPower);
 
             double lPower = - lJoy.getY();
             if(Math.abs(lPower) < 0.1)
             {
                 lPower = 0.0;
             }
-            drive.setLeft(lPower);
+            drive.setLeft(-lPower);
         }
 
         Util.threadSleep(1);

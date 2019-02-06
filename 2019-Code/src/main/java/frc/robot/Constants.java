@@ -18,11 +18,11 @@ public class Constants
     public static final int RIGHT_MOTOR_ONE_PORT = 2;
     public static final int RIGHT_MOTOR_TWO_PORT = 3;
 
-    public static final int LEFT_ENCODER_PORT_ONE = 0;
-    public static final int LEFT_ENCODER_PORT_TWO = 1;
+    public static final int LEFT_ENCODER_PORT_ONE = 4;
+    public static final int LEFT_ENCODER_PORT_TWO = 5;
     public static final int RIGHT_ENCODER_PORT_ONE = 2;
     public static final int RIGHT_ENCODER_PORT_TWO = 3;
-    public static final double ENCODER_DISTANCE_PER_PULSE = 90/Math.PI;
+    public static final double ENCODER_DISTANCE_PER_PULSE = Math.PI/90;
 
     public static final double PID_P = 0.03;
     public static final double PID_I = 0.00;
