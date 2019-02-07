@@ -161,6 +161,7 @@ public class LEDController implements Runnable
                     Util.threadSleep(onTime);
                     ledPort.set(false);
                     Util.threadSleep(offTime);
+                    Util.threadSleep(Math.max(0, interval - offTime));
                 }
             }
             else if(mode == Mode.ON)
@@ -172,7 +173,7 @@ public class LEDController implements Runnable
                 ledPort.set(false);
             }
 
-            Util.threadSleep(Math.max(0, interval - offTime) + 1);
+            Util.threadSleep(1);
         }
     }
 }

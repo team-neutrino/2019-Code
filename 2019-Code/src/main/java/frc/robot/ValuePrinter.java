@@ -58,7 +58,7 @@ public class ValuePrinter
      * @param waitTime
      *  The time to wait between prints in milliseconds
      */
-    public void changeWaitTime(int waitTime)
+    public void setWaitTime(int waitTime)
     {
         this.waitTime = waitTime;
     }

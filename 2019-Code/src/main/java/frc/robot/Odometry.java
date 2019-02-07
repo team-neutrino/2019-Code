@@ -30,7 +30,7 @@ public class Odometry implements Runnable
 	//Distance traveled by the left wheel since the previous calculation
 	private double currentRightDistance;
 	//Drive class reference
-	private Drive Drive;
+	private Drive drive;
 	//Whether this is the first frame the program is running
 	private boolean firstFrame = true;
 
@@ -39,7 +39,7 @@ public class Odometry implements Runnable
 	 */
 	public Odometry(Drive drive)
 	{
-		Drive = drive;
+		this.drive = drive;
         new Thread(this).start();
         
         new ValuePrinter(()->
@@ -54,6 +54,8 @@ public class Odometry implements Runnable
         ValuePrinter.HIGH_PRIORITY);
 	}
 
+	//TODO make getter methods for position
+	
     @Override
     public void run() 
     {
@@ -61,16 +63,16 @@ public class Odometry implements Runnable
 		{
 			if(firstFrame)
 			{
-				Drive.resetNavx();
+				drive.resetNavx();
 				firstFrame = false;
 			}
-			currentRightDistance = Drive.getRightDistance()-formerRightDistance;
-			currentLeftDistance = Drive.getLeftDistance()-formerLeftDistance;
-			formerLeftDistance = Drive.getLeftDistance();
-			formerRightDistance = Drive.getRightDistance();
+			currentRightDistance = drive.getRightDistance()-formerRightDistance;
+			currentLeftDistance = drive.getLeftDistance()-formerLeftDistance;
+			formerLeftDistance = drive.getLeftDistance();
+			formerRightDistance = drive.getRightDistance();
 			totalDistance = (currentLeftDistance + currentRightDistance)/2;
-			positionX += totalDistance * Math.sin(Math.toRadians(Drive.getNavxAngle()));
-			positionY += totalDistance * Math.cos(Math.toRadians(Drive.getNavxAngle()));
+			positionX += totalDistance * Math.sin(Math.toRadians(drive.getNavxAngle()));
+			positionY += totalDistance * Math.cos(Math.toRadians(drive.getNavxAngle()));
 		}
 	}
 }

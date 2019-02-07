@@ -190,7 +190,7 @@ public class Drive implements PIDOutput
      */
     public int estimateAngle()
     {
-        if(pixy.getWidth() != 0)
+        if(pixy.isTracking())
         {
             double angle = Math.tanh((double) (pixy.getHeight()) / pixy.getWidth());
 
