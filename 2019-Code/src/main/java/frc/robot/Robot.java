@@ -10,7 +10,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Joystick.ButtonType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -79,7 +78,8 @@ public class Robot extends TimedRobot
         lJoy = new Joystick(Constants.LEFT_JOYSTICK_PORT);
         rJoy = new Joystick(Constants.RIGHT_JOYSTICK_PORT);
         drive = new Drive();
-        
+        climber = new Solenoid(19);
+
         //TODO turn on only when needed
         white = new LEDController(Constants.WHITE_LED_PORT, LEDController.Mode.ON);
 
@@ -92,7 +92,6 @@ public class Robot extends TimedRobot
             SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
         }, 
         ValuePrinter.NORMAL_PRIORITY);    
-        climber = new Solenoid(19);
     }
 
     /**
@@ -171,17 +170,13 @@ public class Robot extends TimedRobot
             drive.setLeft(lPower);
         }
 
-        if(station.getMatchTime() <= 30 && rJoy.getTriggerPressed())
+        //Climb if match time is in last 30 seconds and button is pushed
+        //or when 2 buttons are pushed in case match time is incorrect
+        if((station.getMatchTime() <= 30 && rJoy.getTriggerPressed())
+            || (rJoy.getTriggerPressed() && lJoy.getTriggerPressed()))
         {
             climber.set(true);
             morse.flashMessage("-....--.-...-.---", 1);
-        }
-
-        if(rJoy.getTopPressed() && rJoy.getTriggerPressed() && lJoy.getTopPressed() && lJoy.getTriggerPressed())
-        {
-            System.out.println("Ludicrous speed!");
-            climber.set(true);
-            morse.flashMessage("...------...------..-....--.-...-.---", 1);
         }
 
         Util.threadSleep(1);
