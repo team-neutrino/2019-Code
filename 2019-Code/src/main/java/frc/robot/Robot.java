@@ -60,9 +60,14 @@ public class Robot extends TimedRobot
     private Solenoid climber;
 
     /**
-     * A reference to the DriverStation class
+     * An instance of the DriverStation class
      */
     private DriverStation station;
+
+    /**
+     * An instance of the MorseFlasher class
+     */
+    private MorseFlasher morse;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -169,12 +174,14 @@ public class Robot extends TimedRobot
         if(station.getMatchTime() <= 30 && rJoy.getTriggerPressed())
         {
             climber.set(true);
+            morse.flashMessage("-....--.-...-.---", 1);
         }
 
         if(rJoy.getTopPressed() && rJoy.getTriggerPressed() && lJoy.getTopPressed() && lJoy.getTriggerPressed())
         {
             System.out.println("Ludicrous speed!");
             climber.set(true);
+            morse.flashMessage("...------...------..-....--.-...-.---", 1);
         }
 
         Util.threadSleep(1);
