@@ -7,9 +7,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Joystick.ButtonType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -52,6 +55,16 @@ public class Robot extends TimedRobot
     private Odometry odometry;
 
     /**
+     * The Solenoid for the climber
+     */
+    private Solenoid climber;
+
+    /**
+     * A reference to the DriverStation class
+     */
+    private DriverStation station;
+
+    /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
@@ -74,6 +87,7 @@ public class Robot extends TimedRobot
             SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
         }, 
         ValuePrinter.NORMAL_PRIORITY);    
+        climber = new Solenoid(19);
     }
 
     /**
@@ -85,7 +99,7 @@ public class Robot extends TimedRobot
      * LiveWindow and SmartDashboard integrated updating.
      */
     @Override
-    public void robotPeriodic()  
+    public void robotPeriodic()
     {
 
     }
@@ -127,7 +141,6 @@ public class Robot extends TimedRobot
                 initTurn = false;
                 drive.beginTurn(angle);
             }
-
         }
         else //Control drive train using joysticks with a dead zone
         {
@@ -143,14 +156,25 @@ public class Robot extends TimedRobot
             {
                 rPower = 0.0;
             }
-            drive.setRight(-rPower);
+            drive.setRight(rPower);
 
             double lPower = - lJoy.getY();
             if(Math.abs(lPower) < 0.1)
             {
                 lPower = 0.0;
             }
-            drive.setLeft(-lPower);
+            drive.setLeft(lPower);
+        }
+
+        if(station.getMatchTime() <= 30 && rJoy.getTriggerPressed())
+        {
+            climber.set(true);
+        }
+
+        if(rJoy.getTopPressed() && rJoy.getTriggerPressed() && lJoy.getTopPressed() && lJoy.getTriggerPressed())
+        {
+            System.out.println("Ludicrous speed!");
+            climber.set(true);
         }
 
         Util.threadSleep(1);
