@@ -99,6 +99,31 @@ public class Odometry implements Runnable
 	{
 		return positionY;
 	}
+
+	/**
+	 * Tests if the robot is within a set range of X and Y positions
+	 * @param minX
+	 * The minimum X position
+	 * @param maxX
+	 * The maximum X position
+	 * @param minY
+	 * The minimum Y position
+	 * @param maxY
+	 * The maximum Y position
+	 * @param inclusive
+	 * Whether or not being on the edge of the area counts as being within the area
+	 */
+	public boolean isInRange(double minX, double maxX, double minY, double maxY, boolean inclusive)
+	{
+			if((minX < positionX && maxX > positionX && minY < positionY && maxY > positionY) ||
+			(inclusive && minX <= positionX && maxX >= positionX && minY <= positionY && maxY >= positionY)){
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+	}
 	
     @Override
     public void run() 
