@@ -19,11 +19,28 @@ import java.util.Arrays;
  */
 public class Networking 
 {
-	//TODO comments 
-    private NetworkTableInstance instance = NetworkTableInstance.getDefault();
+	/**
+	 * The default instance of the NetworkTable
+	 */
+	private NetworkTableInstance instance = NetworkTableInstance.getDefault();
+
+	/**
+	 * A NetworkTable (key is "networkingTest")
+	 */
 	private NetworkTable table = instance.getTable("networkingTest");
+	
+	/**
+	 * An empty array of bytes
+	 */
 	private byte[] defaultBytes = new byte[] {};
 	
+	/**
+	 * Sets the value of an entry in the NetworkTable
+	 * @param name
+	 * The entry to set
+	 * @param input
+	 * The value to set
+	 */
 	public void sendBytes(String name, byte[] input) 
 	{
 		table.getKeys().add(name); 
@@ -33,6 +50,13 @@ public class Networking
 		System.out.println("Set " + Arrays.toString(input));
 	}
 	
+	/**
+	 * Gets the value of a NetworkTable entry
+	 * @param entry
+	 * The entry to pull the value from
+	 * @return
+	 * The value of the specified NetworkTable entry
+	 */
 	public byte[] getBytes(String entry) 
 	{
 		System.out.println("Returned " + Arrays.toString(table.getEntry(entry).getRaw(defaultBytes)));
