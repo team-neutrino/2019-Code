@@ -70,6 +70,11 @@ public class Drive implements PIDOutput
     private PIDController pid;      
 
     /**
+     * The navX angle mod 360
+     */
+    private double modAngle;
+
+    /**
      * Constructor for the drive train.
      */
     public Drive()
@@ -198,6 +203,36 @@ public class Drive implements PIDOutput
         }
 
         return 0;
+    }
+
+    /**
+     * Rotates the robot to the specified angle (relative to field)
+     */
+    public void rotateToAngle(double targetAngle)
+    {
+        modAngle = navx.getAngle()%360;
+        if(modAngle >= targetAngle)
+        {
+            if(modAngle-targetAngle <= (targetAngle+360)-modAngle)
+            {
+                beginTurn(modAngle-targetAngle);
+            }
+            else
+            {
+                beginTurn((targetAngle+360)-modAngle);
+            }
+        }
+        else
+        {
+            if(targetAngle-modAngle <= (modAngle+360)-targetAngle)
+            {
+                beginTurn(targetAngle-modAngle);
+            }
+            else
+            {
+                beginTurn((modAngle+360)-targetAngle);
+            }
+        }
     }
 
     @Override
