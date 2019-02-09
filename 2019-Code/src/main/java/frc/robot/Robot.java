@@ -65,6 +65,21 @@ public class Robot extends TimedRobot
     private DriverStation station;
 
     /**
+     * An instance of the PixyCam class
+     */
+    private PixyCam pixy;
+
+    /**
+     * The number of lines the robot has passed (according to the PixyCam)
+     */
+    private int linesPassed = 0;
+
+    /**
+     * Lights that flash to indicate stuff. Port number not permanent.
+     */
+    private LEDController dynamicLights;
+
+    /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
@@ -75,9 +90,11 @@ public class Robot extends TimedRobot
         rJoy = new Joystick(Constants.RIGHT_JOYSTICK_PORT);
         drive = new Drive();
         climber = new Solenoid(19);
+        pixy = new PixyCam();
 
         //TODO turn on only when needed
         white = new LEDController(Constants.WHITE_LED_PORT, LEDController.Mode.ON);
+        dynamicLights = new LEDController(72, Mode.OFF);
 
         //TODO do stuff with odometry
         odometry = new Odometry(drive);
@@ -172,8 +189,17 @@ public class Robot extends TimedRobot
             || (rJoy.getTriggerPressed() && lJoy.getTriggerPressed()))
         {
             climber.set(true);
-            white.setMessage("-....--.-...-.---");
-            white.setMode(Mode.MORSE);
+            dynamicLights.setMessage("-....--.-...-.---");
+            dynamicLights.setMode(Mode.MORSE);
+        }
+
+        if(pixy.isTracking())
+        {
+            linesPassed++;
+            dynamicLights.setFlashPulses(linesPassed);
+            dynamicLights.setMode(Mode.FLASH);
+            Util.threadSleep(1);
+            dynamicLights.setMode(Mode.OFF);
         }
 
         Util.threadSleep(1);
