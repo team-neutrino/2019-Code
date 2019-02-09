@@ -27,7 +27,8 @@ public class LEDController implements Runnable
     {
         ON, 
         OFF, 
-        FLASH;
+        FLASH,
+        MORSE;
     }
 
     /**
@@ -54,6 +55,11 @@ public class LEDController implements Runnable
      * The number of pulses each flash cycle
      */
     private int numPulses;
+
+    /**
+     * The message flashed when using morse code
+     */
+    private String message;
 
     /**
      * The mode the LEDs are in
@@ -148,6 +154,16 @@ public class LEDController implements Runnable
         this.mode = mode;
     }
 
+    /**
+     * Sets the message to display in morse mode
+     * @param morseMessage
+     * The message to set (must contain "-"" for long flashes and "." for short flashes; other characters will be ignored)
+     */
+    public void setMessage(String morseMessage)
+    {
+        message = morseMessage;
+    }
+
     @Override
     public void run()
     {
@@ -163,6 +179,27 @@ public class LEDController implements Runnable
                     Util.threadSleep(offTime);
                     Util.threadSleep(Math.max(0, interval - offTime));
                 }
+            }
+            else if(mode == Mode.MORSE)
+            {
+                    for(int i = 0; i < message.length(); i++)
+                    {
+                        if(message.charAt(i) == "-".charAt(0))
+                        {
+                            ledPort.set(true);
+                            Util.threadSleep(1333);
+                            ledPort.set(false);
+                            Util.threadSleep(1000);
+                        }
+        
+                        if(message.charAt(i) == ".".charAt(0))
+                        {
+                            ledPort.set(true);
+                            Util.threadSleep(667);
+                            ledPort.set(false);
+                            Util.threadSleep(1000);
+                        }
+                    }
             }
             else if(mode == Mode.ON)
             {

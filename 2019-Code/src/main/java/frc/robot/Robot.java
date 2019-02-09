@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.LEDController.Mode;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -62,11 +63,6 @@ public class Robot extends TimedRobot
      * An instance of the DriverStation class
      */
     private DriverStation station;
-
-    /**
-     * An instance of the MorseFlasher class
-     */
-    private MorseFlasher morse;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -176,7 +172,8 @@ public class Robot extends TimedRobot
             || (rJoy.getTriggerPressed() && lJoy.getTriggerPressed()))
         {
             climber.set(true);
-            morse.flashMessage("-....--.-...-.---", 1);
+            white.setMessage("-....--.-...-.---");
+            white.setMode(Mode.MORSE);
         }
 
         Util.threadSleep(1);
