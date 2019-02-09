@@ -10,6 +10,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
+import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -75,6 +76,16 @@ public class Drive implements PIDOutput
     private double modAngle;
 
     /**
+     * The Ultrasonic for measuring distance
+     */
+    private Ultrasonic ultrasonic;
+
+    /**
+     * PIDController for the Ultrasonic
+     */
+    private PIDController usPid;
+
+    /**
      * Constructor for the drive train.
      */
     public Drive()
@@ -99,6 +110,13 @@ public class Drive implements PIDOutput
         pid.setOutputRange(-1.0, 1.0);
         pid.setAbsoluteTolerance(Constants.PID_TOLERANCE);
 
+        ultrasonic = new Ultrasonic(5, 6);
+        /*These numbers are not permanent.*/
+        usPid = new PIDController(0.035, 0.00035, 0.01, ultrasonic, this);
+        usPid.setAbsoluteTolerance(1);
+        usPid.setOutputRange(-0.5,0.5);
+        usPid.setInputRange(6, 200);
+
         new ValuePrinter(()-> 
         {
             SmartDashboard.putNumber("Navx: ", navx.getYaw());
@@ -107,6 +125,22 @@ public class Drive implements PIDOutput
             SmartDashboard.putNumber("Line Angle: ", estimateAngle());
         },
         ValuePrinter.NORMAL_PRIORITY);
+    }
+
+    /**
+     * Moves the robot forwards until it is a set distance away from whatever is in front of it
+     * @param distance
+     * The distance from the object you want to reach (in inches)
+     */
+    public void moveToDistance(double distance)
+    {
+        usPid.enable();
+        usPid.setSetpoint(distance);
+        while(!usPid.onTarget())
+        {
+            Util.threadSleep(1);
+        }
+        usPid.disable();
     }
 
     /**

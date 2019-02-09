@@ -188,6 +188,8 @@ public class Robot extends TimedRobot
         if((station.getMatchTime() <= 30 && rJoy.getTriggerPressed())
             || (rJoy.getTriggerPressed() && lJoy.getTriggerPressed()))
         {
+            drive.rotateToAngle(180);
+            drive.moveToDistance(8);
             climber.set(true);
             dynamicLights.setMessage("-....--.-...-.---");
             dynamicLights.setMode(Mode.MORSE);
