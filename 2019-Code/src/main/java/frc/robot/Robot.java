@@ -72,7 +72,7 @@ public class Robot extends TimedRobot
     /**
      * The number of lines the robot has passed (according to the PixyCam)
      */
-    private int linesPassed = 0;
+    private int linesPassed;
 
     /**
      * Lights that flash to indicate stuff. Port number not permanent.
@@ -86,6 +86,7 @@ public class Robot extends TimedRobot
     @Override
     public void robotInit() 
     {
+        //TODO values + add to constants
         lJoy = new Joystick(Constants.LEFT_JOYSTICK_PORT);
         rJoy = new Joystick(Constants.RIGHT_JOYSTICK_PORT);
         drive = new Drive();
@@ -100,11 +101,11 @@ public class Robot extends TimedRobot
         odometry = new Odometry(drive);
 
         new ValuePrinter(()->
-        {
-            SmartDashboard.putNumber("Left Joystick: ", lJoy.getY());
-            SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
-        }, 
-        ValuePrinter.NORMAL_PRIORITY);    
+            {
+                SmartDashboard.putNumber("Left Joystick: ", lJoy.getY());
+                SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
+            }, 
+            ValuePrinter.NORMAL_PRIORITY);    
     }
 
     /**
@@ -136,7 +137,7 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic() 
     {
-
+        teleopPeriodic();
     }
 
     /**
@@ -145,7 +146,8 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic() 
     {
-        if(lJoy.getRawButton(8) || rJoy.getRawButton(7)) //Turn using Pixy
+        //Drivetrain control
+        if(lJoy.getRawButton(8) || rJoy.getRawButton(7)) //Line up with bay TODO center, turn, limelight line-up, deliver
         {
             if(initTurn)
             {
@@ -159,6 +161,7 @@ public class Robot extends TimedRobot
                 drive.beginTurn(angle);
             }
         }
+        //TODO climb set up
         else //Control drive train using joysticks with a dead zone
         {
             //Disable PIDs from driver assist
@@ -183,6 +186,10 @@ public class Robot extends TimedRobot
             drive.setLeft(lPower);
         }
 
+        //TODO cargo transport control
+
+        //TODO hatch panel transport control
+
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
         if((station.getMatchTime() <= 30 && rJoy.getTriggerPressed())
@@ -195,6 +202,7 @@ public class Robot extends TimedRobot
             dynamicLights.setMode(Mode.MORSE);
         }
 
+        //TODO Change
         if(pixy.isTracking())
         {
             linesPassed++;

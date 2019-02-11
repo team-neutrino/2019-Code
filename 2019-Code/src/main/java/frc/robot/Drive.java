@@ -9,7 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -23,7 +22,7 @@ import com.kauailabs.navx.frc.AHRS;
  * @author Team Neutrino
  * 
  */
-public class Drive implements PIDOutput
+public class Drive
 {
     /**
      * The first motor controller for the left side drive train
@@ -68,7 +67,7 @@ public class Drive implements PIDOutput
     /**
      * A PID object that makes the robot turn
      */
-    private PIDController pid;      
+    private PIDController turnPID;      
 
     /**
      * The navX angle mod 360
@@ -83,13 +82,14 @@ public class Drive implements PIDOutput
     /**
      * PIDController for the Ultrasonic
      */
-    private PIDController usPid;
+    private PIDController usPID;
 
     /**
      * Constructor for the drive train.
      */
     public Drive()
     {
+        //TODO values + add to constants
         lMotor1 = new TalonSRX(Constants.LEFT_MOTOR_ONE_PORT);
         lMotor2 = new TalonSRX(Constants.LEFT_MOTOR_TWO_PORT);
         rMotor1 = new TalonSRX(Constants.RIGHT_MOTOR_ONE_PORT);
@@ -105,42 +105,52 @@ public class Drive implements PIDOutput
         lEncoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);
         rEncoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);
 
-        pid = new PIDController(Constants.PID_P, Constants.PID_I, Constants.PID_D, navx, this);
-        pid.setInputRange(-180.0, 180.0);
-        pid.setOutputRange(-1.0, 1.0);
-        pid.setAbsoluteTolerance(Constants.PID_TOLERANCE);
+        turnPID = new PIDController(Constants.PID_P, Constants.PID_I, Constants.PID_D, navx,             
+            (double output)->
+            {
+                setLeft(-output);
+                setRight(output);
+            });
+        turnPID.setInputRange(-180.0, 180.0);
+        turnPID.setOutputRange(-1.0, 1.0);
+        turnPID.setAbsoluteTolerance(Constants.PID_TOLERANCE);
 
         ultrasonic = new Ultrasonic(5, 6);
-        /*These numbers are not permanent.*/
-        usPid = new PIDController(0.035, 0.00035, 0.01, ultrasonic, this);
-        usPid.setAbsoluteTolerance(1);
-        usPid.setOutputRange(-0.5,0.5);
-        usPid.setInputRange(6, 200);
+        usPID = new PIDController(0.035, 0.00035, 0.01, ultrasonic, 
+            (double output)->
+            {
+                setLeft(output);
+                setRight(output);
+            });
+        usPID.setAbsoluteTolerance(1);
+        usPID.setOutputRange(-0.5,0.5);
+        usPID.setInputRange(6, 200);
 
         new ValuePrinter(()-> 
-        {
-            SmartDashboard.putNumber("Navx: ", navx.getYaw());
-            SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
-            SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
-            SmartDashboard.putNumber("Line Angle: ", estimateAngle());
-        },
-        ValuePrinter.NORMAL_PRIORITY);
+            {
+                SmartDashboard.putNumber("Navx: ", navx.getYaw());
+                SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
+                SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
+                SmartDashboard.putNumber("Line Angle: ", estimateAngle());
+            },
+            ValuePrinter.NORMAL_PRIORITY);
     }
 
     /**
-     * Moves the robot forwards until it is a set distance away from whatever is in front of it
+     * Moves the robot forwards until it is a set distance away from the object in front of it
      * @param distance
-     * The distance from the object you want to reach (in inches)
+     *  The distance from the object you want to reach (in inches)
      */
     public void moveToDistance(double distance)
     {
-        usPid.enable();
-        usPid.setSetpoint(distance);
-        while(!usPid.onTarget())
+        usPID.enable();
+        usPID.setSetpoint(distance);
+        //TODO don't wait until on target/allow PID to be interrupted
+        while(!usPID.onTarget())
         {
             Util.threadSleep(1);
         }
-        usPid.disable();
+        usPID.disable();
     }
 
     /**
@@ -173,8 +183,8 @@ public class Drive implements PIDOutput
     public void beginTurn(double degrees)
     {
         navx.zeroYaw();
-        pid.setSetpoint(degrees);
-        pid.enable();
+        turnPID.setSetpoint(degrees);
+        turnPID.enable();
     }
 
     /**
@@ -220,7 +230,7 @@ public class Drive implements PIDOutput
      */
     public void disablePID()
     {
-        pid.disable();
+        turnPID.disable();
     }
 
     /**
@@ -241,9 +251,12 @@ public class Drive implements PIDOutput
 
     /**
      * Rotates the robot to the specified angle (relative to field)
+     * @param targetAngle
+     *  The angle to turn to relative to robot at the start of the match
      */
     public void rotateToAngle(double targetAngle)
     {
+        //TODO test negative/shortest turn
         modAngle = navx.getAngle()%360;
         if(modAngle >= targetAngle)
         {
@@ -267,12 +280,5 @@ public class Drive implements PIDOutput
                 beginTurn((modAngle+360)-targetAngle);
             }
         }
-    }
-
-    @Override
-    public void pidWrite(double output)
-    {
-        setLeft(-output); 
-        setRight(output);
     }
 }

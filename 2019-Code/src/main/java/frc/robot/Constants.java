@@ -4,6 +4,9 @@ import edu.wpi.first.wpilibj.SPI;
 
 /**
  * Constants for the robot
+ * 
+ * @author Team Neutrino
+ * 
  */
 public class Constants
 {
@@ -28,6 +31,10 @@ public class Constants
     public static final double PID_I = 0.00;
     public static final double PID_D = 0.045;
     public static final double PID_TOLERANCE = 2;
+
+    //Cargo transport
+
+    //Hatch panel transport
 
     public static final SPI.Port NAVX_PORT = SPI.Port.kMXP;
 

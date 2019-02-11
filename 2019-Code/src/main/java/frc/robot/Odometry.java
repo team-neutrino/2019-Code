@@ -10,6 +10,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
+ * //TODO comment + @author tag
  * Add your docs here.
  */
 public class Odometry implements Runnable
@@ -58,7 +59,7 @@ public class Odometry implements Runnable
 	/**
 	 * Whether this is the first frame the program is running
 	 */
-	private boolean firstFrame = true;
+	private boolean firstFrame;
 
 	/**
 	 * Constructor for the odometry to use the given drive class.
@@ -66,18 +67,20 @@ public class Odometry implements Runnable
 	public Odometry(Drive drive)
 	{
 		this.drive = drive;
+		firstFrame = true;
+
         new Thread(this).start();
         
         new ValuePrinter(()->
-        {
-            SmartDashboard.putNumber("X", positionX);
-            SmartDashboard.putNumber("Y", positionY);
-            SmartDashboard.putNumber("leftDistance", currentLeftDistance);
-            SmartDashboard.putNumber("rightDistance", currentRightDistance);
-            SmartDashboard.putNumber("left distance ", formerLeftDistance);
-            SmartDashboard.putNumber("real right ", formerRightDistance);
-        },
-        ValuePrinter.HIGH_PRIORITY);
+			{
+				SmartDashboard.putNumber("X", positionX);
+				SmartDashboard.putNumber("Y", positionY);
+				SmartDashboard.putNumber("leftDistance", currentLeftDistance);
+				SmartDashboard.putNumber("rightDistance", currentRightDistance);
+				SmartDashboard.putNumber("left distance ", formerLeftDistance);
+				SmartDashboard.putNumber("real right ", formerRightDistance);
+			},
+			ValuePrinter.HIGH_PRIORITY);   
 	}
 
 	/**
@@ -115,14 +118,15 @@ public class Odometry implements Runnable
 	 */
 	public boolean isInRange(double minX, double maxX, double minY, double maxY, boolean inclusive)
 	{
-			if((minX < positionX && maxX > positionX && minY < positionY && maxY > positionY) ||
-			(inclusive && minX <= positionX && maxX >= positionX && minY <= positionY && maxY >= positionY)){
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+		//TODO remove inclusive stuff - takes extra time and values won't ever be equal
+		if((minX < positionX && maxX > positionX && minY < positionY && maxY > positionY) ||
+		(inclusive && minX <= positionX && maxX >= positionX && minY <= positionY && maxY >= positionY)){
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	
     @Override

@@ -46,8 +46,6 @@ public class Networking
 		table.getKeys().add(name); 
 		
 		table.getEntry(name).setRaw(input);
-		
-		System.out.println("Set " + Arrays.toString(input));
 	}
 	
 	/**

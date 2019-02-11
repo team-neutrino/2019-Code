@@ -12,11 +12,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Class for the panel transport
+ * 
+ * @author Team Neutrino
+ * 
  */
 public class PanelTransport 
 {    
     /**
-     * Pushes panels
+     * Pushes panel off 
      */
     private DoubleSolenoid pushers;
    
@@ -34,10 +37,10 @@ public class PanelTransport
         holder = new DoubleSolenoid(7, 8);
 
         new ValuePrinter(()->
-        {
-            SmartDashboard.putString("Pushers state: ", pushers.get().toString());
-        }, 
-        ValuePrinter.NORMAL_PRIORITY);
+            {
+                SmartDashboard.putString("Pushers state: ", pushers.get().toString());
+            }, 
+            ValuePrinter.NORMAL_PRIORITY);
     }
 
     /**

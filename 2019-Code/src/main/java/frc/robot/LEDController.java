@@ -66,6 +66,7 @@ public class LEDController implements Runnable
      */
     private Mode mode;
 
+    //TODO consider using builder for learning experience (if time)
     /**
      * Constructor for an LED Controller with the given parameters.
      * @param channel
@@ -89,12 +90,13 @@ public class LEDController implements Runnable
         this.onTime = onTime;
         this.offTime = offTime;
         this.numPulses = numPulses;
+        message = "";
 
         new ValuePrinter(()->
-        {
-            SmartDashboard.putString("LED State: ", mode.toString());
-        }, 
-        ValuePrinter.LOWEST_PRIORITY);
+            {
+                SmartDashboard.putString("LED State: ", mode.toString());
+            }, 
+            ValuePrinter.LOWEST_PRIORITY);
 
         new Thread(this).start();
     }
@@ -157,7 +159,7 @@ public class LEDController implements Runnable
     /**
      * Sets the message to display in morse mode
      * @param morseMessage
-     * The message to set (must contain "-"" for long flashes and "." for short flashes; other characters will be ignored)
+     *  The message to set (must contain "-"" for long flashes and "." for short flashes; other characters will be ignored)
      */
     public void setMessage(String morseMessage)
     {
@@ -184,6 +186,7 @@ public class LEDController implements Runnable
             {
                     for(int i = 0; i < message.length(); i++)
                     {
+                        //TODO explain better way to do this
                         if(message.charAt(i) == "-".charAt(0))
                         {
                             ledPort.set(true);

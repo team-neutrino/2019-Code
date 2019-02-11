@@ -70,17 +70,17 @@ public class PixyCam implements Runnable
 		pixyConnection.setClockRate(Constants.PIXY_CLOCKRATE);
 		pixyConnection.setClockActiveHigh();
 		
-		new ValuePrinter(()->
-		{
-			SmartDashboard.putBoolean("Pixy Tracking: ", isTracking());
-			SmartDashboard.putNumber("X: ", x);
-			SmartDashboard.putNumber("Y :", y);
-			SmartDashboard.putNumber("Width: ", width);
-			SmartDashboard.putNumber("Height: ", height);
-		}, 
-		ValuePrinter.HIGH_PRIORITY);
-
 		new Thread(this).start();
+
+		new ValuePrinter(()->
+			{
+				SmartDashboard.putBoolean("Pixy Tracking: ", isTracking());
+				SmartDashboard.putNumber("X: ", x);
+				SmartDashboard.putNumber("Y :", y);
+				SmartDashboard.putNumber("Width: ", width);
+				SmartDashboard.putNumber("Height: ", height);
+			}, 
+			ValuePrinter.HIGH_PRIORITY);
 	}
 	
 	/**
@@ -146,7 +146,19 @@ public class PixyCam implements Runnable
     public boolean isTracking()
     {
         return checkSum != 0 && System.currentTimeMillis() - timeGot < 100 && checkData();
-    }
+	}
+	
+	/**
+	 * Converts two bytes into an int.
+	 * @param bytes
+	 * 	The bytes being converted into an int
+	 * @return
+	 * 	The int created from the bytes
+	 */
+	private int bytesToInt(byte[] bytes)
+	{
+		return ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
+	}
 	
 	@Override
 	public void run() 
@@ -178,22 +190,23 @@ public class PixyCam implements Runnable
 			}
 			
 			//Set values from bytes received
-			checkSum = ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
+			checkSum = bytesToInt(bytes);
 			
 			pixyConnection.read(true, bytes, 2);
 			signature = ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
 			
+			//Switch x with y and width with height since pixy is rotated 90
 			pixyConnection.read(true, bytes, 2);
-			x = ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
+			y = bytesToInt(bytes);
 			
 			pixyConnection.read(true, bytes, 2);
-			y = ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
+			x = bytesToInt(bytes);
 			
 			pixyConnection.read(true, bytes, 2);
-			width = ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
+			height = bytesToInt(bytes);
 
 			pixyConnection.read(true, bytes, 2);
-			height = ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
+			width = bytesToInt(bytes);
             
             timeGot = System.currentTimeMillis();
 
