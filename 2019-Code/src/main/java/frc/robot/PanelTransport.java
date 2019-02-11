@@ -28,6 +28,8 @@ public class PanelTransport
      */
     private DoubleSolenoid holder;
 
+    //TODO think about adding button. Drive into panel grab automatically 
+
     /**
      * Constructor for panel handler. Port numbers are not final.
      */

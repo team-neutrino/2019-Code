@@ -161,6 +161,7 @@ public class Robot extends TimedRobot
                 drive.beginTurn(angle);
             }
         }
+        //TODO turn pre-set degrees relative to robot/field
         //TODO climb set up
         else //Control drive train using joysticks with a dead zone
         {
