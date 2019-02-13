@@ -224,11 +224,12 @@ public class Drive
     }
 
     /**
-     * Disables the PID thread.
+     * Disables the PID threads.
      */
     public void disablePID()
     {
         turnPID.disable();
+        usPID.disable();
     }
 
     /**

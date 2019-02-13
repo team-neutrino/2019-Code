@@ -30,7 +30,10 @@ public class CargoTransport implements PIDSource, PIDOutput
      */
     public static enum ArmPosition
     {
-        ROCKET_BACK(0), SHIP_BACK(0), SHIP_FORWARD(0), INTAKE(0);
+        ROCKET_BACK(Constants.CargoTransport.ROCKET_BACK_ANGLE), 
+        SHIP_BACK(Constants.CargoTransport.SHIP_BACK_ANGLE), 
+        SHIP_FORWARD(Constants.CargoTransport.SHIP_FORWARD_ANGLE), 
+        ARM_DOWN(Constants.CargoTransport.ARM_DOWN_ANGLE);
 
         /**
          * The angle of the encoder for the arm at the given position.
@@ -121,6 +124,7 @@ public class CargoTransport implements PIDSource, PIDOutput
     @Override
     public void pidWrite(double output)
     {
+        //TODO maybe add power to offset gravity to improve PID
         armMotor.set(ControlMode.PercentOutput, output);
     }
 
