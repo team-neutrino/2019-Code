@@ -159,7 +159,8 @@ public class LEDController implements Runnable
     /**
      * Sets the message to display in morse mode
      * @param morseMessage
-     *  The message to set (must contain "-"" for long flashes and "." for short flashes; other characters will be ignored)
+     *  The message to set (must contain "-"" for long flashes and "." for short 
+     *  flashes; other characters will be ignored)
      */
     public void setMessage(String morseMessage)
     {
@@ -184,25 +185,25 @@ public class LEDController implements Runnable
             }
             else if(mode == Mode.MORSE)
             {
-                    for(int i = 0; i < message.length(); i++)
+                for(int i = 0; i < message.length(); i++)
+                {
+                    //TODO explain better way to do this
+                    if(message.charAt(i) == "-".charAt(0))
                     {
-                        //TODO explain better way to do this
-                        if(message.charAt(i) == "-".charAt(0))
-                        {
-                            ledPort.set(true);
-                            Util.threadSleep(1333);
-                            ledPort.set(false);
-                            Util.threadSleep(1000);
-                        }
-        
-                        if(message.charAt(i) == ".".charAt(0))
-                        {
-                            ledPort.set(true);
-                            Util.threadSleep(667);
-                            ledPort.set(false);
-                            Util.threadSleep(1000);
-                        }
+                        ledPort.set(true);
+                        Util.threadSleep(1333);
+                        ledPort.set(false);
+                        Util.threadSleep(1000);
                     }
+    
+                    if(message.charAt(i) == ".".charAt(0))
+                    {
+                        ledPort.set(true);
+                        Util.threadSleep(667);
+                        ledPort.set(false);
+                        Util.threadSleep(1000);
+                    }
+                }
             }
             else if(mode == Mode.ON)
             {

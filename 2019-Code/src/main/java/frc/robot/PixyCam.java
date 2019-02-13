@@ -64,10 +64,10 @@ public class PixyCam implements Runnable
 	 */
 	public PixyCam()
 	{
-		pixyConnection = new SPI(Constants.PIXY_PORT);
-		pixyConnection.initAuto(Constants.PIXY_BUFFER_SIZE);
+		pixyConnection = new SPI(Constants.PixyCam.PIXY_PORT);
+		pixyConnection.initAuto(Constants.PixyCam.PIXY_BUFFER_SIZE);
 		pixyConnection.setMSBFirst();
-		pixyConnection.setClockRate(Constants.PIXY_CLOCKRATE);
+		pixyConnection.setClockRate(Constants.PixyCam.PIXY_CLOCKRATE);
 		pixyConnection.setClockActiveHigh();
 		
 		new Thread(this).start();
@@ -75,10 +75,10 @@ public class PixyCam implements Runnable
 		new ValuePrinter(()->
 			{
 				SmartDashboard.putBoolean("Pixy Tracking: ", isTracking());
-				SmartDashboard.putNumber("X: ", x);
-				SmartDashboard.putNumber("Y :", y);
-				SmartDashboard.putNumber("Width: ", width);
-				SmartDashboard.putNumber("Height: ", height);
+				SmartDashboard.putNumber("Pixy X: ", x);
+				SmartDashboard.putNumber("Pixy Y :", y);
+				SmartDashboard.putNumber("Pixy Width: ", width);
+				SmartDashboard.putNumber("Pixy Height: ", height);
 			}, 
 			ValuePrinter.HIGH_PRIORITY);
 	}

@@ -35,8 +35,8 @@ public class PanelTransport
      */
     public PanelTransport()
     {
-        pushers = new DoubleSolenoid(5, 6);
-        holder = new DoubleSolenoid(7, 8);
+        pushers = new DoubleSolenoid(Constants.PanelTransport.PUSHER_CHANNEL_1, Constants.PanelTransport.PUSHER_CHANNEL_2);
+        holder = new DoubleSolenoid(Constants.PanelTransport.HOLDER_CHANNEL_1, Constants.PanelTransport.HOLDER_CHANNEL_2);
 
         new ValuePrinter(()->
             {

@@ -87,14 +87,14 @@ public class Robot extends TimedRobot
     public void robotInit() 
     {
         //TODO values + add to constants
-        lJoy = new Joystick(Constants.LEFT_JOYSTICK_PORT);
-        rJoy = new Joystick(Constants.RIGHT_JOYSTICK_PORT);
+        lJoy = new Joystick(Constants.Robot.LEFT_JOYSTICK_PORT);
+        rJoy = new Joystick(Constants.Robot.RIGHT_JOYSTICK_PORT);
         drive = new Drive();
-        climber = new Solenoid(19);
+        climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
         pixy = new PixyCam();
 
         //TODO turn on only when needed
-        white = new LEDController(Constants.WHITE_LED_PORT, LEDController.Mode.ON);
+        white = new LEDController(Constants.Robot.WHITE_LED_PORT, LEDController.Mode.ON);
         dynamicLights = new LEDController(72, Mode.OFF);
 
         //TODO do stuff with odometry

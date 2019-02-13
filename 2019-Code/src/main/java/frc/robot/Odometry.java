@@ -21,6 +21,7 @@ public class Odometry implements Runnable
 	 * X position of the robot
 	 */
 	private double positionX;
+
 	/**
 	 * Y position of the robot
 	 */
@@ -73,12 +74,12 @@ public class Odometry implements Runnable
         
         new ValuePrinter(()->
 			{
-				SmartDashboard.putNumber("X", positionX);
-				SmartDashboard.putNumber("Y", positionY);
-				SmartDashboard.putNumber("leftDistance", currentLeftDistance);
-				SmartDashboard.putNumber("rightDistance", currentRightDistance);
-				SmartDashboard.putNumber("left distance ", formerLeftDistance);
-				SmartDashboard.putNumber("real right ", formerRightDistance);
+				SmartDashboard.putNumber("X Position: ", positionX);
+				SmartDashboard.putNumber("Y Position: ", positionY);
+				SmartDashboard.putNumber("Current Left Distance: ", currentLeftDistance);
+				SmartDashboard.putNumber("Current Right Distance: ", currentRightDistance);
+				SmartDashboard.putNumber("Former Left Distance: ", formerLeftDistance);
+				SmartDashboard.putNumber("Former Right Distance: ", formerRightDistance);
 			},
 			ValuePrinter.HIGH_PRIORITY);   
 	}
@@ -86,7 +87,7 @@ public class Odometry implements Runnable
 	/**
 	 * Returns the X position of the robot
 	 * @return 
-	 * The X position of the robot
+	 * 	The X position of the robot
 	 */
 	public double getPositionX()
 	{
@@ -96,7 +97,7 @@ public class Odometry implements Runnable
 	/**
 	 * Returns the Y position of the robot
 	 * @return 
-	 * The Y position of the robot
+	 * 	The Y position of the robot
 	 */
 	public double getPositionY()
 	{
@@ -106,15 +107,15 @@ public class Odometry implements Runnable
 	/**
 	 * Tests if the robot is within a set range of X and Y positions
 	 * @param minX
-	 * The minimum X position
+	 * 	The minimum X position
 	 * @param maxX
-	 * The maximum X position
+	 * 	The maximum X position
 	 * @param minY
-	 * The minimum Y position
+	 * 	The minimum Y position
 	 * @param maxY
-	 * The maximum Y position
+	 * 	The maximum Y position
 	 * @param inclusive
-	 * Whether or not being on the edge of the area counts as being within the area
+	 * 	Whether or not being on the edge of the area counts as being within the area
 	 */
 	public boolean isInRange(double minX, double maxX, double minY, double maxY, boolean inclusive)
 	{
