@@ -52,6 +52,7 @@ public class CanvasController {
         
     }
     
+    //Causes the paintthread to terminate
     public void closing() {
     	System.out.println("TERMINATING");
     	try {

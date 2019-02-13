@@ -18,20 +18,26 @@ import javafx.scene.paint.Color;
  */
 
 public class Paintthread extends Thread {
+	
+	final int UDP_PORT = 5800;
+	
+	
 	private GraphicsContext Gc;
-	private volatile boolean KillSwitch;
-	private Random Rng;
+	private volatile boolean KillSwitch; //When set to true, causes the thread to end
 	private DatagramPacket Packet;
 	private byte[] MsgBuf;
-	private String[] ParsedPacket;
+	private String[] ParsedPacket; //Not really parsed...
 	public DatagramSocket ServerSocket;
-	private volatile boolean Got_Sync;
-	private LinkedList<Double> Xlist;
-	private LinkedList<Double> Ylist;
-	private LinkedList<Double> PXlist;
+	
+	private LinkedList<Double> Xlist;  //List of X points
+	private LinkedList<Double> Ylist;  //List of Y points
+	
+	private LinkedList<Double> PXlist; //Buffers that contain last rotation, which prevents "flickering"
 	private LinkedList<Double> PYlist;
+	
 	private double CurrentX;
 	private double CurrentY;
+	
 	private int Aindex;
 	
 	public Paintthread(GraphicsContext gc) {
@@ -42,11 +48,10 @@ public class Paintthread extends Thread {
 		Gc = gc;
 		Gc.setLineWidth(1);
 		KillSwitch = false;
-		System.out.println("inits");
+		System.out.println("Controller working...");
 		ParsedPacket = new String[3];
-		Rng = new Random();
 		
-		//Attempt to set up a socket server
+		
 		
 		
 		
@@ -59,8 +64,9 @@ public class Paintthread extends Thread {
 	}
 	
 	public DatagramSocket startServer() {
+		
 		try {
-			ServerSocket = new DatagramSocket(5800);
+			ServerSocket = new DatagramSocket(UDP_PORT); //Attempt to set up a socket server, on whatever port
 			
 			System.out.println("Socket Established");
 			
@@ -73,9 +79,9 @@ public class Paintthread extends Thread {
 			PXlist = new LinkedList<Double>();
 			PYlist = new LinkedList<Double>();
 		} catch (SocketException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
-			kill();
+			kill(); //Cause the thread to end if the socket creation failed
 		}
 		
 		return ServerSocket;
@@ -93,29 +99,28 @@ public class Paintthread extends Thread {
 				
 				
 				try {
-					ServerSocket.receive(Packet);
+					ServerSocket.receive(Packet); //Wait for a sample from the RbPI
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
-				ParsedPacket = (new String(MsgBuf)).split(",");
+				ParsedPacket = (new String(MsgBuf)).split(","); //Turn the packet into something somewhat usable
 				
 				if(ParsedPacket[0].equals("1") && Aindex > 4) {
 					
 					
 					
-					Gc.clearRect(0, 0, Gc.getCanvas().getWidth(), Gc.getCanvas().getHeight());
+					Gc.clearRect(0, 0, Gc.getCanvas().getWidth(), Gc.getCanvas().getHeight()); //Clear screen
 					
 					
+					//Draw some cool circles
 					Gc.setStroke(Color.RED);
 					Gc.strokeOval(250, 250, 100, 100);
 					Gc.setStroke(Color.GRAY);
-					
 					Gc.strokeOval(200, 200, 200, 200);
 					Gc.strokeOval(150, 150, 300, 300);
 					
-					
+					//Draw last rotation
 					if(PXlist.size()>1) {
 						for(int i = 0; i < PXlist.size(); i++) {
 							Gc.fillOval(PXlist.get(i), PYlist.get(i), 4, 4);
@@ -125,11 +130,12 @@ public class Paintthread extends Thread {
 					
 					Gc.setFill(Color.BLACK);
 					
-					//System.out.println("Following packet is sync packet!");
-					Gc.beginPath();
+					
+					Gc.beginPath(); //Might not need this
+					
+					//Draw current rotation
 					Gc.moveTo(Xlist.get(Xlist.size()-1), Ylist.get(Ylist.size()-1));
 					for(int i = 0; i < Xlist.size(); i++) {
-						//Gc.lineTo(Xlist.get(i),Ylist.get(i));
 						Gc.fillOval(Xlist.get(i), Ylist.get(i), 4, 4);
 						
 					}
@@ -138,16 +144,19 @@ public class Paintthread extends Thread {
 					
 					
 					Gc.setStroke(Color.BLACK);
-					Gc.stroke();
-					PXlist.clear();
+					Gc.stroke(); //See line 130
+					
+					PXlist.clear(); //Clear past rotation buffers
 					PYlist.clear();
-					PXlist.addAll(Xlist);
+					
+					PXlist.addAll(Xlist); //Copy current rotation buffers to past rotation buffers
 					PYlist.addAll(Ylist);
-					Xlist.clear();
+					
+					Xlist.clear(); //Clear current rotation buffers
 					Ylist.clear();
 					
 				}
-				//System.out.println(ParsedPacket[0] + " : " + Double.parseDouble(ParsedPacket[1]) + " : " + Double.parseDouble(ParsedPacket[2]));
+				//System.out.println(ParsedPacket[0] + " : " + Double.parseDouble(ParsedPacket[1]) + " : " + Double.parseDouble(ParsedPacket[2])); //Optional console display
 				CurrentX = Double.parseDouble(ParsedPacket[1]); //Added in-between for ease to read.
 				CurrentY = Double.parseDouble(ParsedPacket[2]);
 				Xlist.add(clamp(CurrentX/10,-300,300)+300);
