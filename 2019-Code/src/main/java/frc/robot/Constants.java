@@ -137,7 +137,8 @@ public class Constants
         public static final int PIXY_CLOCKRATE = 1000000;
     }
 
-    public static class Lidar{
+    public static class Lidar
+    {
         
         public static final SerialPort.Port LIDAR_PORT = SerialPort.Port.kUSB1;
         public static final int LIDAR_BAUD_RATE = 115200;

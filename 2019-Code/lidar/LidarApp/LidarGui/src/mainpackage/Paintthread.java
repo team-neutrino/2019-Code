@@ -25,162 +25,171 @@ import javafx.scene.paint.Color;
  *
  */
 
-public class Paintthread extends Thread {
+public class PaintThread extends Thread 
+{
 	
 	final int UDP_PORT = 5800;
 	
 	
-	private GraphicsContext Gc;
-	private volatile boolean KillSwitch; //When set to true, causes the thread to end
-	private DatagramPacket Packet;
-	private byte[] MsgBuf;
-	private String[] ParsedPacket; //Not really parsed...
-	public DatagramSocket ServerSocket;
+	private GraphicsContext gc;
+	private volatile boolean killSwitch; //When set to true, causes the thread to end
+	private DatagramPacket packet;
+	private byte[] msgBuf;
+	private String[] parsedPacket; //Not really parsed...
+	public DatagramSocket serverSocket;
 	
-	private LinkedList<Double> Xlist;  //List of X points
-	private LinkedList<Double> Ylist;  //List of Y points
+	private LinkedList<Double> xList;  //List of X points
+	private LinkedList<Double> yList;  //List of Y points
 	
-	private LinkedList<Double> PXlist; //Buffers that contain last rotation, which prevents "flickering"
-	private LinkedList<Double> PYlist;
+	private LinkedList<Double> pxList; //Buffers that contain last rotation, which prevents "flickering"
+	private LinkedList<Double> pyList;
 	
-	private double CurrentX;
-	private double CurrentY;
+	private double currentX;
+	private double currentY;
 	
-	private int Aindex;
+	private int sIndex;
 	
-	public Paintthread(GraphicsContext gc) {
+    public PaintThread(GraphicsContext gc) 
+    {
 		
 		//Do some messy initialization
-		CurrentX = 0;
-		CurrentY = 0;
-		Gc = gc;
-		Gc.setLineWidth(1);
-		KillSwitch = false;
+		currentX = 0;
+		currentY = 0;
+		gc = gc;
+		gc.setLineWidth(1);
+		killSwitch = false;
 		System.out.println("Controller working...");
-		ParsedPacket = new String[3];
-		
-		
-		
-		
-		
-		
-		
+		parsedPacket = new String[3];
 	}
 	
 	public void kill() {
-		KillSwitch = true;
+		killSwitch = true;
 	}
 	
 	public DatagramSocket startServer() {
 		
-		try {
-			ServerSocket = new DatagramSocket(UDP_PORT); //Attempt to set up a socket server, on whatever port
+        try 
+        {
+			serverSocket = new DatagramSocket(UDP_PORT); //Attempt to set up a socket server, on whatever port
 			
 			System.out.println("Socket Established");
 			
-			MsgBuf = new byte[21];
+			msgBuf = new byte[21];
 			
-			Packet = new DatagramPacket(MsgBuf, MsgBuf.length);
+			packet = new DatagramPacket(MsgBuf, MsgBuf.length);
 			
-			Xlist = new LinkedList<Double>();
-			Ylist = new LinkedList<Double>();
-			PXlist = new LinkedList<Double>();
-			PYlist = new LinkedList<Double>();
-		} catch (SocketException e) {
+			xList = new LinkedList<Double>();
+			yList = new LinkedList<Double>();
+			pxList = new LinkedList<Double>();
+			pyList = new LinkedList<Double>();
+        } 
+        catch (SocketException e) 
+        {
 
 			e.printStackTrace();
 			kill(); //Cause the thread to end if the socket creation failed
 		}
 		
-		return ServerSocket;
+		return serverSocket;
 	}
 	
-	private double clamp(double x, double l, double h) {
+    private double clamp(double x, double l, double h)
+    {
 		return Math.max(Math.min(x, h), l);
 	}
 	
-	public void run() {
+    public void run()
+    {
 		
-		while(!Thread.currentThread().isInterrupted() && !KillSwitch) {
+        while(!Thread.currentThread().isInterrupted() && !killSwitch)
+        {
 			
 				
 				
 				
-				try {
-					ServerSocket.receive(Packet); //Wait for a sample from the RbPI
-				} catch (Exception e) {
+                try 
+                {
+					serverSocket.receive(packet); //Wait for a sample from the RbPI
+                } 
+                catch (Exception e) 
+                {
 					e.printStackTrace();
 				}
 				
-				ParsedPacket = (new String(MsgBuf)).split(","); //Turn the packet into something somewhat usable
+				parsedPacket = (new String(msgBuf)).split(","); //Turn the packet into something somewhat usable
 				
-				if(ParsedPacket[0].equals("1") && Aindex > 4) {
+                if(parsedPacket[0].equals("1") && sIndex > 4) 
+                {
 					
 					
 					
-					Gc.clearRect(0, 0, Gc.getCanvas().getWidth(), Gc.getCanvas().getHeight()); //Clear screen
+					gc.clearRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight()); //Clear screen
 					
 					
 					//Draw some cool circles
-					Gc.setStroke(Color.RED);
-					Gc.strokeOval(250, 250, 100, 100);
-					Gc.setStroke(Color.GRAY);
-					Gc.strokeOval(200, 200, 200, 200);
-					Gc.strokeOval(150, 150, 300, 300);
+					gc.setStroke(Color.RED);
+					gc.strokeOval(250, 250, 100, 100);
+					gc.setStroke(Color.GRAY);
+					gc.strokeOval(200, 200, 200, 200);
+					gc.strokeOval(150, 150, 300, 300);
 					
 					//Draw last rotation
-					if(PXlist.size()>1) {
-						for(int i = 0; i < PXlist.size(); i++) {
-							Gc.fillOval(PXlist.get(i), PYlist.get(i), 4, 4);
+                    if(pxList.size()>1) 
+                    {
+                        for(int i = 0; i < pxList.size(); i++) 
+                        {
+							gc.fillOval(pxList.get(i), pyList.get(i), 4, 4);
 							
 						}
 					}
 					
-					Gc.setFill(Color.BLACK);
+					gc.setFill(Color.BLACK);
 					
 					
-					Gc.beginPath(); //Might not need this
+					gc.beginPath(); //Might not need this
 					
 					//Draw current rotation
-					Gc.moveTo(Xlist.get(Xlist.size()-1), Ylist.get(Ylist.size()-1));
-					for(int i = 0; i < Xlist.size(); i++) {
-						Gc.fillOval(Xlist.get(i), Ylist.get(i), 4, 4);
+					gc.moveTo(xList.get(xList.size()-1), yList.get(yList.size()-1));
+                    for(int i = 0; i < xList.size(); i++) 
+                    {
+						gc.fillOval(xList.get(i), yList.get(i), 4, 4);
 						
 					}
 					
 					
 					
 					
-					Gc.setStroke(Color.BLACK);
-					Gc.stroke(); //See line 130
+					gc.setStroke(Color.BLACK);
+					gc.stroke(); //See line 130
 					
-					PXlist.clear(); //Clear past rotation buffers
-					PYlist.clear();
+					pxList.clear(); //Clear past rotation buffers
+					pyList.clear();
 					
-					PXlist.addAll(Xlist); //Copy current rotation buffers to past rotation buffers
-					PYlist.addAll(Ylist);
+					pxList.addAll(xList); //Copy current rotation buffers to past rotation buffers
+					pyList.addAll(yList);
 					
-					Xlist.clear(); //Clear current rotation buffers
-					Ylist.clear();
+					xList.clear(); //Clear current rotation buffers
+					yList.clear();
 					
 				}
 				//System.out.println(ParsedPacket[0] + " : " + Double.parseDouble(ParsedPacket[1]) + " : " + Double.parseDouble(ParsedPacket[2])); //Optional console display
-				CurrentX = Double.parseDouble(ParsedPacket[1]); //Added in-between for ease to read.
-				CurrentY = Double.parseDouble(ParsedPacket[2]);
-				Xlist.add(clamp(CurrentX/10,-300,300)+300);
-				Ylist.add(clamp(CurrentY/10,-300,300)+300);
+				currentX = Double.parseDouble(ParsedPacket[1]); //Added in-between for ease to read.
+				currentY = Double.parseDouble(ParsedPacket[2]);
+				xList.add(clamp(currentX/10,-300,300)+300);
+				yList.add(clamp(currentY/10,-300,300)+300);
 				//Xlist.add(Math.min(Math.max(Double.parseDouble(ParsedPacket[1]), 0), 100.0));
 				//Ylist.add(Math.min(Math.max(Double.parseDouble(ParsedPacket[2]), 0), 100.0));
 				
-				Aindex++;
+				sIndex++;
 				
 				}
 		
-		if(Thread.currentThread().isInterrupted()) {
+        if(Thread.currentThread().isInterrupted()) 
+        {
 			Thread.currentThread().interrupt();
 		}
 		System.out.println("FATAL");
-		ServerSocket.close();
+		serverSocket.close();
 	
 	}
 }

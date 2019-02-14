@@ -31,28 +31,31 @@ import javafx.scene.canvas.Canvas;
  *
  */
 
-public class CanvasController {
+public class CanvasController 
+{
 
     @FXML
-    private Canvas LidarCanvas;
+    private Canvas lidarCanvas;
     
     private GraphicsContext gc;
     
     private Thread mt;
-    private Paintthread pt;
+    private PaintThread pt;
     
     private DatagramSocket hook;
     
     private boolean ready;
     
     @FXML
-    private void drawCanvas(ActionEvent event) {
+    private void drawCanvas(ActionEvent event)
+    {
         
     }
 
-    public void initialize() {
+    public void initialize() 
+    {
     	
-        gc = LidarCanvas.getGraphicsContext2D();
+        gc = lidarCanvas.getGraphicsContext2D();
         
         pt = new Paintthread(gc);
         mt = new Thread(pt);
@@ -63,11 +66,15 @@ public class CanvasController {
     }
     
     //Causes the paintthread to terminate
-    public void closing() {
+    public void closing() 
+    {
     	System.out.println("TERMINATING");
-    	try {
+        try 
+        {
 			hook.close();
-		} catch (Exception e) {
+        } 
+        catch (Exception e) 
+        {
 			// TODO Auto-generated catch block
 			
 			e.printStackTrace();
