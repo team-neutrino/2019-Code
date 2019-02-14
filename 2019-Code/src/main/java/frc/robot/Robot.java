@@ -32,6 +32,11 @@ public class Robot extends TimedRobot
      * The right drive joystick
      */
     private Joystick  rJoy;
+
+    /**
+     * The xBox controller
+     */
+    private Joystick xBox;
   
     /**
      * The drive object
@@ -39,10 +44,10 @@ public class Robot extends TimedRobot
     private Drive drive;
 
     /**
-     * Flag for the beginning of turn used to begin turn 
-     * and disable PID when turn is finished
+     * Flag for the beginning of a driver assist
+     * used to enable a PID 
      */
-    private boolean initTurn;
+    private boolean initDriverAssist;
 
     /**
      * The controller for the white lights
@@ -87,14 +92,15 @@ public class Robot extends TimedRobot
     public void robotInit() 
     {
         //TODO values + add to constants
-        lJoy = new Joystick(Constants.LEFT_JOYSTICK_PORT);
-        rJoy = new Joystick(Constants.RIGHT_JOYSTICK_PORT);
+        lJoy = new Joystick(Constants.Robot.LEFT_JOYSTICK_PORT);
+        rJoy = new Joystick(Constants.Robot.RIGHT_JOYSTICK_PORT);
+        xBox = new Joystick(Constants.Robot.XBOX_CONTROLLER_PORT);
         drive = new Drive();
-        climber = new Solenoid(19);
+        climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
         pixy = new PixyCam();
 
         //TODO turn on only when needed
-        white = new LEDController(Constants.WHITE_LED_PORT, LEDController.Mode.ON);
+        white = new LEDController(Constants.Robot.WHITE_LED_PORT, LEDController.Mode.ON);
         dynamicLights = new LEDController(72, Mode.OFF);
 
         //TODO do stuff with odometry
@@ -149,7 +155,7 @@ public class Robot extends TimedRobot
         //Drivetrain control
         if(lJoy.getRawButton(8) || rJoy.getRawButton(7)) //Line up with bay TODO center, turn, limelight line-up, deliver
         {
-            if(initTurn)
+            if(initDriverAssist)
             {
                 int angle = drive.estimateAngle();
                 if(lJoy.getRawButton(8))
@@ -157,19 +163,26 @@ public class Robot extends TimedRobot
                     angle = -angle;
                 }
 
-                initTurn = false;
+                initDriverAssist = false;
                 drive.beginTurn(angle);
             }
         }
         //TODO turn pre-set degrees relative to robot/field
-        //TODO climb set up
+        else if(lJoy.getRawButton(Constants.LJoy.PREPARE_CLIMB_BUTTON) 
+            || rJoy.getRawButton(Constants.RJoy.PREPARE_CLIMB_BUTTON))
+        {
+            if(!initDriverAssist)
+            {
+                drive.moveToDistance(10);
+            }
+        }
         else //Control drive train using joysticks with a dead zone
         {
             //Disable PIDs from driver assist
-            if(!initTurn)
+            if(!initDriverAssist)
             {
                 drive.disablePID();
-                initTurn = true;
+                initDriverAssist = true;
             }
 
             double rPower = -rJoy.getY();
@@ -193,11 +206,9 @@ public class Robot extends TimedRobot
 
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
-        if((station.getMatchTime() <= 30 && rJoy.getTriggerPressed())
-            || (rJoy.getTriggerPressed() && lJoy.getTriggerPressed()))
+        if((station.getMatchTime() <= 30 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
+            || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
         {
-            drive.rotateToAngle(180);
-            drive.moveToDistance(8);
             climber.set(true);
             dynamicLights.setMessage("-....--.-...-.---");
             dynamicLights.setMode(Mode.MORSE);

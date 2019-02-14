@@ -70,11 +70,6 @@ public class Drive
     private PIDController turnPID;      
 
     /**
-     * The navX angle mod 360
-     */
-    private double modAngle;
-
-    /**
      * The Ultrasonic for measuring distance
      */
     private Ultrasonic ultrasonic;
@@ -90,22 +85,25 @@ public class Drive
     public Drive()
     {
         //TODO values + add to constants
-        lMotor1 = new TalonSRX(Constants.LEFT_MOTOR_ONE_PORT);
-        lMotor2 = new TalonSRX(Constants.LEFT_MOTOR_TWO_PORT);
-        rMotor1 = new TalonSRX(Constants.RIGHT_MOTOR_ONE_PORT);
-        rMotor2 = new TalonSRX(Constants.RIGHT_MOTOR_TWO_PORT);
+        lMotor1 = new TalonSRX(Constants.Drive.LEFT_MOTOR_ONE_PORT);
+        lMotor2 = new TalonSRX(Constants.Drive.LEFT_MOTOR_TWO_PORT);
+        rMotor1 = new TalonSRX(Constants.Drive.RIGHT_MOTOR_ONE_PORT);
+        rMotor2 = new TalonSRX(Constants.Drive.RIGHT_MOTOR_TWO_PORT);
 
-        navx = new AHRS(Constants.NAVX_PORT);
+        navx = new AHRS(Constants.Drive.NAVX_PORT);
 
         pixy = new PixyCam();
 
-        lEncoder = new Encoder(Constants.LEFT_ENCODER_PORT_ONE, Constants.LEFT_ENCODER_PORT_TWO);
-        rEncoder = new Encoder(Constants.RIGHT_ENCODER_PORT_ONE, Constants.RIGHT_ENCODER_PORT_TWO);
+        ultrasonic = new Ultrasonic(Constants.Drive.ULTRASONIC_PORT_1, Constants.Drive.ULTRASONIC_PORT_2);
 
-        lEncoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);
-        rEncoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);
+        lEncoder = new Encoder(Constants.Drive.LEFT_ENCODER_PORT_ONE, Constants.Drive.LEFT_ENCODER_PORT_TWO);
+        rEncoder = new Encoder(Constants.Drive.RIGHT_ENCODER_PORT_ONE, Constants.Drive.RIGHT_ENCODER_PORT_TWO);
 
-        turnPID = new PIDController(Constants.PID_P, Constants.PID_I, Constants.PID_D, navx,             
+        lEncoder.setDistancePerPulse(Constants.Drive.ENCODER_DISTANCE_PER_PULSE);
+        rEncoder.setDistancePerPulse(Constants.Drive.ENCODER_DISTANCE_PER_PULSE);
+
+        turnPID = new PIDController(Constants.Drive.TURN_P, 
+            Constants.Drive.TURN_I, Constants.Drive.TURN_D, navx,             
             (double output)->
             {
                 setLeft(-output);
@@ -113,17 +111,17 @@ public class Drive
             });
         turnPID.setInputRange(-180.0, 180.0);
         turnPID.setOutputRange(-1.0, 1.0);
-        turnPID.setAbsoluteTolerance(Constants.PID_TOLERANCE);
+        turnPID.setAbsoluteTolerance(Constants.Drive.TURN_TOLERANCE);
 
-        ultrasonic = new Ultrasonic(5, 6);
-        usPID = new PIDController(0.035, 0.00035, 0.01, ultrasonic, 
+        usPID = new PIDController(Constants.Drive.DISTANCE_P, Constants.Drive.DISTANCE_I, 
+            Constants.Drive.DISTANCE_D, ultrasonic, 
             (double output)->
             {
                 setLeft(output);
                 setRight(output);
             });
-        usPID.setAbsoluteTolerance(1);
-        usPID.setOutputRange(-0.5,0.5);
+        usPID.setAbsoluteTolerance(Constants.Drive.DISTANCE_TOLERANCE);
+        usPID.setOutputRange(-1, 1);
         usPID.setInputRange(6, 200);
 
         new ValuePrinter(()-> 
@@ -208,9 +206,9 @@ public class Drive
     }
 
     /**
-     * Returns the Navx yaw.
+     * Returns the Navx yaw angle.
      * @return
-     *  The degrees recorded by the Navz yaw
+     *  The degrees recorded by the Navx yaw
      */
     public double getNavxAngle()
     {
@@ -226,16 +224,19 @@ public class Drive
     }
 
     /**
-     * Disables the PID thread.
+     * Disables the PID threads.
      */
     public void disablePID()
     {
         turnPID.disable();
+        usPID.disable();
     }
 
     /**
      * Estimates the angle to turn the robot to deliver game pieces
      * using the white lines in front of the bays.
+     * @return 
+     *  The angle between the robot and bay lines from 0 to 90
      */
     public int estimateAngle()
     {
@@ -257,7 +258,7 @@ public class Drive
     public void rotateToAngle(double targetAngle)
     {
         //TODO test negative/shortest turn
-        modAngle = navx.getAngle()%360;
+        double modAngle = navx.getAngle()%360;
         if(modAngle >= targetAngle)
         {
             if(modAngle-targetAngle <= (targetAngle+360)-modAngle)

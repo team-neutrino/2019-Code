@@ -30,7 +30,10 @@ public class CargoTransport implements PIDSource, PIDOutput
      */
     public static enum ArmPosition
     {
-        STORED(0), DELIVER(0), INTAKE(0);
+        ROCKET_BACK(Constants.CargoTransport.ROCKET_BACK_ANGLE), 
+        SHIP_BACK(Constants.CargoTransport.SHIP_BACK_ANGLE), 
+        SHIP_FORWARD(Constants.CargoTransport.SHIP_FORWARD_ANGLE), 
+        ARM_DOWN(Constants.CargoTransport.ARM_DOWN_ANGLE);
 
         /**
          * The angle of the encoder for the arm at the given position.
@@ -51,7 +54,7 @@ public class CargoTransport implements PIDSource, PIDOutput
     /**
      * Controls the intake/output of cargo
      */
-    private TalonSRX intakeMotor;
+    private TalonSRX rollerMotor;
     
     /**
      * Motor that controls the arm
@@ -74,12 +77,13 @@ public class CargoTransport implements PIDSource, PIDOutput
     public CargoTransport()
     {
         //TODO values + add to constants
-        intakeMotor = new TalonSRX(6);
-        armMotor = new TalonSRX(4);
-        armEncoder = new AnalogPotentiometer(8);
-        armPID = new PIDController(0, 0, 0, this, this);
-        armPID.setAbsoluteTolerance(3);
-        armPID.setInputRange(0, 200);
+        rollerMotor = new TalonSRX(Constants.CargoTransport.ARM_MOTOR_DEVICE_NUM);
+        armMotor = new TalonSRX(Constants.CargoTransport.ARM_MOTOR_DEVICE_NUM);
+        armEncoder = new AnalogPotentiometer(Constants.CargoTransport.ARM_ENCODER_CHANNEL);
+        armPID = new PIDController(Constants.CargoTransport.ARM_P, Constants.CargoTransport.ARM_I, 
+            Constants.CargoTransport.ARM_D, this, this);
+        armPID.setAbsoluteTolerance(Constants.CargoTransport.ARM_PID_TOLERANCE);
+        armPID.setInputRange(Constants.CargoTransport.ARM_MIN_INPUT, Constants.CargoTransport.ARM_MAX_INPUT);
         armPID.setOutputRange(-1, 1);
         armPID.enable();
 
@@ -91,19 +95,19 @@ public class CargoTransport implements PIDSource, PIDOutput
     }
 
     /**
-     * Sets the power of the intake/output motor
+     * Sets the power of the roller motor
      * @param power
-     * The power to set
+     *  The power to set roller motor to
      */
     public void setIntake(double power)
     {
-        intakeMotor.set(ControlMode.PercentOutput, power);
+        rollerMotor.set(ControlMode.PercentOutput, power);
     }
 
     /**
      * Sets the position of the cargo arm.
-     * @param angle
-     *  The encoder angle to hold the arm at
+     * @param position
+     *  The position to hold the arm at
      */
     public void setArmPosition(ArmPosition position)
     {
@@ -120,6 +124,7 @@ public class CargoTransport implements PIDSource, PIDOutput
     @Override
     public void pidWrite(double output)
     {
+        //TODO maybe add power to offset gravity to improve PID
         armMotor.set(ControlMode.PercentOutput, output);
     }
 

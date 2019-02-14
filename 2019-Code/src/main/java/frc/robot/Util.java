@@ -11,6 +11,7 @@ package frc.robot;
  * Utility class for Thread.sleep() without having a try catch block.
  * 
  * @author NicoleEssner
+ * 
  */
 public class Util 
 {
@@ -23,7 +24,7 @@ public class Util
     {
         try 
 		{
-			Thread.sleep(Math.max(0, millis));
+			Thread.sleep(millis);
 		} 
 		catch (InterruptedException e) 
 		{
