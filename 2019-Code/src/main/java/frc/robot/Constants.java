@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.SPI;
 
+import edu.wpi.first.wpilibj.SerialPort;
 /**
  * Constants for the robot
  * 
@@ -134,5 +135,15 @@ public class Constants
         public static final SPI.Port PIXY_PORT = SPI.Port.kOnboardCS0; 
         public static final int PIXY_BUFFER_SIZE = 100;
         public static final int PIXY_CLOCKRATE = 1000000;
+    }
+
+    public static class Lidar{
+        
+        public static final SerialPort.Port LIDAR_PORT = SerialPort.Port.kUSB1;
+        public static final int LIDAR_BAUD_RATE = 115200;
+        public static final byte LIDAR_CMD_START = (byte) 0x01;
+        public static final byte LIDAR_CMD_STOP = (byte) 0x02;
+        public static final byte LIDAR_CMD_UPDATE = (byte) 0x03;
+
     }
 }
