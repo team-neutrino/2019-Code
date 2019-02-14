@@ -25,10 +25,10 @@ public class LidarRaspberry {
     private SerialPort lidarConnection;
 
     /**
-     * Navx access
+     * Drive access
      */
 
-    private AHRS navX;
+    private Drive drv;
 
     /**
      * Message buffer
@@ -37,21 +37,27 @@ public class LidarRaspberry {
 
 
     //TODO: Add docs for constructor
-    public LidarRaspberry(AHRS ahrs)
+    public LidarRaspberry(Drive drive)
     {
         
         lidarConnection = new SerialPort(Constants.Lidar.LIDAR_BAUD_RATE,Constants.Lidar.LIDAR_PORT);
         lidarConnection.setWriteBufferSize(5); //Buffer is one control byte followed by the rotation of the robot
-        navX = ahrs;
+
+        drv = drive;
 
         message = new byte[5];
 
     }
 
 
+    private float getAngle(){
+        return (float) (drv.getNavxAngle() + 180);
+
+    }
+
     public void enable()
     {
-        System.arraycopy(ByteBuffer.allocate(4).putFloat(navX.getYaw()+(float)180.0).array(), 0, message, 0, 4);
+        System.arraycopy(ByteBuffer.allocate(4).putFloat(getAngle()).array(), 0, message, 0, 4);
         message[4] = Constants.Lidar.LIDAR_CMD_START;
         lidarConnection.write(message, 5);
         lidarConnection.flush();
@@ -59,7 +65,7 @@ public class LidarRaspberry {
 
     public void disable()
     {
-        System.arraycopy(ByteBuffer.allocate(4).putFloat(navX.getYaw()+(float)180.0).array(), 0, message, 0, 4);
+        System.arraycopy(ByteBuffer.allocate(4).putFloat(getAngle()).array(), 0, message, 0, 4);
         message[4] = Constants.Lidar.LIDAR_CMD_STOP;
         lidarConnection.write(message, 5);
         lidarConnection.flush();
@@ -67,7 +73,7 @@ public class LidarRaspberry {
 
     public void update()
     {
-        System.arraycopy(ByteBuffer.allocate(4).putFloat(navX.getYaw()+(float)180.0).array(), 0, message, 0, 4);
+        System.arraycopy(ByteBuffer.allocate(4).putFloat(getAngle()).array(), 0, message, 0, 4);
         message[4] = Constants.Lidar.LIDAR_CMD_UPDATE;
         lidarConnection.write(message, 5);
         lidarConnection.flush();
