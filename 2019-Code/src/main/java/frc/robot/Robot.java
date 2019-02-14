@@ -12,8 +12,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.LEDController.Mode;
-import com.kauailabs.navx.frc.AHRS;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -43,6 +41,11 @@ public class Robot extends TimedRobot
      * The drive object
      */
     private Drive drive;
+
+    /**
+     * The panel transporter object
+     */
+    private PanelTransport panelTransport;
 
     /**
      * Flag for the beginning of a driver assist
@@ -80,19 +83,10 @@ public class Robot extends TimedRobot
      */
     private LEDController dynamicLights;
 
-
-    /**
-     * The NavX
-     */
-     private AHRS navX;
-
-
     /**
      * A connection to the lidar
      */
     private LidarRaspberry lidar;
-
-    private PanelTransport panelTransport;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -115,16 +109,12 @@ public class Robot extends TimedRobot
         //TODO do stuff with odometry
         odometry = new Odometry(drive);
 
-        
-        //TODO: Fix whatever this is
         new ValuePrinter(()->
             {
                 SmartDashboard.putNumber("Left Joystick: ", lJoy.getY());
                 SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
             }, 
             ValuePrinter.NORMAL_PRIORITY);    
-
-        
     }
 
     /**
@@ -205,7 +195,7 @@ public class Robot extends TimedRobot
             }
             drive.setRight(rPower);
 
-            double lPower = - lJoy.getY();
+            double lPower = -lJoy.getY();
             if(Math.abs(lPower) < 0.1)
             {
                 lPower = 0.0;
