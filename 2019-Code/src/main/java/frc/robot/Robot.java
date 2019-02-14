@@ -10,7 +10,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.CargoTransport.ArmPosition;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
@@ -35,7 +37,7 @@ public class Robot extends TimedRobot
     /**
      * The xBox controller
      */
-    private Joystick xBox;
+    private XboxController xBox;
   
     /**
      * The drive object
@@ -88,6 +90,10 @@ public class Robot extends TimedRobot
      */
     private LidarRaspberry lidar;
 
+   /**
+    * Controlling the cargo transport stuff
+    */
+    private CargoTransport cargoTransport;
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -98,10 +104,11 @@ public class Robot extends TimedRobot
         //TODO values + add to constants
         lJoy = new Joystick(Constants.Robot.LEFT_JOYSTICK_PORT);
         rJoy = new Joystick(Constants.Robot.RIGHT_JOYSTICK_PORT);
-       // xBox = new Joystick(Constants.Robot.XBOX_CONTROLLER_PORT);
+        xBox = new XboxController(Constants.Robot.XBOX_CONTROLLER_PORT);
         drive = new Drive();
         climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
         panelTransport = new PanelTransport();
+        cargoTransport = new CargoTransport();
         //TODO turn on only when needed
         white = new LEDController(Constants.Robot.WHITE_LED_PORT, LEDController.Mode.ON);
        // dynamicLights = new LEDController(72, Mode.OFF);
@@ -115,20 +122,6 @@ public class Robot extends TimedRobot
                 SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
             }, 
             ValuePrinter.NORMAL_PRIORITY);    
-    }
-
-    /**
-     * This function is called every robot packet, no matter the mode. Use
-     * this for items like diagnostics that you want ran during disabled,
-     * autonomous, teleoperated and test.
-     *
-     * <p>This runs after the mode specific periodic functions, but before
-     * LiveWindow and SmartDashboard integrated updating.
-     */
-    @Override
-    public void robotPeriodic()
-    {
-
     }
 
     /**
@@ -174,7 +167,7 @@ public class Robot extends TimedRobot
         else if(lJoy.getRawButton(Constants.LJoy.PREPARE_CLIMB_BUTTON) 
             || rJoy.getRawButton(Constants.RJoy.PREPARE_CLIMB_BUTTON))
         {
-            if(!initDriverAssist)
+            if(initDriverAssist)
             {
                 drive.moveToDistance(10);
             }
@@ -203,22 +196,56 @@ public class Robot extends TimedRobot
             drive.setLeft(lPower);
         }
 
-        //TODO cargo transport control
+        //Arm position control
+        if(xBox.getRawButton(Constants.XBox.ARM_DOWN_BUTTON))
+        {
+            cargoTransport.setArmPosition(ArmPosition.ARM_DOWN);
+        }
+        else if(xBox.getRawButton(Constants.XBox.ROCKET_BACK_BUTTON))
+        {
+            cargoTransport.setArmPosition(ArmPosition.ROCKET_BACK);
+        }
+        else if(xBox.getRawButton(Constants.XBox.SHIP_BACK_BUTTON))
+        {
+            cargoTransport.setArmPosition(ArmPosition.SHIP_BACK);
+        }
+        else if(xBox.getRawButton(Constants.XBox.SHIP_FORWARD_BUTTON))
+        {
+            cargoTransport.setArmPosition(ArmPosition.SHIP_FORWARD);
+        }
 
-        //TODO hatch panel transport control
-        panelTransport.setPanelHold(lJoy.getRawButton(3));
-        panelTransport.setPushersOut(rJoy.getRawButton(3));
+        //Roller speed control
+        if(xBox.getRawButton(Constants.XBox.INTAKE_CARGO_BUTTON))
+        {
+            cargoTransport.setRoller(1.0);
 
+        }
+        else
+        {
+            cargoTransport.setRoller(xBox.getRawAxis(Constants.XBox.OUTTAKE_CARGO_AXIS));
+        }
+
+
+        //Panel transport control
+        if(xBox.getRawAxis(Constants.XBox.OUTTAKE_PANEL_AXIS) > 0.5)
+        {
+            panelTransport.setPanelHold(false);
+            panelTransport.setPushersOut(true);
+        }
+        else
+        {
+            panelTransport.setPanelHold(!xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
+        }
 
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
-        // if((station.getMatchTime() <= 30 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
-        //     || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
-        // {
-        //     climber.set(true);
-        //     dynamicLights.setMessage("-....--.-...-.---");
-        //     dynamicLights.setMode(Mode.MORSE);
-        // }
+        if((station.getMatchTime() <= 30 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
+            || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
+        {
+            climber.set(true);
+            dynamicLights.setMessage("-....--.-...-.---");
+            dynamicLights.setMode(LEDController.Mode.MORSE);
+        }
 
         //TODO Change
         // if(pixy.isTracking())
@@ -238,4 +265,15 @@ public class Robot extends TimedRobot
      */
     @Override
     public void testPeriodic() {}
+
+    /**
+     * This function is called every robot packet, no matter the mode. Use
+     * this for items like diagnostics that you want ran during disabled,
+     * autonomous, teleoperated and test.
+     *
+     * <p>This runs after the mode specific periodic functions, but before
+     * LiveWindow and SmartDashboard integrated updating.
+     */
+    @Override
+    public void robotPeriodic(){}
 }
