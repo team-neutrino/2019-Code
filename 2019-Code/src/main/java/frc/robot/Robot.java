@@ -116,6 +116,9 @@ public class Robot extends TimedRobot
         //TODO do stuff with odometry
         odometry = new Odometry(drive);
 
+        
+        lidar = new LidarRaspberry(drive);
+
         new ValuePrinter(()->
             {
                 SmartDashboard.putNumber("Left Joystick: ", lJoy.getY());
