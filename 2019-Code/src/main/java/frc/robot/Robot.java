@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.LEDController.Mode;
+import com.kauailabs.navx.frc.AHRS;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -70,11 +71,6 @@ public class Robot extends TimedRobot
     private DriverStation station;
 
     /**
-     * An instance of the PixyCam class
-     */
-    private PixyCam pixy;
-
-    /**
      * The number of lines the robot has passed (according to the PixyCam)
      */
     private int linesPassed;
@@ -83,6 +79,20 @@ public class Robot extends TimedRobot
      * Lights that flash to indicate stuff. Port number not permanent.
      */
     private LEDController dynamicLights;
+
+
+    /**
+     * The NavX
+     */
+     private AHRS navX;
+
+
+    /**
+     * A connection to the lidar
+     */
+    private LidarRaspberry lidar;
+
+    private PanelTransport panelTransport;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -94,24 +104,27 @@ public class Robot extends TimedRobot
         //TODO values + add to constants
         lJoy = new Joystick(Constants.Robot.LEFT_JOYSTICK_PORT);
         rJoy = new Joystick(Constants.Robot.RIGHT_JOYSTICK_PORT);
-        xBox = new Joystick(Constants.Robot.XBOX_CONTROLLER_PORT);
+       // xBox = new Joystick(Constants.Robot.XBOX_CONTROLLER_PORT);
         drive = new Drive();
         climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
-        pixy = new PixyCam();
-
+        panelTransport = new PanelTransport();
         //TODO turn on only when needed
         white = new LEDController(Constants.Robot.WHITE_LED_PORT, LEDController.Mode.ON);
-        dynamicLights = new LEDController(72, Mode.OFF);
+       // dynamicLights = new LEDController(72, Mode.OFF);
 
         //TODO do stuff with odometry
         odometry = new Odometry(drive);
 
+        
+        //TODO: Fix whatever this is
         new ValuePrinter(()->
             {
                 SmartDashboard.putNumber("Left Joystick: ", lJoy.getY());
                 SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
             }, 
             ValuePrinter.NORMAL_PRIORITY);    
+
+        
     }
 
     /**
@@ -177,7 +190,7 @@ public class Robot extends TimedRobot
             }
         }
         else //Control drive train using joysticks with a dead zone
-        {
+        { 
             //Disable PIDs from driver assist
             if(!initDriverAssist)
             {
@@ -203,26 +216,29 @@ public class Robot extends TimedRobot
         //TODO cargo transport control
 
         //TODO hatch panel transport control
+        panelTransport.setPanelHold(lJoy.getRawButton(3));
+        panelTransport.setPushersOut(rJoy.getRawButton(3));
+
 
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
-        if((station.getMatchTime() <= 30 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
-            || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
-        {
-            climber.set(true);
-            dynamicLights.setMessage("-....--.-...-.---");
-            dynamicLights.setMode(Mode.MORSE);
-        }
+        // if((station.getMatchTime() <= 30 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
+        //     || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
+        // {
+        //     climber.set(true);
+        //     dynamicLights.setMessage("-....--.-...-.---");
+        //     dynamicLights.setMode(Mode.MORSE);
+        // }
 
         //TODO Change
-        if(pixy.isTracking())
-        {
-            linesPassed++;
-            dynamicLights.setFlashPulses(linesPassed);
-            dynamicLights.setMode(Mode.FLASH);
-            Util.threadSleep(1);
-            dynamicLights.setMode(Mode.OFF);
-        }
+        // if(pixy.isTracking())
+        // {
+        //     linesPassed++;
+        //     dynamicLights.setFlashPulses(linesPassed);
+        //     dynamicLights.setMode(Mode.FLASH);
+        //     Util.threadSleep(1);
+        //     dynamicLights.setMode(Mode.OFF);
+        // }
 
         Util.threadSleep(1);
     }

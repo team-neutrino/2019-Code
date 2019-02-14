@@ -158,8 +158,8 @@ public class Drive
      */
     public void setLeft(double power)
     {
-        lMotor1.set(ControlMode.PercentOutput, power);
-        lMotor2.set(ControlMode.PercentOutput, power);
+        lMotor1.set(ControlMode.PercentOutput, -power);
+        lMotor2.set(ControlMode.PercentOutput, -power);
     }
 
     /**
@@ -169,8 +169,8 @@ public class Drive
      */
     public void setRight(double power)
     {
-        rMotor1.set(ControlMode.PercentOutput, -power);
-        rMotor2.set(ControlMode.PercentOutput, -power);
+        rMotor1.set(ControlMode.PercentOutput, power);
+        rMotor2.set(ControlMode.PercentOutput, power);
     }
 
     /**
