@@ -9,5 +9,12 @@
     "bin/": true,
     ".classpath": true,
     ".project": true
+  },
+  "editor.cursorStyle": "line-thin",
+  "workbench.colorCustomizations": {
+        "statusBar.background": "#ff6600",
+        "editorCursor.foreground": "#ff6600"
+
+
   }
 }
