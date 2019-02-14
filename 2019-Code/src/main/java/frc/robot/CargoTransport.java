@@ -97,9 +97,9 @@ public class CargoTransport implements PIDSource, PIDOutput
     /**
      * Sets the power of the roller motor
      * @param power
-     *  The power to set roller motor to
+     *  The power to set roller motor to -1 out 1 in
      */
-    public void setIntake(double power)
+    public void setRoller(double power)
     {
         rollerMotor.set(ControlMode.PercentOutput, power);
     }

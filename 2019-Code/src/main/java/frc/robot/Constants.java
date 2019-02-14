@@ -34,13 +34,13 @@ public class Constants
         public static final int SHIP_FORWARD_BUTTON = 0;
         public static final int ARM_DOWN_BUTTON = 0;
         public static final int INTAKE_CARGO_BUTTON = 0;
-        public static final int OUTTAKE_CARGO_BUTTON = 0;
+        public static final int OUTTAKE_CARGO_AXIS = 0;
 
-        public static final int INTAKE_PANEL_BUTTON = 0;
-        public static final int OUTTAKE_PANEL_BUTTON = 0;
+        public static final int INTAKE_PANEL_BUTTON = 5;
+        public static final int OUTTAKE_PANEL_AXIS = 2;
 
-        public static final int CLIMB_BUTTON = 0;
-        public static final int CLIMB_OVERRIDE_BUTTON = 0;
+        public static final int CLIMB_BUTTON = 8;
+        public static final int CLIMB_OVERRIDE_BUTTON = 7;
     }
 
     /**
@@ -86,12 +86,12 @@ public class Constants
         public static final double TURN_P = 0.0;
         public static final double TURN_I = 0.0;
         public static final double TURN_D = 0.0;
-        public static final double TURN_TOLERANCE = 2;
+        public static final double TURN_TOLERANCE = 2.0;
 
         public static final double DISTANCE_P = 0.0;
         public static final double DISTANCE_I = 0.0;
         public static final double DISTANCE_D = 0.0;
-        public static final double DISTANCE_TOLERANCE = 1;
+        public static final double DISTANCE_TOLERANCE = 1.0;
     }
     
     /**
