@@ -21,7 +21,7 @@ public class Constants
         public static final int WHITE_LED_PORT = 3;
         public static final int XBOX_CONTROLLER_PORT = 0;
 
-        public static final int CLIMBER_CHANNEL = 9;
+        public static final int CLIMBER_CHANNEL = 0;
     }
 
     /**
@@ -74,8 +74,8 @@ public class Constants
    
         public static final SPI.Port NAVX_PORT = SPI.Port.kMXP;
 
-        public static final int ULTRASONIC_PORT_1 = 5;
-        public static final int ULTRASONIC_PORT_2 = 6;
+        public static final int ULTRASONIC_PORT_1 = 0;
+        public static final int ULTRASONIC_PORT_2 = 1;
         
         public static final int LEFT_ENCODER_PORT_ONE = 4;
         public static final int LEFT_ENCODER_PORT_TWO = 5;
@@ -101,7 +101,7 @@ public class Constants
     {
         public static final int ROLLER_MOTOR_DEVICE_NUM = 6;
         public static final int ARM_MOTOR_DEVICE_NUM = 4;
-        public static final int ARM_ENCODER_CHANNEL = 3;
+        public static final int ARM_ENCODER_CHANNEL = 9;
         
         public static final double ARM_P = 0.0;
         public static final double ARM_I = 0.0;
@@ -121,10 +121,10 @@ public class Constants
      */
     public static class PanelTransport
     {
-        public static final int PUSHER_CHANNEL_1 = 5;
-        public static final int PUSHER_CHANNEL_2 = 6;
-        public static final int HOLDER_CHANNEL_1 = 7;
-        public static final int HOLDER_CHANNEL_2 = 8;
+        public static final int PUSHER_CHANNEL_1 = 4;
+        public static final int PUSHER_CHANNEL_2 = 5;
+        public static final int HOLDER_CHANNEL_1 = 6;
+        public static final int HOLDER_CHANNEL_2 = 7;
     }
 
     /**
