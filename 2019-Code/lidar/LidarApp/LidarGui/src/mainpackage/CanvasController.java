@@ -57,7 +57,7 @@ public class CanvasController
     	
         gc = lidarCanvas.getGraphicsContext2D();
         
-        pt = new Paintthread(gc);
+        pt = new PaintThread(gc);
         mt = new Thread(pt);
         
         hook = pt.startServer();

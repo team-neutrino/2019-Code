@@ -9,10 +9,9 @@ package frc.robot;
 
 import java.nio.ByteBuffer;
 
-import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.wpilibj.SerialPort;
 
+import java.net.*;
 /**
  * Basic system for controlling the LiDAR subsystem
  * @author IndyPrieto
@@ -20,14 +19,8 @@ import edu.wpi.first.wpilibj.SerialPort;
 public class LidarRaspberry {
 
     /**
-     * Null Modem connection with RbPI
-     */
-    private SerialPort lidarConnection;
-
-    /**
      * Drive access
      */
-
     private Drive drv;
 
     /**
@@ -36,47 +29,110 @@ public class LidarRaspberry {
     private byte[] message;
 
 
-    //TODO: Add docs for constructor
+    /**
+     * Datagram (UDP) Socket
+     */
+    private DatagramSocket clientSocket;
+
+    /**
+     * Datagram packet
+     */
+    private DatagramPacket packet;
+
+    /**
+     * IPv4 of the RbPI
+     */
+    private InetAddress piAddr;
+
+
+    /**
+     * Creates a link to the Raspberry Pi to control the lidar
+     * @param drive
+     *  The drive instance
+     */
     public LidarRaspberry(Drive drive)
     {
-        
-        lidarConnection = new SerialPort(Constants.Lidar.LIDAR_BAUD_RATE,Constants.Lidar.LIDAR_PORT);
-        lidarConnection.setWriteBufferSize(5); //Buffer is one control byte followed by the rotation of the robot
 
         drv = drive;
 
         message = new byte[5];
 
+        
+
+        try
+        {
+            piAddr = InetAddress.getByName(Constants.Lidar.LIDAR_ADDR);
+            clientSocket = new DatagramSocket(Constants.Lidar.LIDAR_PORT);
+            packet = new DatagramPacket(message, 5, piAddr, Constants.Lidar.LIDAR_PORT);
+        }
+        catch (Exception e)
+        {
+            e.getStackTrace();
+        }
+
     }
 
-
-    private float getAngle(){
+    /**
+     * Gets the current robot angle
+     * @return
+     *  Current robot angle
+     */
+    private float getAngle()
+    {
         return (float) (drv.getNavxAngle() + 180);
 
     }
 
+    /**
+     * Tells the Lidar to start spinning
+     */
     public void enable()
     {
         System.arraycopy(ByteBuffer.allocate(4).putFloat(getAngle()).array(), 0, message, 0, 4);
         message[4] = Constants.Lidar.LIDAR_CMD_START;
-        lidarConnection.write(message, 5);
-        lidarConnection.flush();
+        try 
+        {
+            clientSocket.send(packet);
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+            
     }
 
+    /**
+     * Tells the Lidar to stop spinning
+     */
     public void disable()
-    {
+    {   
         System.arraycopy(ByteBuffer.allocate(4).putFloat(getAngle()).array(), 0, message, 0, 4);
         message[4] = Constants.Lidar.LIDAR_CMD_STOP;
-        lidarConnection.write(message, 5);
-        lidarConnection.flush();
+        try 
+        {
+            clientSocket.send(packet);
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }   
     }
 
+    /**
+     * Sends the current angle to the Raspberry PI
+     */
     public void update()
     {
         System.arraycopy(ByteBuffer.allocate(4).putFloat(getAngle()).array(), 0, message, 0, 4);
         message[4] = Constants.Lidar.LIDAR_CMD_UPDATE;
-        lidarConnection.write(message, 5);
-        lidarConnection.flush();
+        try 
+        {
+            clientSocket.send(packet);
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
     }
 
 

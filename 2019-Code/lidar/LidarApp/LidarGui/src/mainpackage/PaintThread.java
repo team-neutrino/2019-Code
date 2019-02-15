@@ -49,13 +49,13 @@ public class PaintThread extends Thread
 	
 	private int sIndex;
 	
-    public PaintThread(GraphicsContext gc) 
+    public PaintThread(GraphicsContext graphics) 
     {
 		
 		//Do some messy initialization
 		currentX = 0;
 		currentY = 0;
-		gc = gc;
+		gc = graphics;
 		gc.setLineWidth(1);
 		killSwitch = false;
 		System.out.println("Controller working...");
@@ -76,7 +76,7 @@ public class PaintThread extends Thread
 			
 			msgBuf = new byte[21];
 			
-			packet = new DatagramPacket(MsgBuf, MsgBuf.length);
+			packet = new DatagramPacket(msgBuf, msgBuf.length);
 			
 			xList = new LinkedList<Double>();
 			yList = new LinkedList<Double>();
@@ -104,7 +104,6 @@ public class PaintThread extends Thread
         while(!Thread.currentThread().isInterrupted() && !killSwitch)
         {
 			
-				
 				
 				
                 try 
@@ -173,8 +172,8 @@ public class PaintThread extends Thread
 					
 				}
 				//System.out.println(ParsedPacket[0] + " : " + Double.parseDouble(ParsedPacket[1]) + " : " + Double.parseDouble(ParsedPacket[2])); //Optional console display
-				currentX = Double.parseDouble(ParsedPacket[1]); //Added in-between for ease to read.
-				currentY = Double.parseDouble(ParsedPacket[2]);
+				currentX = Double.parseDouble(parsedPacket[1]); //Added in-between for ease to read.
+				currentY = Double.parseDouble(parsedPacket[2]);
 				xList.add(clamp(currentX/10,-300,300)+300);
 				yList.add(clamp(currentY/10,-300,300)+300);
 				//Xlist.add(Math.min(Math.max(Double.parseDouble(ParsedPacket[1]), 0), 100.0));
