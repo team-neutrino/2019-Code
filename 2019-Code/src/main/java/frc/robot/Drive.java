@@ -7,7 +7,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Ultrasonic;
@@ -17,8 +16,6 @@ import edu.wpi.first.networktables.*;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
-
-import frc.robot.LEDController.Mode;
 
 /**
  * The class for all drive components of the robot.
@@ -163,8 +160,8 @@ public class Drive
      */
     public void setLeft(double power)
     {
-        lMotor1.set(ControlMode.PercentOutput, -power);
-        lMotor2.set(ControlMode.PercentOutput, -power);
+        lMotor1.set(ControlMode.PercentOutput, power);
+        lMotor2.set(ControlMode.PercentOutput, power);
     }
 
     /**
@@ -174,8 +171,8 @@ public class Drive
      */
     public void setRight(double power)
     {
-        rMotor1.set(ControlMode.PercentOutput, power);
-        rMotor2.set(ControlMode.PercentOutput, power);
+        rMotor1.set(ControlMode.PercentOutput, -power);
+        rMotor2.set(ControlMode.PercentOutput, -power);
     }
 
     /**
@@ -315,8 +312,8 @@ public class Drive
             {
                 setLeft(0);
                 setRight(0);
-                morseLights.setMessage("..-...-...........-..");
-                morseLights.setMode(Mode.MORSE);
+                //morseLights.setMessage("..-...-...........-..");
+                //morseLights.setMode(LEDController.Mode.MORSE);
             }
             else
             {

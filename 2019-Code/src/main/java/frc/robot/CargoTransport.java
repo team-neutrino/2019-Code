@@ -84,12 +84,13 @@ public class CargoTransport implements PIDSource, PIDOutput
         armPID.setAbsoluteTolerance(Constants.CargoTransport.ARM_PID_TOLERANCE);
         armPID.setInputRange(Constants.CargoTransport.ARM_MIN_INPUT, Constants.CargoTransport.ARM_MAX_INPUT);
         armPID.setOutputRange(-Constants.CargoTransport.PID_OUTPUT_RANGE, Constants.CargoTransport.PID_OUTPUT_RANGE);
-        setArmPosition(ArmPosition.ARM_DOWN);
+        setArmPosition(ArmPosition.SHIP_FORWARD);
         armPID.enable();
 
         new ValuePrinter(()-> 
             {
                 SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
+                SmartDashboard.putNumber("Arm setpoint: ", armPID.getSetpoint());
             }, 
             ValuePrinter.NORMAL_PRIORITY);
     }
@@ -123,12 +124,20 @@ public class CargoTransport implements PIDSource, PIDOutput
     @Override
     public void pidWrite(double output)
     {
-        if(armEncoder.get() > 220)
+        if(armEncoder.get() > 300)
         {
-            armMotor.set(ControlMode.PercentOutput, 0.0);
+            if(output > 0 )
+            {
+                output *= 0.5;
+            }
+            armMotor.set(ControlMode.PercentOutput, -output);
         }
         else
         {
+            if(output < 0)
+            {
+                output *= 0.5;
+            }
             armMotor.set(ControlMode.PercentOutput, -output);
         }
     }

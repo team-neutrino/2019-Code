@@ -124,28 +124,42 @@ public class Robot extends TimedRobot
         odometry = new Odometry(drive);
 
         //Makes camera image into black and white and sends to driver station.
-        // new Thread(()->
-        //     {
-        //         UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
-        //         frontCam.setResolution(160, 120);
-        //         frontCam.setFPS(15); 
+        new Thread(()->
+            {
+                UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
+                frontCam.setResolution(160, 120);
+                frontCam.setFPS(15); 
 
-        //         CvSink sink = CameraServer.getInstance().getVideo(frontCam);
-        //         CvSource outputStream = CameraServer.getInstance().putVideo("B&W", 160, 120);
+                UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
+                backCam.setResolution(160, 120);
+                backCam.setFPS(15);
 
-        //         Mat source = new Mat();
-        //         Mat output = new Mat();
+                CvSink frontSink = CameraServer.getInstance().getVideo(frontCam);
+                CvSource frontOutputStream = CameraServer.getInstance().putVideo("Front BW", 160, 120);
 
-        //         while(true)
-        //         {
-        //             sink.grabFrame(source);
-        //             if(source.size().area() > 2)
-        //             {
-        //                 Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
-        //                 outputStream.putFrame(output);
-        //             }
-        //         }
-        //     }).start();
+                CvSink backSink = CameraServer.getInstance().getVideo(backCam);
+                CvSource backOutputStream = CameraServer.getInstance().putVideo("Back BW", 160, 120);
+
+                Mat source = new Mat();
+                Mat output = new Mat();
+
+                while(true)
+                {
+                    frontSink.grabFrame(source);
+                    if(source.size().area() > 2)
+                    {
+                       // Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
+                        frontOutputStream.putFrame(source);
+                    }
+
+                    backSink.grabFrame(source);
+                    if(source.size().area() > 2)
+                    {
+                        //Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
+                        backOutputStream.putFrame(source);
+                    }
+                }
+            }).start();
 
         new ValuePrinter(()->
             {
@@ -179,26 +193,6 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic() 
     {
-        if(initDriverAssist)
-        {
-            if(lJoy.getRawButton(Constants.Robot.NEG_45_DEG_FIELD_BUTTON))
-            {
-                drive.rotateToAngle(-45);
-            }
-            if(lJoy.getRawButton(Constants.Robot.POS_45_DEG_FIELD_BUTTON))
-            {
-                drive.rotateToAngle(45);
-            }
-            if(lJoy.getRawButton(Constants.Robot.NEG_45_DEG_ROBOT_BUTTON))
-            {
-                drive.beginTurn(-45);
-            }
-            if(lJoy.getRawButton(Constants.Robot.POS_45_DEG_ROBOT_BUTTON))
-            {
-                drive.beginTurn(45);
-            }
-            initDriverAssist = false;
-        }
         //Drivetrain control
         if(lJoy.getRawButton(8) || rJoy.getRawButton(7)) //Line up with bay TODO center, turn, limelight line-up, deliver
         {
@@ -300,7 +294,7 @@ public class Robot extends TimedRobot
         //Roller speed control
         if(xBox.getRawButton(Constants.XBox.INTAKE_CARGO_BUTTON))
         {
-            cargoTransport.setRoller(1.0);
+            cargoTransport.setRoller(0.8);
 
         }
         else

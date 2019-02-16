@@ -113,17 +113,17 @@ public class Constants
 
         public static final int ENCODER_RANGE = 360;
         
-        public static final double ARM_P = 0.045;
+        public static final double ARM_P = 0.042;
         public static final double ARM_I = 0.0;
         public static final double ARM_D = 0.0;
         public static final double ARM_PID_TOLERANCE = 3.0;
-        public static final double ARM_MIN_INPUT = 0.0;
-        public static final double ARM_MAX_INPUT = 200.0;
-        public static final double PID_OUTPUT_RANGE = 0.75;
+        public static final double ARM_MIN_INPUT = 150.0;
+        public static final double ARM_MAX_INPUT = 335.0;
+        public static final double PID_OUTPUT_RANGE = 1.0;
 
-        public static final int ROCKET_BACK_ANGLE = 166;
-        public static final int SHIP_BACK_ANGLE = 166;
-        public static final int SHIP_FORWARD_ANGLE = 256;
+        public static final int ROCKET_BACK_ANGLE = 210;
+        public static final int SHIP_BACK_ANGLE = 229;
+        public static final int SHIP_FORWARD_ANGLE = 261; //325;
         public static final int ARM_DOWN_ANGLE = 166;
     }
 
