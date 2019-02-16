@@ -19,9 +19,14 @@ public class Constants
         public static final int LEFT_JOYSTICK_PORT = 0;
         public static final int RIGHT_JOYSTICK_PORT = 1;
         public static final int WHITE_LED_PORT = 3;
-        public static final int XBOX_CONTROLLER_PORT = 0;
+        public static final int XBOX_CONTROLLER_PORT = 2;
 
         public static final int CLIMBER_CHANNEL = 0;
+
+        public static final int NEG_45_DEG_FIELD_BUTTON = 6;
+        public static final int NEG_45_DEG_ROBOT_BUTTON = 7;
+        public static final int POS_45_DEG_FIELD_BUTTON = 10;
+        public static final int POS_45_DEG_ROBOT_BUTTON = 11;
     }
 
     /**
@@ -29,12 +34,13 @@ public class Constants
      */
     public static class XBox
     {
-        public static final int ROCKET_BACK_BUTTON = 0;
-        public static final int SHIP_BACK_BUTTON = 0;
-        public static final int SHIP_FORWARD_BUTTON = 0;
-        public static final int ARM_DOWN_BUTTON = 0;
-        public static final int INTAKE_CARGO_BUTTON = 0;
-        public static final int OUTTAKE_CARGO_AXIS = 0;
+        public static final int ROCKET_BACK_BUTTON = 2;
+        public static final int SHIP_BACK_BUTTON = 4;
+        public static final int SHIP_FORWARD_BUTTON = 3;
+        public static final int ARM_DOWN_BUTTON = 1;
+
+        public static final int INTAKE_CARGO_BUTTON = 6;
+        public static final int OUTTAKE_CARGO_AXIS = 3;
 
         public static final int INTAKE_PANEL_BUTTON = 5;
         public static final int OUTTAKE_PANEL_AXIS = 2;
@@ -48,10 +54,10 @@ public class Constants
      */
     public static class LJoy
     {
-        public static final int DELIVER_LEFT_SIDE_BUTTON = 0;
-        public static final int DELIVER_RIGHT_SIDE_BUTTON = 0;
+        public static final int DELIVER_LEFT_SIDE_BUTTON = 1;
+        public static final int DELIVER_RIGHT_SIDE_BUTTON = 1;
 
-        public static final int PREPARE_CLIMB_BUTTON = 0;
+        public static final int PREPARE_CLIMB_BUTTON = 1;
     }
 
     /**
@@ -92,6 +98,9 @@ public class Constants
         public static final double DISTANCE_I = 0.0;
         public static final double DISTANCE_D = 0.0;
         public static final double DISTANCE_TOLERANCE = 1.0;
+
+        public static final int MIN_DISTANCE_RANGE = 6;
+        public static final int MAX_DISTANCE_RANGE = 200;
     }
     
     /**
@@ -99,21 +108,24 @@ public class Constants
      */
     public static class CargoTransport
     {
-        public static final int ROLLER_MOTOR_DEVICE_NUM = 6;
+        public static final int ROLLER_MOTOR_DEVICE_NUM = 5;
         public static final int ARM_MOTOR_DEVICE_NUM = 4;
-        public static final int ARM_ENCODER_CHANNEL = 6;
+        public static final int ARM_ENCODER_CHANNEL = 3;
+
+        public static final int ENCODER_RANGE = 360;
         
-        public static final double ARM_P = 0.0;
+        public static final double ARM_P = 0.045;
         public static final double ARM_I = 0.0;
         public static final double ARM_D = 0.0;
         public static final double ARM_PID_TOLERANCE = 3.0;
         public static final double ARM_MIN_INPUT = 0.0;
         public static final double ARM_MAX_INPUT = 200.0;
+        public static final double PID_OUTPUT_RANGE = 0.75;
 
-        public static final int ROCKET_BACK_ANGLE = 0;
-        public static final int SHIP_BACK_ANGLE = 0;
-        public static final int SHIP_FORWARD_ANGLE = 0;
-        public static final int ARM_DOWN_ANGLE = 0;
+        public static final int ROCKET_BACK_ANGLE = 166;
+        public static final int SHIP_BACK_ANGLE = 166;
+        public static final int SHIP_FORWARD_ANGLE = 256;
+        public static final int ARM_DOWN_ANGLE = 166;
     }
 
     /**
@@ -123,8 +135,8 @@ public class Constants
     {
         public static final int PUSHER_CHANNEL_1 = 5;
         public static final int PUSHER_CHANNEL_2 = 4;
-        public static final int HOLDER_CHANNEL_1 = 6;
-        public static final int HOLDER_CHANNEL_2 = 7;
+        public static final int HOLDER_CHANNEL_1 = 7;
+        public static final int HOLDER_CHANNEL_2 = 6;
     }
 
     /**

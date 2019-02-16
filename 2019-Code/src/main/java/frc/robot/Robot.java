@@ -13,6 +13,14 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.CargoTransport.ArmPosition;
+
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
+
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
@@ -101,7 +109,6 @@ public class Robot extends TimedRobot
     @Override
     public void robotInit() 
     {
-        //TODO values + add to constants
         lJoy = new Joystick(Constants.Robot.LEFT_JOYSTICK_PORT);
         rJoy = new Joystick(Constants.Robot.RIGHT_JOYSTICK_PORT);
         xBox = new XboxController(Constants.Robot.XBOX_CONTROLLER_PORT);
@@ -110,11 +117,35 @@ public class Robot extends TimedRobot
         panelTransport = new PanelTransport();
         cargoTransport = new CargoTransport();
         //TODO turn on only when needed
-        white = new LEDController(Constants.Robot.WHITE_LED_PORT, LEDController.Mode.ON);
+      //  white = new LEDController(Constants.Robot.WHITE_LED_PORT, LEDController.Mode.ON);
        // dynamicLights = new LEDController(72, Mode.OFF);
 
         //TODO do stuff with odometry
         odometry = new Odometry(drive);
+
+        //Makes camera image into black and white and sends to driver station.
+        // new Thread(()->
+        //     {
+        //         UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
+        //         frontCam.setResolution(160, 120);
+        //         frontCam.setFPS(15); 
+
+        //         CvSink sink = CameraServer.getInstance().getVideo(frontCam);
+        //         CvSource outputStream = CameraServer.getInstance().putVideo("B&W", 160, 120);
+
+        //         Mat source = new Mat();
+        //         Mat output = new Mat();
+
+        //         while(true)
+        //         {
+        //             sink.grabFrame(source);
+        //             if(source.size().area() > 2)
+        //             {
+        //                 Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
+        //                 outputStream.putFrame(output);
+        //             }
+        //         }
+        //     }).start();
 
         new ValuePrinter(()->
             {
@@ -148,6 +179,26 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic() 
     {
+        if(initDriverAssist)
+        {
+            if(lJoy.getRawButton(Constants.Robot.NEG_45_DEG_FIELD_BUTTON))
+            {
+                drive.rotateToAngle(-45);
+            }
+            if(lJoy.getRawButton(Constants.Robot.POS_45_DEG_FIELD_BUTTON))
+            {
+                drive.rotateToAngle(45);
+            }
+            if(lJoy.getRawButton(Constants.Robot.NEG_45_DEG_ROBOT_BUTTON))
+            {
+                drive.beginTurn(-45);
+            }
+            if(lJoy.getRawButton(Constants.Robot.POS_45_DEG_ROBOT_BUTTON))
+            {
+                drive.beginTurn(45);
+            }
+            initDriverAssist = false;
+        }
         //Drivetrain control
         if(lJoy.getRawButton(8) || rJoy.getRawButton(7)) //Line up with bay TODO center, turn, limelight line-up, deliver
         {
@@ -170,6 +221,38 @@ public class Robot extends TimedRobot
             if(initDriverAssist)
             {
                 drive.moveToDistance(10);
+            }
+        }
+        else if(lJoy.getRawButton(Constants.Robot.NEG_45_DEG_FIELD_BUTTON))
+        {
+            if(initDriverAssist)
+            {
+                drive.rotateToAngle(-45);
+                initDriverAssist = false;
+            }
+        }
+        else if(lJoy.getRawButton(Constants.Robot.POS_45_DEG_FIELD_BUTTON))
+        {
+            if(initDriverAssist)
+            {
+                drive.rotateToAngle(45);
+                initDriverAssist = false;
+            }
+        }
+        else if(lJoy.getRawButton(Constants.Robot.NEG_45_DEG_ROBOT_BUTTON))
+        {
+            if(initDriverAssist)
+            {
+                drive.beginTurn(-45);
+                initDriverAssist = false;
+            }
+        }
+        else if(lJoy.getRawButton(Constants.Robot.POS_45_DEG_ROBOT_BUTTON))
+        {
+            if(initDriverAssist)
+            {
+                drive.beginTurn(45);
+                initDriverAssist = false;
             }
         }
         else //Control drive train using joysticks with a dead zone
@@ -222,7 +305,7 @@ public class Robot extends TimedRobot
         }
         else
         {
-            cargoTransport.setRoller(xBox.getRawAxis(Constants.XBox.OUTTAKE_CARGO_AXIS));
+            cargoTransport.setRoller(-xBox.getRawAxis(Constants.XBox.OUTTAKE_CARGO_AXIS));
         }
 
 
@@ -234,18 +317,19 @@ public class Robot extends TimedRobot
         }
         else
         {
+            panelTransport.setPushersOut(false);
             panelTransport.setPanelHold(!xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
         }
 
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
-        if((station.getMatchTime() <= 30 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
-            || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
-        {
-            climber.set(true);
-            dynamicLights.setMessage("-....--.-...-.---");
-            dynamicLights.setMode(LEDController.Mode.MORSE);
-        }
+        // if((station.getMatchTime() <= 30 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
+        //     || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
+        // {
+        //     climber.set(true);
+        //     dynamicLights.setMessage("-....--.-...-.---");
+        //     dynamicLights.setMode(LEDController.Mode.MORSE);
+        // }
 
         //TODO Change
         // if(pixy.isTracking())

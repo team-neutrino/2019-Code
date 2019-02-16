@@ -7,14 +7,18 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
+
+import frc.robot.LEDController.Mode;
 
 /**
  * The class for all drive components of the robot.
@@ -80,6 +84,11 @@ public class Drive
     private PIDController usPID;
 
     /**
+     * Lights to flash
+     */
+    private LEDController morseLights;
+
+    /**
      * Constructor for the drive train.
      */
     public Drive()
@@ -89,6 +98,8 @@ public class Drive
         lMotor2 = new TalonSRX(Constants.Drive.LEFT_MOTOR_TWO_PORT);
         rMotor1 = new TalonSRX(Constants.Drive.RIGHT_MOTOR_ONE_PORT);
         rMotor2 = new TalonSRX(Constants.Drive.RIGHT_MOTOR_TWO_PORT);
+
+        //morseLights = new LEDController(0, Mode.OFF);
 
         navx = new AHRS(Constants.Drive.NAVX_PORT);
 
@@ -122,7 +133,7 @@ public class Drive
             });
         usPID.setAbsoluteTolerance(Constants.Drive.DISTANCE_TOLERANCE);
         usPID.setOutputRange(-1, 1);
-        usPID.setInputRange(6, 200);
+        usPID.setInputRange(Constants.Drive.MIN_DISTANCE_RANGE, Constants.Drive.MAX_DISTANCE_RANGE);
 
         new ValuePrinter(()-> 
             {
@@ -143,12 +154,6 @@ public class Drive
     {
         usPID.enable();
         usPID.setSetpoint(distance);
-        //TODO don't wait until on target/allow PID to be interrupted
-        while(!usPID.onTarget())
-        {
-            Util.threadSleep(1);
-        }
-        usPID.disable();
     }
 
     /**
@@ -279,6 +284,44 @@ public class Drive
             else
             {
                 beginTurn((modAngle+360)-targetAngle);
+            }
+        }
+    }
+
+    /**
+     * Aligns the robot using the Lime Light.
+     */
+    public void limeLightAlign()
+    {
+        if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0) >= 50
+        && Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0)) > 1)
+        {
+            setLeft(-1.0);
+            setRight(-1.0);
+        }
+        else
+        {
+            if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0) > 1)
+            {
+                setRight(0.85);
+                setLeft(1);
+            }
+            else if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0) < -1)
+            {
+                setLeft(0.85);
+                setRight(1);
+            }
+            else if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0) >= 75)
+            {
+                setLeft(0);
+                setRight(0);
+                morseLights.setMessage("..-...-...........-..");
+                morseLights.setMode(Mode.MORSE);
+            }
+            else
+            {
+                setLeft(1);
+                setRight(1);
             }
         }
     }

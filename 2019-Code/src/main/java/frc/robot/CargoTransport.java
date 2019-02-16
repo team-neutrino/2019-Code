@@ -76,15 +76,15 @@ public class CargoTransport implements PIDSource, PIDOutput
      */
     public CargoTransport()
     {
-        //TODO values + add to constants
-        rollerMotor = new TalonSRX(Constants.CargoTransport.ARM_MOTOR_DEVICE_NUM);
+        rollerMotor = new TalonSRX(Constants.CargoTransport.ROLLER_MOTOR_DEVICE_NUM);
         armMotor = new TalonSRX(Constants.CargoTransport.ARM_MOTOR_DEVICE_NUM);
-        armEncoder = new AnalogPotentiometer(Constants.CargoTransport.ARM_ENCODER_CHANNEL);
+        armEncoder = new AnalogPotentiometer(Constants.CargoTransport.ARM_ENCODER_CHANNEL, Constants.CargoTransport.ENCODER_RANGE, 0);
         armPID = new PIDController(Constants.CargoTransport.ARM_P, Constants.CargoTransport.ARM_I, 
             Constants.CargoTransport.ARM_D, this, this);
         armPID.setAbsoluteTolerance(Constants.CargoTransport.ARM_PID_TOLERANCE);
         armPID.setInputRange(Constants.CargoTransport.ARM_MIN_INPUT, Constants.CargoTransport.ARM_MAX_INPUT);
-        armPID.setOutputRange(-1, 1);
+        armPID.setOutputRange(-Constants.CargoTransport.PID_OUTPUT_RANGE, Constants.CargoTransport.PID_OUTPUT_RANGE);
+        setArmPosition(ArmPosition.ARM_DOWN);
         armPID.enable();
 
         new ValuePrinter(()-> 
@@ -117,15 +117,20 @@ public class CargoTransport implements PIDSource, PIDOutput
     @Override
     public double pidGet()
     {
-        //TODO encoder wraparound/negative
         return armEncoder.get();
     }
 
     @Override
     public void pidWrite(double output)
     {
-        //TODO maybe add power to offset gravity to improve PID
-        armMotor.set(ControlMode.PercentOutput, output);
+        if(armEncoder.get() > 220)
+        {
+            armMotor.set(ControlMode.PercentOutput, 0.0);
+        }
+        else
+        {
+            armMotor.set(ControlMode.PercentOutput, -output);
+        }
     }
 
     @Override

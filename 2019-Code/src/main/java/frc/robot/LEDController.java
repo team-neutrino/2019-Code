@@ -187,8 +187,7 @@ public class LEDController implements Runnable
             {
                 for(int i = 0; i < message.length(); i++)
                 {
-                    //TODO explain better way to do this
-                    if(message.charAt(i) == "-".charAt(0))
+                    if(message.charAt(i) == '-')
                     {
                         ledPort.set(true);
                         Util.threadSleep(1333);
@@ -196,7 +195,7 @@ public class LEDController implements Runnable
                         Util.threadSleep(1000);
                     }
     
-                    if(message.charAt(i) == ".".charAt(0))
+                    if(message.charAt(i) == '.')
                     {
                         ledPort.set(true);
                         Util.threadSleep(667);
