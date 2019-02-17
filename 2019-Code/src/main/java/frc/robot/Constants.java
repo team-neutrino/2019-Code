@@ -17,10 +17,10 @@ public class Constants
     {
         public static final int LEFT_JOYSTICK_PORT = 0;
         public static final int RIGHT_JOYSTICK_PORT = 1;
-        public static final int WHITE_LED_PORT = 3;
+        public static final int WHITE_LED_PORT = 5;
         public static final int XBOX_CONTROLLER_PORT = 2;
 
-        public static final int CLIMBER_CHANNEL = 0;
+        public static final int CLIMBER_CHANNEL = 6;
 
         public static final int NEG_45_DEG_FIELD_BUTTON = 6;
         public static final int NEG_45_DEG_ROBOT_BUTTON = 7;
@@ -123,7 +123,7 @@ public class Constants
 
         public static final int ROCKET_BACK_ANGLE = 210;
         public static final int SHIP_BACK_ANGLE = 229;
-        public static final int SHIP_FORWARD_ANGLE = 261; //325;
+        public static final int SHIP_FORWARD_ANGLE = 325;
         public static final int ARM_DOWN_ANGLE = 166;
     }
 
@@ -132,10 +132,10 @@ public class Constants
      */
     public static class PanelTransport
     {
-        public static final int PUSHER_CHANNEL_1 = 5;
-        public static final int PUSHER_CHANNEL_2 = 4;
-        public static final int HOLDER_CHANNEL_1 = 7;
-        public static final int HOLDER_CHANNEL_2 = 6;
+        public static final int PUSHER_CHANNEL_1 = 2;
+        public static final int PUSHER_CHANNEL_2 = 3;
+        public static final int HOLDER_CHANNEL_1 = 0;
+        public static final int HOLDER_CHANNEL_2 = 1;
     }
 
     /**
