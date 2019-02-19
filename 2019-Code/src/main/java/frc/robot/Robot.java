@@ -68,25 +68,20 @@ public class Robot extends TimedRobot
     private Solenoid climber;
 
     /**
+     * Controller for the pixy cam
+     */
+    private PixyController pixy;
+
+    /**
      * Flag for the beginning of a driver assist
      * used to enable a PID 
      */
     private boolean initDriverAssist;
 
     /**
-     * The controller for the white lights
-     */
-    private LEDController white;
-
-    /**
      * The odometry object
      */
     private Odometry odometry;
-
-    /**
-     * The number of lines the robot has passed (according to the PixyCam)
-     */
-    private int linesPassed;
 
     /**
      * Lights that flash to indicate stuff. Port number not permanent.
@@ -113,54 +108,63 @@ public class Robot extends TimedRobot
         lJoy = new Joystick(Constants.Robot.LEFT_JOYSTICK_PORT);
         rJoy = new Joystick(Constants.Robot.RIGHT_JOYSTICK_PORT);
         xBox = new XboxController(Constants.Robot.XBOX_CONTROLLER_PORT);
+      
         drive = new Drive();
-        climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
-        panelTransport = new PanelTransport();
         cargoTransport = new CargoTransport();
-        //TODO turn on only when needed
-      //  white = new LEDController(Constants.Robot.WHITE_LED_PORT, LEDController.Mode.ON);
+        panelTransport = new PanelTransport();
+        climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
+        pixy =  new PixyController();
+
        // dynamicLights = new LEDController(72, Mode.OFF);
 
         //TODO do stuff with odometry
         odometry = new Odometry(drive);
 
-        //Makes camera image into black and white and sends to driver station.
-        new Thread(()->
-            {
-                UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
-                frontCam.setResolution(160, 120);
-                frontCam.setFPS(15); 
+        UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
+        frontCam.setResolution(160, 120);
+        frontCam.setFPS(15); 
 
-                UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
-                backCam.setResolution(160, 120);
-                backCam.setFPS(15);
+        UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
+        backCam.setResolution(160, 120);
+        backCam.setFPS(15);
 
-                CvSink frontSink = CameraServer.getInstance().getVideo(frontCam);
-                CvSource frontOutputStream = CameraServer.getInstance().putVideo("Front BW", 160, 120);
+        // //Makes camera image into black and white and sends to driver station.
+        // new Thread(()->
+        //     {
+        //         UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
+        //         frontCam.setResolution(160, 120);
+        //         frontCam.setFPS(15); 
 
-                CvSink backSink = CameraServer.getInstance().getVideo(backCam);
-                CvSource backOutputStream = CameraServer.getInstance().putVideo("Back BW", 160, 120);
+        //         UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
+        //         backCam.setResolution(160, 120);
+        //         backCam.setFPS(15);
 
-                Mat source = new Mat();
-                Mat output = new Mat();
+        //         CvSink frontSink = CameraServer.getInstance().getVideo(frontCam);
+        //         CvSource frontOutputStream = CameraServer.getInstance().putVideo("Front BW", 160, 120);
 
-                while(true)
-                {
-                    frontSink.grabFrame(source);
-                    if(source.size().area() > 2)
-                    {
-                       // Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
-                        frontOutputStream.putFrame(source);
-                    }
+        //         CvSink backSink = CameraServer.getInstance().getVideo(backCam);
+        //         CvSource backOutputStream = CameraServer.getInstance().putVideo("Back BW", 160, 120);
 
-                    backSink.grabFrame(source);
-                    if(source.size().area() > 2)
-                    {
-                        //Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
-                        backOutputStream.putFrame(source);
-                    }
-                }
-            }).start();
+        //         Mat source = new Mat();
+        //         Mat output = new Mat();
+
+        //         while(true)
+        //         {
+        //             frontSink.grabFrame(source);
+        //             if(source.size().area() > 2)
+        //             {
+        //                 Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
+        //                 frontOutputStream.putFrame(output);
+        //             }
+
+        //             backSink.grabFrame(source);
+        //             if(source.size().area() > 2)
+        //             {
+        //                 Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
+        //                 backOutputStream.putFrame(output);
+        //             }
+        //         }
+        //     }).start();
 
         new ValuePrinter(()->
             {
@@ -195,9 +199,9 @@ public class Robot extends TimedRobot
     public void teleopPeriodic() 
     {
         //Drivetrain control
-        if(lJoy.getRawButton(8) || rJoy.getRawButton(7)) //Line up with bay
+        if(lJoy.getRawButton(8) || rJoy.getRawButton(7)) //Line up with and deliver panel
         {
-            int angle = drive.estimateAngle();
+            int angle = pixy.estimateAngle();
             initDriverAssist = true;
 
             if(angle < 10)
@@ -344,16 +348,6 @@ public class Robot extends TimedRobot
             dynamicLights.setMessage("-....--.-...-.---");
             dynamicLights.setMode(LEDController.Mode.MORSE);
         }
-
-        //TODO Change
-        // if(pixy.isTracking())
-        // {
-        //     linesPassed++;
-        //     dynamicLights.setFlashPulses(linesPassed);
-        //     dynamicLights.setMode(Mode.FLASH);
-        //     Util.threadSleep(1);
-        //     dynamicLights.setMode(Mode.OFF);
-        // }
 
         Util.threadSleep(1);
     }

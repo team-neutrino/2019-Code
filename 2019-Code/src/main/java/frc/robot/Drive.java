@@ -61,19 +61,14 @@ public class Drive
     private Encoder rEncoder;
 
     /**
-     * The pixycam object
+     * The Ultrasonic for measuring distance
      */
-    private PixyCam pixy;
-
+    private Ultrasonic ultrasonic;
+    
     /**
      * A PID object that makes the robot turn
      */
     private PIDController turnPID;      
-
-    /**
-     * The Ultrasonic for measuring distance
-     */
-    private Ultrasonic ultrasonic;
 
     /**
      * PIDController for the Ultrasonic
@@ -90,18 +85,13 @@ public class Drive
      */
     public Drive()
     {
-        //TODO values + add to constants
         lMotor1 = new TalonSRX(Constants.Drive.LEFT_MOTOR_ONE_PORT);
         lMotor2 = new TalonSRX(Constants.Drive.LEFT_MOTOR_TWO_PORT);
         rMotor1 = new TalonSRX(Constants.Drive.RIGHT_MOTOR_ONE_PORT);
         rMotor2 = new TalonSRX(Constants.Drive.RIGHT_MOTOR_TWO_PORT);
 
-        //morseLights = new LEDController(0, Mode.OFF);
-
         navx = new AHRS(Constants.Drive.NAVX_PORT);
-
         ultrasonic = new Ultrasonic(Constants.Drive.ULTRASONIC_PORT_1, Constants.Drive.ULTRASONIC_PORT_2);
-
         lEncoder = new Encoder(Constants.Drive.LEFT_ENCODER_PORT_ONE, Constants.Drive.LEFT_ENCODER_PORT_TWO);
         rEncoder = new Encoder(Constants.Drive.RIGHT_ENCODER_PORT_ONE, Constants.Drive.RIGHT_ENCODER_PORT_TWO);
 
@@ -133,6 +123,7 @@ public class Drive
         new ValuePrinter(()-> 
             {
                 SmartDashboard.putNumber("Navx: ", navx.getYaw());
+                SmartDashboard.putNumber("Ultrasonic: ". ultrasonic.getDistance());
                 SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
                 SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
             },
@@ -271,6 +262,7 @@ public class Drive
      */
     public boolean limeLightAlign()
     {
+        //TODO test
         if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0) >= 50
         && Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0)) > 1)
         {

@@ -13,10 +13,19 @@ package frc.robot;
  */
 public class PixyController 
 {
+    /**
+     * The pixy cam
+     */
     private PixyCam pixy;
 
+    /**
+     * The white LED controller
+     */
     private LEDController whiteLEDs;
 
+    /**
+     * Makes pixy cam controller with white LEDs.
+     */
     public PixyController()
     {
         pixy = new PixyCam();
@@ -41,8 +50,15 @@ public class PixyController
         return 0;
     }
 
+    /**
+     * Returns whether the pixycam is tracking an object or not.
+     * @return
+     *  True if pixy is tracking an object, false otherwise
+     */
     public boolean isTracking()
     {
         return pixy.isTracking();
     }
+
+    //TODO track lines
 }
