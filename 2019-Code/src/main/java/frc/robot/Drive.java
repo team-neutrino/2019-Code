@@ -81,9 +81,9 @@ public class Drive
     private PIDController usPID;
 
     /**
-     * Lights to flash
+     * Whether the robot is backing up after being too close to the target.
      */
-    private LEDController morseLights;
+    private boolean backingUp;
 
     /**
      * Constructor for the drive train.
@@ -99,8 +99,6 @@ public class Drive
         //morseLights = new LEDController(0, Mode.OFF);
 
         navx = new AHRS(Constants.Drive.NAVX_PORT);
-
-        pixy = new PixyCam();
 
         ultrasonic = new Ultrasonic(Constants.Drive.ULTRASONIC_PORT_1, Constants.Drive.ULTRASONIC_PORT_2);
 
@@ -137,7 +135,6 @@ public class Drive
                 SmartDashboard.putNumber("Navx: ", navx.getYaw());
                 SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
                 SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
-                SmartDashboard.putNumber("Line Angle: ", estimateAngle());
             },
             ValuePrinter.NORMAL_PRIORITY);
     }
@@ -235,24 +232,6 @@ public class Drive
     }
 
     /**
-     * Estimates the angle to turn the robot to deliver game pieces
-     * using the white lines in front of the bays.
-     * @return 
-     *  The angle between the robot and bay lines from 0 to 90
-     */
-    public int estimateAngle()
-    {
-        if(pixy.isTracking())
-        {
-            double angle = Math.tanh((double) (pixy.getHeight()) / pixy.getWidth());
-
-            return (int) Math.toDegrees(angle);
-        }
-
-        return 0;
-    }
-
-    /**
      * Rotates the robot to the specified angle (relative to field)
      * @param targetAngle
      *  The angle to turn to relative to robot at the start of the match
@@ -287,14 +266,27 @@ public class Drive
 
     /**
      * Aligns the robot using the Lime Light.
+     * @return
+     *  True if the robot is aligned, false if still being aligned
      */
-    public void limeLightAlign()
+    public boolean limeLightAlign()
     {
         if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0) >= 50
         && Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0)) > 1)
         {
             setLeft(-1.0);
             setRight(-1.0);
+            backingUp = true;
+        }
+        else if(backingUp)
+        {
+            setLeft(-1.0);
+            setRight(-1.0);
+
+            if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0) < 25)
+            {
+                backingUp = false;
+            }
         }
         else
         {
@@ -310,10 +302,7 @@ public class Drive
             }
             else if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0) >= 75)
             {
-                setLeft(0);
-                setRight(0);
-                //morseLights.setMessage("..-...-...........-..");
-                //morseLights.setMode(LEDController.Mode.MORSE);
+                return true;
             }
             else
             {
@@ -321,5 +310,7 @@ public class Drive
                 setRight(1);
             }
         }
+
+        return false;
     }
 }

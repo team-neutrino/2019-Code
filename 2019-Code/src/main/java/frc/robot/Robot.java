@@ -53,9 +53,19 @@ public class Robot extends TimedRobot
     private Drive drive;
 
     /**
+     * Controlling the cargo transport stuff
+     */
+    private CargoTransport cargoTransport;
+
+    /**
      * The panel transporter object
      */
     private PanelTransport panelTransport;
+
+    /**
+     * The Solenoid for the climber
+     */
+    private Solenoid climber;
 
     /**
      * Flag for the beginning of a driver assist
@@ -74,16 +84,6 @@ public class Robot extends TimedRobot
     private Odometry odometry;
 
     /**
-     * The Solenoid for the climber
-     */
-    private Solenoid climber;
-
-    /**
-     * An instance of the DriverStation class
-     */
-    private DriverStation station;
-
-    /**
      * The number of lines the robot has passed (according to the PixyCam)
      */
     private int linesPassed;
@@ -98,10 +98,11 @@ public class Robot extends TimedRobot
      */
     private LidarRaspberry lidar;
 
-   /**
-    * Controlling the cargo transport stuff
-    */
-    private CargoTransport cargoTransport;
+    /**
+     * Whether the panel was delivered during the driver assist or not.
+     */
+    private boolean deliverDone;
+    
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -121,53 +122,45 @@ public class Robot extends TimedRobot
        // dynamicLights = new LEDController(72, Mode.OFF);
 
         //TODO do stuff with odometry
-        //odometry = new Odometry(drive);
+        odometry = new Odometry(drive);
 
-        UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
-        frontCam.setResolution(160, 120);
-        frontCam.setFPS(15); 
+        //Makes camera image into black and white and sends to driver station.
+        new Thread(()->
+            {
+                UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
+                frontCam.setResolution(160, 120);
+                frontCam.setFPS(15); 
 
-        UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
-        backCam.setResolution(160, 120);
-        backCam.setFPS(15);
+                UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
+                backCam.setResolution(160, 120);
+                backCam.setFPS(15);
 
-        // //Makes camera image into black and white and sends to driver station.
-        // new Thread(()->
-        //     {
-        //         UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
-        //         frontCam.setResolution(160, 120);
-        //         frontCam.setFPS(15); 
+                CvSink frontSink = CameraServer.getInstance().getVideo(frontCam);
+                CvSource frontOutputStream = CameraServer.getInstance().putVideo("Front BW", 160, 120);
 
-        //         UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
-        //         backCam.setResolution(160, 120);
-        //         backCam.setFPS(15);
+                CvSink backSink = CameraServer.getInstance().getVideo(backCam);
+                CvSource backOutputStream = CameraServer.getInstance().putVideo("Back BW", 160, 120);
 
-        //         CvSink frontSink = CameraServer.getInstance().getVideo(frontCam);
-        //         CvSource frontOutputStream = CameraServer.getInstance().putVideo("Front BW", 160, 120);
+                Mat source = new Mat();
+                Mat output = new Mat();
 
-        //         CvSink backSink = CameraServer.getInstance().getVideo(backCam);
-        //         CvSource backOutputStream = CameraServer.getInstance().putVideo("Back BW", 160, 120);
+                while(true)
+                {
+                    frontSink.grabFrame(source);
+                    if(source.size().area() > 2)
+                    {
+                       // Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
+                        frontOutputStream.putFrame(source);
+                    }
 
-        //         Mat source = new Mat();
-        //         Mat output = new Mat();
-
-        //         while(true)
-        //         {
-        //             frontSink.grabFrame(source);
-        //             if(source.size().area() > 2)
-        //             {
-        //                // Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
-        //                 frontOutputStream.putFrame(source);
-        //             }
-
-        //             backSink.grabFrame(source);
-        //             if(source.size().area() > 2)
-        //             {
-        //                 //Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
-        //                 backOutputStream.putFrame(source);
-        //             }
-        //         }
-        //     }).start();
+                    backSink.grabFrame(source);
+                    if(source.size().area() > 2)
+                    {
+                        //Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
+                        backOutputStream.putFrame(source);
+                    }
+                }
+            }).start();
 
         new ValuePrinter(()->
             {
@@ -202,27 +195,38 @@ public class Robot extends TimedRobot
     public void teleopPeriodic() 
     {
         //Drivetrain control
-        if(lJoy.getRawButton(8) || rJoy.getRawButton(7)) //Line up with bay TODO center, turn, limelight line-up, deliver
+        if(lJoy.getRawButton(8) || rJoy.getRawButton(7)) //Line up with bay
         {
-            if(initDriverAssist)
+            int angle = drive.estimateAngle();
+            initDriverAssist = true;
+
+            if(angle < 10)
             {
-                int angle = drive.estimateAngle();
                 if(lJoy.getRawButton(8))
                 {
                     angle = -angle;
                 }
 
-                initDriverAssist = false;
                 drive.beginTurn(angle);
             }
-        }
-        //TODO turn pre-set degrees relative to robot/field
-        else if(lJoy.getRawButton(Constants.LJoy.PREPARE_CLIMB_BUTTON) 
-            || rJoy.getRawButton(Constants.RJoy.PREPARE_CLIMB_BUTTON))
-        {
-            if(initDriverAssist)
+            else
             {
-                drive.moveToDistance(10);
+                if(!deliverDone && drive.limeLightAlign())
+                {
+                    //Ram
+                    //TODO tune power and time
+                    drive.setLeft(0.25);
+                    drive.setRight(0.25);
+                    Util.threadSleep(100);
+                    drive.setLeft(0.0);
+                    drive.setRight(0.0);
+
+                    panelTransport.setPanelHold(false);
+                    panelTransport.setPushersOut(true);
+                    Util.threadSleep(10);
+
+                    deliverDone = true;
+                }
             }
         }
         else if(lJoy.getRawButton(Constants.Robot.NEG_45_DEG_FIELD_BUTTON))
@@ -257,6 +261,14 @@ public class Robot extends TimedRobot
                 initDriverAssist = false;
             }
         }
+        else if(lJoy.getRawButton(Constants.LJoy.PREPARE_CLIMB_BUTTON) 
+            || rJoy.getRawButton(Constants.RJoy.PREPARE_CLIMB_BUTTON))
+        {
+            if(initDriverAssist)
+            {
+                drive.moveToDistance(10);
+            }
+        }
         else //Control drive train using joysticks with a dead zone
         { 
             //Disable PIDs from driver assist
@@ -264,6 +276,7 @@ public class Robot extends TimedRobot
             {
                 drive.disablePID();
                 initDriverAssist = true;
+                deliverDone = false;
             }
 
             double rPower = -rJoy.getY();
@@ -310,7 +323,6 @@ public class Robot extends TimedRobot
             cargoTransport.setRoller(-xBox.getRawAxis(Constants.XBox.OUTTAKE_CARGO_AXIS));
         }
 
-
         //Panel transport control
         if(xBox.getRawAxis(Constants.XBox.OUTTAKE_PANEL_AXIS) > 0.5)
         {
@@ -325,13 +337,13 @@ public class Robot extends TimedRobot
 
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
-        // if((station.getMatchTime() <= 30 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
-        //     || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
-        // {
-        //     climber.set(true);
-        //     dynamicLights.setMessage("-....--.-...-.---");
-        //     dynamicLights.setMode(LEDController.Mode.MORSE);
-        // }
+        if((DriverStation.getInstance().getMatchTime() <= 30 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
+            || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
+        {
+            climber.set(true);
+            dynamicLights.setMessage("-....--.-...-.---");
+            dynamicLights.setMode(LEDController.Mode.MORSE);
+        }
 
         //TODO Change
         // if(pixy.isTracking())
