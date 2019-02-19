@@ -121,45 +121,53 @@ public class Robot extends TimedRobot
        // dynamicLights = new LEDController(72, Mode.OFF);
 
         //TODO do stuff with odometry
-        odometry = new Odometry(drive);
+        //odometry = new Odometry(drive);
 
-        //Makes camera image into black and white and sends to driver station.
-        new Thread(()->
-            {
-                UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
-                frontCam.setResolution(160, 120);
-                frontCam.setFPS(15); 
+        UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
+        frontCam.setResolution(160, 120);
+        frontCam.setFPS(15); 
 
-                UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
-                backCam.setResolution(160, 120);
-                backCam.setFPS(15);
+        UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
+        backCam.setResolution(160, 120);
+        backCam.setFPS(15);
 
-                CvSink frontSink = CameraServer.getInstance().getVideo(frontCam);
-                CvSource frontOutputStream = CameraServer.getInstance().putVideo("Front BW", 160, 120);
+        // //Makes camera image into black and white and sends to driver station.
+        // new Thread(()->
+        //     {
+        //         UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
+        //         frontCam.setResolution(160, 120);
+        //         frontCam.setFPS(15); 
 
-                CvSink backSink = CameraServer.getInstance().getVideo(backCam);
-                CvSource backOutputStream = CameraServer.getInstance().putVideo("Back BW", 160, 120);
+        //         UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
+        //         backCam.setResolution(160, 120);
+        //         backCam.setFPS(15);
 
-                Mat source = new Mat();
-                Mat output = new Mat();
+        //         CvSink frontSink = CameraServer.getInstance().getVideo(frontCam);
+        //         CvSource frontOutputStream = CameraServer.getInstance().putVideo("Front BW", 160, 120);
 
-                while(true)
-                {
-                    frontSink.grabFrame(source);
-                    if(source.size().area() > 2)
-                    {
-                       // Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
-                        frontOutputStream.putFrame(source);
-                    }
+        //         CvSink backSink = CameraServer.getInstance().getVideo(backCam);
+        //         CvSource backOutputStream = CameraServer.getInstance().putVideo("Back BW", 160, 120);
 
-                    backSink.grabFrame(source);
-                    if(source.size().area() > 2)
-                    {
-                        //Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
-                        backOutputStream.putFrame(source);
-                    }
-                }
-            }).start();
+        //         Mat source = new Mat();
+        //         Mat output = new Mat();
+
+        //         while(true)
+        //         {
+        //             frontSink.grabFrame(source);
+        //             if(source.size().area() > 2)
+        //             {
+        //                // Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
+        //                 frontOutputStream.putFrame(source);
+        //             }
+
+        //             backSink.grabFrame(source);
+        //             if(source.size().area() > 2)
+        //             {
+        //                 //Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
+        //                 backOutputStream.putFrame(source);
+        //             }
+        //         }
+        //     }).start();
 
         new ValuePrinter(()->
             {
