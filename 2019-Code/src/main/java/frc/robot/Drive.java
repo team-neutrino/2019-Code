@@ -102,8 +102,16 @@ public class Drive
             Constants.Drive.TURN_I, Constants.Drive.TURN_D, navx,             
             (double output)->
             {
-                setLeft(-output);
-                setRight(output);
+                if(turnPID.onTarget())
+                {
+                    setLeft(0);
+                    setRight(0);
+                }
+                else
+                {
+                    setLeft(-output);
+                    setRight(output);
+                }
             });
         turnPID.setInputRange(-180.0, 180.0);
         turnPID.setOutputRange(-1.0, 1.0);
@@ -122,8 +130,9 @@ public class Drive
 
         new ValuePrinter(()-> 
             {
-                SmartDashboard.putNumber("Navx: ", navx.getYaw());
-                SmartDashboard.putNumber("Ultrasonic: ". ultrasonic.getDistance());
+                SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
+                SmartDashboard.putNumber("Navx Angle: ", navx.getAngle());
+                SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
                 SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
                 SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
             },
@@ -211,6 +220,11 @@ public class Drive
     public void resetNavx()
     {
         navx.reset();
+    }
+
+    public void zeroYaw()
+    {
+        navx.zeroYaw();
     }
 
     /**

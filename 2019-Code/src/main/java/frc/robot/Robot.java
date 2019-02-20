@@ -113,12 +113,12 @@ public class Robot extends TimedRobot
         cargoTransport = new CargoTransport();
         panelTransport = new PanelTransport();
         climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
-        pixy =  new PixyController();
+        //pixy =  new PixyController();
 
        // dynamicLights = new LEDController(72, Mode.OFF);
 
         //TODO do stuff with odometry
-        odometry = new Odometry(drive);
+        //odometry = new Odometry(drive);
 
         UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
         frontCam.setResolution(160, 120);
@@ -189,7 +189,7 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic() 
     {
-        teleopPeriodic();
+        
     }
 
     /**
@@ -356,7 +356,13 @@ public class Robot extends TimedRobot
      * This function is called periodically during test mode.
      */
     @Override
-    public void testPeriodic() {}
+    public void testPeriodic() 
+    {
+        drive.resetNavx();
+        Util.threadSleep(30000);
+        drive.zeroYaw();
+        Util.threadSleep(30000);
+    }
 
     /**
      * This function is called every robot packet, no matter the mode. Use
