@@ -29,7 +29,7 @@ public class PixyController
     public PixyController()
     {
         pixy = new PixyCam();
-        whiteLEDs = new LEDController(0, LEDController.Mode.ON);
+        whiteLEDs = new LEDController(Constants.PixyController.LED_PORT, LEDController.Mode.ON);
     }
 
     /**
@@ -40,6 +40,7 @@ public class PixyController
      */
     public int estimateAngle()
     {
+        //TODO test this
         if(pixy.isTracking())
         {
             double angle = Math.tanh((double) (pixy.getHeight()) / pixy.getWidth());

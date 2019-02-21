@@ -76,7 +76,7 @@ public class Drive
     private PIDController usPID;
 
     /**
-     * Whether the robot is backing up after being too close to the target.
+     * True if the robot is backing up after being too close to the target, false otherwise
      */
     private boolean backingUp;
 
@@ -102,18 +102,10 @@ public class Drive
             Constants.Drive.TURN_I, Constants.Drive.TURN_D, navx,             
             (double output)->
             {
-                if(turnPID.onTarget())
-                {
-                    setLeft(0);
-                    setRight(0);
-                }
-                else
-                {
-                    setLeft(-output);
-                    setRight(output);
-                }
+                setLeft(-output);
+                setRight(output);
             });
-        turnPID.setInputRange(-180.0, 180.0);
+        turnPID.setInputRange(-180.0, 180.0); //TODO constants
         turnPID.setOutputRange(-1.0, 1.0);
         turnPID.setAbsoluteTolerance(Constants.Drive.TURN_TOLERANCE);
 
@@ -125,29 +117,18 @@ public class Drive
                 setRight(output);
             });
         usPID.setAbsoluteTolerance(Constants.Drive.DISTANCE_TOLERANCE);
-        usPID.setOutputRange(-1, 1);
+        usPID.setOutputRange(-1, 1);//TODO constants
         usPID.setInputRange(Constants.Drive.MIN_DISTANCE_RANGE, Constants.Drive.MAX_DISTANCE_RANGE);
 
         new ValuePrinter(()-> 
             {
                 SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
-                SmartDashboard.putNumber("Navx Angle: ", navx.getAngle());
+                SmartDashboard.putNumber("Navx Angle: ", getNavxAngle());
                 SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
                 SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
                 SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
             },
             ValuePrinter.NORMAL_PRIORITY);
-    }
-
-    /**
-     * Moves the robot forwards until it is a set distance away from the object in front of it
-     * @param distance
-     *  The distance from the object you want to reach (in inches)
-     */
-    public void moveToDistance(double distance)
-    {
-        usPID.enable();
-        usPID.setSetpoint(distance);
     }
 
     /**
@@ -185,58 +166,6 @@ public class Drive
     }
 
     /**
-     * Returns the distance travelled recoreded by the left encoder.
-     * @return
-     *  The distance travelled in inches
-     */
-    public double getLeftDistance()
-    {
-        return lEncoder.getDistance();
-    }
-
-     /**
-     * Returns the distance travelled recoreded by the right encoder.
-     * @return
-     *  The distance travelled in inches
-     */
-    public double getRightDistance()
-    {
-        return rEncoder.getDistance();
-    }
-
-    /**
-     * Returns the Navx yaw angle.
-     * @return
-     *  The degrees recorded by the Navx yaw
-     */
-    public double getNavxAngle()
-    {
-        return navx.getAngle();
-    }
-
-    /**
-     * Resets the Navx.
-     */
-    public void resetNavx()
-    {
-        navx.reset();
-    }
-
-    public void zeroYaw()
-    {
-        navx.zeroYaw();
-    }
-
-    /**
-     * Disables the PID threads.
-     */
-    public void disablePID()
-    {
-        turnPID.disable();
-        usPID.disable();
-    }
-
-    /**
      * Rotates the robot to the specified angle (relative to field)
      * @param targetAngle
      *  The angle to turn to relative to robot at the start of the match
@@ -270,6 +199,65 @@ public class Drive
     }
 
     /**
+     * Moves the robot forwards until it is a set distance away from the object in front of it
+     * @param distance
+     *  The distance from the object you want to reach (in inches)
+     */
+    public void moveToDistance(double distance)
+    {
+        usPID.setSetpoint(distance);
+        usPID.enable();
+    }
+
+    /**
+     * Returns the distance travelled recoreded by the left encoder.
+     * @return
+     *  The distance travelled in inches
+     */
+    public double getLeftDistance()
+    {
+        return lEncoder.getDistance();
+    }
+
+     /**
+     * Returns the distance travelled recoreded by the right encoder.
+     * @return
+     *  The distance travelled in inches
+     */
+    public double getRightDistance()
+    {
+        return rEncoder.getDistance();
+    }
+
+    /**
+     * Returns the Navx yaw angle.
+     * @return
+     *  The degrees recorded by the Navx yaw
+     */
+    public double getNavxAngle()
+    {
+        //TODO test this
+        return navx.getAngle() - navx.getAngleAdjustment();
+    }
+
+    /**
+     * Resets the Navx.
+     */
+    public void resetNavx()
+    {
+        navx.reset();
+    }
+
+    /**
+     * Disables the PID threads.
+     */
+    public void disablePID()
+    {
+        turnPID.disable();
+        usPID.disable();
+    }
+
+    /**
      * Aligns the robot using the Lime Light.
      * @return
      *  True if the robot is aligned, false if still being aligned
@@ -277,6 +265,9 @@ public class Drive
     public boolean limeLightAlign()
     {
         //TODO test
+        disablePID();
+        //TODO no target detected case
+        //TODO make constant thresholds 
         if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0) >= 50
         && Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0)) > 1)
         {

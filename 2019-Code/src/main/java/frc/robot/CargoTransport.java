@@ -79,6 +79,8 @@ public class CargoTransport implements PIDSource, PIDOutput
         rollerMotor = new TalonSRX(Constants.CargoTransport.ROLLER_MOTOR_DEVICE_NUM);
         armMotor = new TalonSRX(Constants.CargoTransport.ARM_MOTOR_DEVICE_NUM);
         armEncoder = new AnalogPotentiometer(Constants.CargoTransport.ARM_ENCODER_CHANNEL, Constants.CargoTransport.ENCODER_RANGE, 0);
+        
+        //TODO tune PID values when spring is attached
         armPID = new PIDController(Constants.CargoTransport.ARM_P, Constants.CargoTransport.ARM_I, 
             Constants.CargoTransport.ARM_D, this, this);
         armPID.setAbsoluteTolerance(Constants.CargoTransport.ARM_PID_TOLERANCE);
@@ -124,11 +126,12 @@ public class CargoTransport implements PIDSource, PIDOutput
     @Override
     public void pidWrite(double output)
     {
-        if(armEncoder.get() > 300)
+        //Limits motor power when gravity is assisting
+        if(armEncoder.get() > 300) //TODO constant arm straight up angle 
         {
             if(output > 0 )
             {
-                output *= 0.5;
+                output *= 0.5; //TODO constant gravity multiplier
             }
             armMotor.set(ControlMode.PercentOutput, -output);
         }

@@ -115,6 +115,7 @@ public class Robot extends TimedRobot
         climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
         //pixy =  new PixyController();
 
+        //TODO put lights on robot
        // dynamicLights = new LEDController(72, Mode.OFF);
 
         //TODO do stuff with odometry
@@ -189,7 +190,7 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic() 
     {
-        
+        teleopPeriodic();
     }
 
     /**
@@ -199,24 +200,31 @@ public class Robot extends TimedRobot
     public void teleopPeriodic() 
     {
         //Drivetrain control
+        //TODO constants left side bay line up and right side bay line up buttons
         if(lJoy.getRawButton(8) || rJoy.getRawButton(7)) //Line up with and deliver panel
         {
             int angle = pixy.estimateAngle();
             initDriverAssist = true;
 
-            if(angle < 10)
+            //
+            if(angle > 10)
             {
-                if(lJoy.getRawButton(8))
+                if(initDriverAssist)
                 {
-                    angle = -angle;
-                }
+                    if(lJoy.getRawButton(8))
+                    {
+                        angle = -angle;
+                    }
+                    drive.beginTurn(angle);
 
-                drive.beginTurn(angle);
+                    initDriverAssist = false;
+                }
             }
             else
             {
                 if(!deliverDone && drive.limeLightAlign())
                 {
+                    drive.disablePID();
                     //Ram
                     //TODO tune power and time
                     drive.setLeft(0.25);
@@ -356,13 +364,7 @@ public class Robot extends TimedRobot
      * This function is called periodically during test mode.
      */
     @Override
-    public void testPeriodic() 
-    {
-        drive.resetNavx();
-        Util.threadSleep(30000);
-        drive.zeroYaw();
-        Util.threadSleep(30000);
-    }
+    public void testPeriodic() {}
 
     /**
      * This function is called every robot packet, no matter the mode. Use

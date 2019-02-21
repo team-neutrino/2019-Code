@@ -145,7 +145,7 @@ public class PixyCam implements Runnable
 	 */
     public boolean isTracking()
     {
-        return checkSum != 0 && System.currentTimeMillis() - timeGot < 100 && checkData();
+        return checkSum != 0 && checkData() && System.currentTimeMillis() - timeGot < 100;
 	}
 	
 	/**

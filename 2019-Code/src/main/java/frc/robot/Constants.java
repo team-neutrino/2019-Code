@@ -17,7 +17,6 @@ public class Constants
     {
         public static final int LEFT_JOYSTICK_PORT = 0;
         public static final int RIGHT_JOYSTICK_PORT = 1;
-        public static final int WHITE_LED_PORT = 5;
         public static final int XBOX_CONTROLLER_PORT = 2;
 
         public static final int CLIMBER_CHANNEL = 6;
@@ -146,6 +145,14 @@ public class Constants
         public static final SPI.Port PIXY_PORT = SPI.Port.kOnboardCS0; 
         public static final int PIXY_BUFFER_SIZE = 100;
         public static final int PIXY_CLOCKRATE = 1000000;
+    }
+
+    /**
+     * Constants for the pixy cam controller class.
+     */
+    public static class PixyController
+    {
+        public static final int LED_PORT = 5;
     }
 
     /**
