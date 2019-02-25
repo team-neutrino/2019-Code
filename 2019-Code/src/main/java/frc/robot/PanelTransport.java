@@ -19,19 +19,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class PanelTransport 
 {    
     /**
-     * Pushes panel off 
+     * Double solenoid to deploy the panel
      */
     private DoubleSolenoid pushers;
    
     /**
-     * Holds panels in place
+     * Double solenoid to hold the panel in place or release it
      */
     private DoubleSolenoid holder;
 
     //TODO think about adding button. Drive into panel grab automatically 
 
     /**
-     * Constructor for panel handler. Port numbers are not final.
+     * Constructor for panel transport.
      */
     public PanelTransport()
     {
@@ -41,6 +41,7 @@ public class PanelTransport
         new ValuePrinter(()->
             {
                 SmartDashboard.putString("Pushers state: ", pushers.get().toString());
+                SmartDashboard.putString("Holder state: ", holder.get().toString());
             }, 
             ValuePrinter.NORMAL_PRIORITY);
     }
@@ -48,7 +49,7 @@ public class PanelTransport
     /**
      * Turns the pushing solenoid in or out with the given value.
      * @param out
-     *  Ture if the cylinder should be out, false if in
+     *  Ture if the cylinders should be out, false if in
      */
     public void setPushersOut(boolean out)
     {

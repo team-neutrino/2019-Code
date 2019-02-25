@@ -8,7 +8,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Controller for the LEDs through the PCM.
@@ -18,7 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * @author JoelNeppel
  * 
  */
-public class LEDController implements Runnable
+public class LEDController
 {
     /**
      * Enum for the LED control mode
@@ -62,9 +61,9 @@ public class LEDController implements Runnable
     private String message;
 
     /**
-     * The mode the LEDs are in
+     * The thread for the LED control, only active when in flash or morse mode
      */
-    private Mode mode;
+    private Thread ledThread;
 
     //TODO consider using builder for learning experience (if time)
     /**
@@ -85,20 +84,14 @@ public class LEDController implements Runnable
     public LEDController(int channel, Mode mode, int interval, int onTime, int offTime, int numPulses)
     {
         ledPort = new Solenoid(channel);
-        this.mode = mode;
         this.interval = interval;
         this.onTime = onTime;
         this.offTime = offTime;
         this.numPulses = numPulses;
         message = "";
+        ledThread = new Thread();
 
-        new ValuePrinter(()->
-            {
-                SmartDashboard.putString("LED State: ", mode.toString());
-            }, 
-            ValuePrinter.LOWEST_PRIORITY);
-
-        new Thread(this).start();
+        setMode(mode);
     }
 
     /**
@@ -153,7 +146,28 @@ public class LEDController implements Runnable
      */
     public void setMode(Mode mode)
     {
-        this.mode = mode;
+        if(mode == Mode.ON)
+        {
+            ledThread.interrupt();
+            ledPort.set(true);
+        }
+        else if(mode == Mode.OFF)
+        {
+            ledThread.interrupt();
+            ledPort.set(false);
+        }
+        else if(mode == Mode.FLASH)
+        {
+            ledThread.interrupt();
+            ledThread = new Thread(this::flash);
+            ledThread.start(); 
+        }
+        else if(mode == Mode.MORSE)
+        {
+            ledThread.interrupt();
+            ledThread = new Thread(this::morse);
+            ledThread.start(); 
+        }
     }
 
     /**
@@ -167,53 +181,62 @@ public class LEDController implements Runnable
         message = morseMessage;
     }
 
-    @Override
-    public void run()
+    /**
+     * Method to set the LEDs to flash.
+     */
+    private void flash()
     {
-        while(true)
+        try
         {
-            if(mode == Mode.FLASH)
+            while(!Thread.interrupted())
             {
                 for(int i = 0; i < numPulses; i++)
                 {
                     ledPort.set(true);
-                    Util.threadSleep(onTime);
+                    Thread.sleep(onTime);
                     ledPort.set(false);
-                    Util.threadSleep(offTime);
-                    Util.threadSleep(Math.max(0, interval - offTime));
+                    Thread.sleep(offTime);
+                    Thread.sleep(Math.max(0, interval - offTime));
                 }
             }
-            else if(mode == Mode.MORSE)
+        }
+        catch(InterruptedException e)
+        {
+            //Do nothing - let the thread end
+        }
+    }
+
+    /**
+     * Method to set the LEDs to morse.
+     */
+    private void morse()
+    {
+        try
+        {
+            while(!Thread.interrupted())
             {
                 for(int i = 0; i < message.length(); i++)
                 {
                     if(message.charAt(i) == '-')
                     {
                         ledPort.set(true);
-                        Util.threadSleep(1333);
+                        Thread.sleep(1333);
                         ledPort.set(false);
-                        Util.threadSleep(1000);
+                        Thread.sleep(1000);
                     }
-    
                     if(message.charAt(i) == '.')
                     {
                         ledPort.set(true);
-                        Util.threadSleep(667);
+                        Thread.sleep(667);
                         ledPort.set(false);
-                        Util.threadSleep(1000);
+                        Thread.sleep(1000);
                     }
                 }
             }
-            else if(mode == Mode.ON)
-            {
-                ledPort.set(true);
-            }
-            else
-            {
-                ledPort.set(false);
-            }
-
-            Util.threadSleep(1);
+        }
+        catch(InterruptedException e)
+        {
+            //Do nothing - let the thread end
         }
     }
 }

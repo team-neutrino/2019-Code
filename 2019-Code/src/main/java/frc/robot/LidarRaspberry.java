@@ -8,16 +8,17 @@
 package frc.robot;
 
 import java.nio.ByteBuffer;
-
-import edu.wpi.first.wpilibj.SerialPort;
-
+import java.io.IOException;
 import java.net.*;
+
 /**
  * Basic system for controlling the LiDAR subsystem
+ * 
  * @author IndyPrieto
+ * 
  */
-public class LidarRaspberry {
-
+public class LidarRaspberry 
+{
     /**
      * Drive access
      */
@@ -27,7 +28,6 @@ public class LidarRaspberry {
      * Message buffer
      */
     private byte[] message;
-
 
     /**
      * Datagram (UDP) Socket
@@ -44,7 +44,6 @@ public class LidarRaspberry {
      */
     private InetAddress piAddr;
 
-
     /**
      * Creates a link to the Raspberry Pi to control the lidar
      * @param drive
@@ -52,12 +51,9 @@ public class LidarRaspberry {
      */
     public LidarRaspberry(Drive drive)
     {
-
         drv = drive;
 
         message = new byte[5];
-
-        
 
         try
         {
@@ -65,11 +61,10 @@ public class LidarRaspberry {
             clientSocket = new DatagramSocket(Constants.Lidar.LIDAR_PORT);
             packet = new DatagramPacket(message, 5, piAddr, Constants.Lidar.LIDAR_PORT);
         }
-        catch (Exception e)
+        catch (IOException e)
         {
             e.getStackTrace();
         }
-
     }
 
     /**
@@ -79,8 +74,8 @@ public class LidarRaspberry {
      */
     private float getAngle()
     {
+        //TODO test
         return (float) (drv.getNavxAngle() + 180);
-
     }
 
     /**
@@ -94,11 +89,10 @@ public class LidarRaspberry {
         {
             clientSocket.send(packet);
         } 
-        catch (Exception e) 
+        catch (IOException e) 
         {
             e.printStackTrace();
-        }
-            
+        }           
     }
 
     /**
@@ -112,7 +106,7 @@ public class LidarRaspberry {
         {
             clientSocket.send(packet);
         } 
-        catch (Exception e) 
+        catch (IOException e) 
         {
             e.printStackTrace();
         }   
@@ -129,11 +123,9 @@ public class LidarRaspberry {
         {
             clientSocket.send(packet);
         } 
-        catch (Exception e) 
+        catch(IOException e)
         {
             e.printStackTrace();
         }
     }
-
-
 }

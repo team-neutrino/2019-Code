@@ -71,12 +71,14 @@ public class Drive
     private PIDController turnPID;      
 
     /**
-     * PIDController for the Ultrasonic
+     * PIDController for using the Ultrasonic 
+     * to drive a distance away from an object
      */
     private PIDController usPID;
 
     /**
-     * True if the robot is backing up after being too close to the target, false otherwise
+     * True if the robot is backing up after being 
+     * too close to the target, false otherwise
      */
     private boolean backingUp;
 
@@ -105,10 +107,11 @@ public class Drive
                 setLeft(-output);
                 setRight(output);
             });
-        turnPID.setInputRange(-180.0, 180.0); //TODO constants
-        turnPID.setOutputRange(-1.0, 1.0);
+        turnPID.setInputRange(Constants.Drive.TURN_INPUT_MIN, Constants.Drive.TURN_INPUT_MAX);
+        turnPID.setOutputRange(Constants.Drive.TURN_OUTPUT_MIN, Constants.Drive.TURN_OUTPUT_MAX);
         turnPID.setAbsoluteTolerance(Constants.Drive.TURN_TOLERANCE);
 
+        //TODO tune PID
         usPID = new PIDController(Constants.Drive.DISTANCE_P, Constants.Drive.DISTANCE_I, 
             Constants.Drive.DISTANCE_D, ultrasonic, 
             (double output)->
@@ -117,8 +120,8 @@ public class Drive
                 setRight(output);
             });
         usPID.setAbsoluteTolerance(Constants.Drive.DISTANCE_TOLERANCE);
-        usPID.setOutputRange(-1, 1);//TODO constants
-        usPID.setInputRange(Constants.Drive.MIN_DISTANCE_RANGE, Constants.Drive.MAX_DISTANCE_RANGE);
+        usPID.setInputRange(Constants.Drive.DISTANCE_INPUT_MIN, Constants.Drive.DISTANCE_INPUT_MAX);
+        usPID.setOutputRange(Constants.Drive.DISTANCE_OUTPUT_MIN, Constants.Drive.DISTANCE_OUTPUT_MAX);
 
         new ValuePrinter(()-> 
             {
@@ -173,7 +176,7 @@ public class Drive
     public void rotateToAngle(double targetAngle)
     {
         //TODO test negative/shortest turn
-        double modAngle = navx.getAngle()%360;
+        double modAngle = getNavxAngle()%360;
         if(modAngle >= targetAngle)
         {
             if(modAngle-targetAngle <= (targetAngle+360)-modAngle)
@@ -264,7 +267,7 @@ public class Drive
      */
     public boolean limeLightAlign()
     {
-        //TODO test
+        //TODO test method
         disablePID();
         //TODO no target detected case
         //TODO make constant thresholds 
@@ -287,6 +290,7 @@ public class Drive
         }
         else
         {
+            //TODO tune turn amount
             if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0) > 1)
             {
                 setRight(0.85);

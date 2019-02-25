@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Class for the PixyCam that reads data form the SPI and parses data of the 
- * object being tracked.
+ * object being tracked. This class only tracks one object at a time.
  * 
  * @author JoelNeppel
  *
@@ -69,9 +69,7 @@ public class PixyCam implements Runnable
 		pixyConnection.setMSBFirst();
 		pixyConnection.setClockRate(Constants.PixyCam.PIXY_CLOCKRATE);
 		pixyConnection.setClockActiveHigh();
-		
-		new Thread(this).start();
-
+	
 		new ValuePrinter(()->
 			{
 				SmartDashboard.putBoolean("Pixy Tracking: ", isTracking());
@@ -138,7 +136,6 @@ public class PixyCam implements Runnable
 	/**
 	 * Returns whether the pixy is currently tracking an object based
 	 * on if the checkSum is 0 and the last time data was processed.
-	 * 
 	 * @return
 	 * 	True if the pixy has sent non-zero data within
 	 * 	the last 100 milliseconds, false otherwise
@@ -162,55 +159,61 @@ public class PixyCam implements Runnable
 	
 	@Override
 	public void run() 
-	{				
-		while(true)
+	{	
+		try
 		{
-			byte[] bytes = new byte[2];
-
-			//Look for start bytes
-			boolean startFound = false;
-			while(!startFound)
+			while(!Thread.interrupted())
 			{
-				Util.threadSleep(1);
+				byte[] bytes = new byte[2];
+
+				//Look for start bytes
+				boolean startFound = false;
+				while(!startFound)
+				{
+					Thread.sleep(1);
+
+					pixyConnection.read(true, bytes, 2);
+					
+					if(((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF)) == 0xaa55)
+					{
+						startFound = true;
+					}
+				}
 
 				pixyConnection.read(true, bytes, 2);
-				
+				//Check if next bytes are start bytes meaning a new frame
 				if(((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF)) == 0xaa55)
 				{
-					startFound = true;
+					pixyConnection.read(true, bytes, 2);
 				}
-			 }
-
-			pixyConnection.read(true, bytes, 2);
-			//Check if next bytes are start bytes meaning a new frame
-			if(((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF)) == 0xaa55)
-			{
+				
+				//Set values from bytes received
+				checkSum = bytesToInt(bytes);
+				
 				pixyConnection.read(true, bytes, 2);
+				signature = bytesToInt(bytes);
+				
+				//Switch x with y and width with height since pixy is rotated 90
+				pixyConnection.read(true, bytes, 2);
+				y = bytesToInt(bytes);
+				
+				pixyConnection.read(true, bytes, 2);
+				x = bytesToInt(bytes);
+				
+				pixyConnection.read(true, bytes, 2);
+				height = bytesToInt(bytes);
 
+				pixyConnection.read(true, bytes, 2);
+				width = bytesToInt(bytes);
+				
+				timeGot = System.currentTimeMillis();
+
+				Thread.sleep(1);
 			}
-			
-			//Set values from bytes received
-			checkSum = bytesToInt(bytes);
-			
-			pixyConnection.read(true, bytes, 2);
-			signature = ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
-			
-			//Switch x with y and width with height since pixy is rotated 90
-			pixyConnection.read(true, bytes, 2);
-			y = bytesToInt(bytes);
-			
-			pixyConnection.read(true, bytes, 2);
-			x = bytesToInt(bytes);
-			
-			pixyConnection.read(true, bytes, 2);
-			height = bytesToInt(bytes);
-
-			pixyConnection.read(true, bytes, 2);
-			width = bytesToInt(bytes);
-            
-            timeGot = System.currentTimeMillis();
-
-			Util.threadSleep(1);
 		}
+		catch(InterruptedException e)
+		{
+			//Do nothing - let the thread end
+		}			
 	}
 }

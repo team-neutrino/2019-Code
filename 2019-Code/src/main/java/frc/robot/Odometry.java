@@ -133,6 +133,7 @@ public class Odometry implements Runnable
     @Override
     public void run() 
     {
+		//TODO test
 		while(true)
 		{
 			if(firstFrame)

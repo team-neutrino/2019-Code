@@ -48,17 +48,17 @@ public class Robot extends TimedRobot
     private XboxController xBox;
   
     /**
-     * The drive object
+     * The drive object for all drive train related functions
      */
     private Drive drive;
 
     /**
-     * Controlling the cargo transport stuff
+     * The cargo transport object for all cargo related functions
      */
     private CargoTransport cargoTransport;
 
     /**
-     * The panel transporter object
+     * The panel transport object for all panel functions
      */
     private PanelTransport panelTransport;
 
@@ -74,7 +74,7 @@ public class Robot extends TimedRobot
 
     /**
      * Flag for the beginning of a driver assist
-     * used to enable a PID 
+     * used to enable and disable PID
      */
     private boolean initDriverAssist;
 
@@ -84,7 +84,7 @@ public class Robot extends TimedRobot
     private Odometry odometry;
 
     /**
-     * Lights that flash to indicate stuff. Port number not permanent.
+     * Lights that flash to indicate robot status
      */
     private LEDController dynamicLights;
 
@@ -113,7 +113,7 @@ public class Robot extends TimedRobot
         cargoTransport = new CargoTransport();
         panelTransport = new PanelTransport();
         climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
-        //pixy =  new PixyController();
+        pixy =  new PixyController();
 
         //TODO put lights on robot
        // dynamicLights = new LEDController(72, Mode.OFF);
@@ -199,19 +199,20 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic() 
     {
-        //Drivetrain control
-        //TODO constants left side bay line up and right side bay line up buttons
-        if(lJoy.getRawButton(8) || rJoy.getRawButton(7)) //Line up with and deliver panel
+        //Drivetrain control and driver assist
+        if(lJoy.getRawButton(Constants.LJoy.DELIVER_LEFT_SIDE_BUTTON) 
+            || lJoy.getRawButton(Constants.LJoy.DELIVER_RIGHT_SIDE_BUTTON)) //Line up with bay and deliver panel
         {
+            //TODO include case where pixy isn't tracking - turn from navx
             int angle = pixy.estimateAngle();
             initDriverAssist = true;
 
-            //
+            //Turn if the angle reported by the pixy cam is more than 10 degrees
             if(angle > 10)
             {
                 if(initDriverAssist)
                 {
-                    if(lJoy.getRawButton(8))
+                    if(lJoy.getRawButton(Constants.LJoy.DELIVER_RIGHT_SIDE_BUTTON))
                     {
                         angle = -angle;
                     }
@@ -220,9 +221,9 @@ public class Robot extends TimedRobot
                     initDriverAssist = false;
                 }
             }
-            else
+            else //Line up using the Limelight
             {
-                if(!deliverDone && drive.limeLightAlign())
+                if(!deliverDone && drive.limeLightAlign()) //Deploy panel if not already deployed and is lined up
                 {
                     drive.disablePID();
                     //Ram
@@ -241,7 +242,7 @@ public class Robot extends TimedRobot
                 }
             }
         }
-        else if(lJoy.getRawButton(Constants.Robot.NEG_45_DEG_FIELD_BUTTON))
+        else if(rJoy.getRawButton(Constants.RJoy.NEG_45_DEG_FIELD_BUTTON))
         {
             if(initDriverAssist)
             {
@@ -249,7 +250,7 @@ public class Robot extends TimedRobot
                 initDriverAssist = false;
             }
         }
-        else if(lJoy.getRawButton(Constants.Robot.POS_45_DEG_FIELD_BUTTON))
+        else if(rJoy.getRawButton(Constants.RJoy.POS_45_DEG_FIELD_BUTTON))
         {
             if(initDriverAssist)
             {
@@ -257,7 +258,7 @@ public class Robot extends TimedRobot
                 initDriverAssist = false;
             }
         }
-        else if(lJoy.getRawButton(Constants.Robot.NEG_45_DEG_ROBOT_BUTTON))
+        else if(rJoy.getRawButton(Constants.RJoy.NEG_45_DEG_ROBOT_BUTTON))
         {
             if(initDriverAssist)
             {
@@ -265,7 +266,7 @@ public class Robot extends TimedRobot
                 initDriverAssist = false;
             }
         }
-        else if(lJoy.getRawButton(Constants.Robot.POS_45_DEG_ROBOT_BUTTON))
+        else if(rJoy.getRawButton(Constants.RJoy.POS_45_DEG_ROBOT_BUTTON))
         {
             if(initDriverAssist)
             {
@@ -273,12 +274,12 @@ public class Robot extends TimedRobot
                 initDriverAssist = false;
             }
         }
-        else if(lJoy.getRawButton(Constants.LJoy.PREPARE_CLIMB_BUTTON) 
+        else if(lJoy.getRawButton(Constants.LJoy.PREPARE_CLIMB_BUTTON) //Drive to distance away from wall to set up climb
             || rJoy.getRawButton(Constants.RJoy.PREPARE_CLIMB_BUTTON))
         {
             if(initDriverAssist)
             {
-                drive.moveToDistance(10);
+                drive.moveToDistance(Constants.Robot.CLIMB_DISTANCE);
             }
         }
         else //Control drive train using joysticks with a dead zone
@@ -292,14 +293,14 @@ public class Robot extends TimedRobot
             }
 
             double rPower = -rJoy.getY();
-            if(Math.abs(rPower) < 0.1)
+            if(Math.abs(rPower) < Constants.RJoy.DEAD_ZONE)
             {
                 rPower = 0.0;
             }
             drive.setRight(rPower);
 
             double lPower = -lJoy.getY();
-            if(Math.abs(lPower) < 0.1)
+            if(Math.abs(lPower) < Constants.LJoy.DEAD_ZONE)
             {
                 lPower = 0.0;
             }
@@ -328,7 +329,6 @@ public class Robot extends TimedRobot
         if(xBox.getRawButton(Constants.XBox.INTAKE_CARGO_BUTTON))
         {
             cargoTransport.setRoller(0.8);
-
         }
         else
         {
@@ -338,6 +338,7 @@ public class Robot extends TimedRobot
         //Panel transport control
         if(xBox.getRawAxis(Constants.XBox.OUTTAKE_PANEL_AXIS) > 0.5)
         {
+            //TODO see if adding wait inbetween improves panel delivery
             panelTransport.setPanelHold(false);
             panelTransport.setPushersOut(true);
         }
@@ -353,8 +354,8 @@ public class Robot extends TimedRobot
             || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
         {
             climber.set(true);
-            dynamicLights.setMessage("-....--.-...-.---");
-            dynamicLights.setMode(LEDController.Mode.MORSE);
+            // dynamicLights.setMessage("-....--.-...-.---");
+            // dynamicLights.setMode(LEDController.Mode.MORSE);
         }
 
         Util.threadSleep(1);

@@ -9,7 +9,7 @@ package frc.robot;
 
 /**
  * Class used to start a thread that prints values with 
- * a given wait time.
+ * a given wait time between prints.
  * 
  * @author NicoleEssner, JoelNeppel
  * 
@@ -17,7 +17,7 @@ package frc.robot;
 public class ValuePrinter 
 {
     /*
-     * The amount to sleep the thread in milliseconds for different priorities.
+     * The amount to sleep the thread, in milliseconds, for different priorities.
      */
     public static final int HIGHEST_PRIORITY = 250;
     public static final int HIGH_PRIORITY = 750;

@@ -21,10 +21,7 @@ public class Constants
 
         public static final int CLIMBER_CHANNEL = 6;
 
-        public static final int NEG_45_DEG_FIELD_BUTTON = 6;
-        public static final int NEG_45_DEG_ROBOT_BUTTON = 7;
-        public static final int POS_45_DEG_FIELD_BUTTON = 10;
-        public static final int POS_45_DEG_ROBOT_BUTTON = 11;
+        public static final int CLIMB_DISTANCE = 10;
     }
 
     /**
@@ -52,6 +49,8 @@ public class Constants
      */
     public static class LJoy
     {
+        public static final double DEAD_ZONE = 0.1;
+
         public static final int DELIVER_LEFT_SIDE_BUTTON = 1;
         public static final int DELIVER_RIGHT_SIDE_BUTTON = 1;
 
@@ -63,7 +62,14 @@ public class Constants
      */
     public static class RJoy
     {
+        public static final double DEAD_ZONE = LJoy.DEAD_ZONE;
+
         public static final int PREPARE_CLIMB_BUTTON = LJoy.PREPARE_CLIMB_BUTTON;
+
+        public static final int NEG_45_DEG_FIELD_BUTTON = 6;
+        public static final int NEG_45_DEG_ROBOT_BUTTON = 7;
+        public static final int POS_45_DEG_FIELD_BUTTON = 10;
+        public static final int POS_45_DEG_ROBOT_BUTTON = 11;
     }
 
     /**
@@ -91,14 +97,19 @@ public class Constants
         public static final double TURN_I = 0.0165;
         public static final double TURN_D = 0.145;
         public static final double TURN_TOLERANCE = 5.0;
+        public static final double TURN_INPUT_MIN = -180.0;
+        public static final double TURN_INPUT_MAX = 180.0;
+        public static final double TURN_OUTPUT_MIN = -1.0;
+        public static final double TURN_OUTPUT_MAX = 1.0;
 
         public static final double DISTANCE_P = 0.0;
         public static final double DISTANCE_I = 0.0;
         public static final double DISTANCE_D = 0.0;
         public static final double DISTANCE_TOLERANCE = 1.0;
-
-        public static final int MIN_DISTANCE_RANGE = 6;
-        public static final int MAX_DISTANCE_RANGE = 200;
+        public static final double DISTANCE_INPUT_MIN = 6;
+        public static final double DISTANCE_INPUT_MAX = 100;
+        public static final double DISTANCE_OUTPUT_MIN = -1.0;
+        public static final double DISTANCE_OUTPUT_MAX = 1.0;
     }
     
     /**
@@ -119,11 +130,14 @@ public class Constants
         public static final double ARM_MIN_INPUT = 150.0;
         public static final double ARM_MAX_INPUT = 335.0;
         public static final double PID_OUTPUT_RANGE = 1.0;
+        public static final double GRAVITY_ASSIST_MULTIPLIER = 0.5;
 
         public static final int ROCKET_BACK_ANGLE = 210;
         public static final int SHIP_BACK_ANGLE = 229;
         public static final int SHIP_FORWARD_ANGLE = 325;
         public static final int ARM_DOWN_ANGLE = 166;
+
+        public static final int ARM_UP_ANGLE = 300;
     }
 
     /**

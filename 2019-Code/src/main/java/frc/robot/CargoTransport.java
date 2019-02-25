@@ -52,7 +52,7 @@ public class CargoTransport implements PIDSource, PIDOutput
     }
 
     /**
-     * Controls the intake/output of cargo
+     * Motor to control the intake/outtake of cargo transport
      */
     private TalonSRX rollerMotor;
     
@@ -98,9 +98,9 @@ public class CargoTransport implements PIDSource, PIDOutput
     }
 
     /**
-     * Sets the power of the roller motor
+     * Sets the power of the roller motor.
      * @param power
-     *  The power to set roller motor to -1 out 1 in
+     *  The power to set roller motor to, -1 out 1 in
      */
     public void setRoller(double power)
     {
@@ -127,11 +127,11 @@ public class CargoTransport implements PIDSource, PIDOutput
     public void pidWrite(double output)
     {
         //Limits motor power when gravity is assisting
-        if(armEncoder.get() > 300) //TODO constant arm straight up angle 
+        if(armEncoder.get() > Constants.CargoTransport.ARM_UP_ANGLE)
         {
-            if(output > 0 )
+            if(output > 0)
             {
-                output *= 0.5; //TODO constant gravity multiplier
+                output *= Constants.CargoTransport.GRAVITY_ASSIST_MULTIPLIER;
             }
             armMotor.set(ControlMode.PercentOutput, -output);
         }
@@ -139,7 +139,7 @@ public class CargoTransport implements PIDSource, PIDOutput
         {
             if(output < 0)
             {
-                output *= 0.5;
+                output *= Constants.CargoTransport.GRAVITY_ASSIST_MULTIPLIER;
             }
             armMotor.set(ControlMode.PercentOutput, -output);
         }
