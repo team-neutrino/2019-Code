@@ -37,7 +37,7 @@ public class PixyController
     public PixyController()
     {
         pixy = new PixyCam();
-        leds = new LEDController(Constants.PixyController.LED_PORT, LEDController.Mode.OFF);
+        //leds = new LEDController(Constants.PixyController.LED_PORT, LEDController.Mode.OFF);
         pixyThread = new Thread(pixy);
     }
 

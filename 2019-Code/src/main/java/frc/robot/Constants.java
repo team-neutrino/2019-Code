@@ -21,7 +21,7 @@ public class Constants
 
         public static final int CLIMBER_CHANNEL = 6;
 
-        public static final int CLIMB_DISTANCE = 10;
+        public static final int CLIMB_DISTANCE = 50;
     }
 
     /**
@@ -51,8 +51,8 @@ public class Constants
     {
         public static final double DEAD_ZONE = 0.1;
 
-        public static final int DELIVER_LEFT_SIDE_BUTTON = 1;
-        public static final int DELIVER_RIGHT_SIDE_BUTTON = 1;
+        public static final int DELIVER_LEFT_SIDE_BUTTON = 2;
+        public static final int DELIVER_RIGHT_SIDE_BUTTON = 2;
 
         public static final int PREPARE_CLIMB_BUTTON = 1;
     }
@@ -66,10 +66,10 @@ public class Constants
 
         public static final int PREPARE_CLIMB_BUTTON = LJoy.PREPARE_CLIMB_BUTTON;
 
-        public static final int NEG_45_DEG_FIELD_BUTTON = 6;
+        public static final int NEG_45_DEG_FIELD_BUTTON = 8;
         public static final int NEG_45_DEG_ROBOT_BUTTON = 7;
-        public static final int POS_45_DEG_FIELD_BUTTON = 10;
-        public static final int POS_45_DEG_ROBOT_BUTTON = 11;
+        public static final int POS_45_DEG_FIELD_BUTTON = 11;
+        public static final int POS_45_DEG_ROBOT_BUTTON = 10;
     }
 
     /**
@@ -102,12 +102,12 @@ public class Constants
         public static final double TURN_OUTPUT_MIN = -1.0;
         public static final double TURN_OUTPUT_MAX = 1.0;
 
-        public static final double DISTANCE_P = 0.0;
+        public static final double DISTANCE_P = 0.01;
         public static final double DISTANCE_I = 0.0;
-        public static final double DISTANCE_D = 0.0;
+        public static final double DISTANCE_D = -0.01;
         public static final double DISTANCE_TOLERANCE = 1.0;
-        public static final double DISTANCE_INPUT_MIN = 6;
-        public static final double DISTANCE_INPUT_MAX = 100;
+        public static final double DISTANCE_INPUT_MIN = 50;
+        public static final double DISTANCE_INPUT_MAX = 700;
         public static final double DISTANCE_OUTPUT_MIN = -1.0;
         public static final double DISTANCE_OUTPUT_MAX = 1.0;
     }

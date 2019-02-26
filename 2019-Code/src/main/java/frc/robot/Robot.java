@@ -280,6 +280,7 @@ public class Robot extends TimedRobot
             if(initDriverAssist)
             {
                 drive.moveToDistance(Constants.Robot.CLIMB_DISTANCE);
+                initDriverAssist = false;
             }
         }
         else //Control drive train using joysticks with a dead zone

@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.*;
@@ -111,16 +112,17 @@ public class Drive
         turnPID.setOutputRange(Constants.Drive.TURN_OUTPUT_MIN, Constants.Drive.TURN_OUTPUT_MAX);
         turnPID.setAbsoluteTolerance(Constants.Drive.TURN_TOLERANCE);
 
+        ultrasonic.setDistanceUnits(Ultrasonic.Unit.kInches);
         //TODO tune PID
         usPID = new PIDController(Constants.Drive.DISTANCE_P, Constants.Drive.DISTANCE_I, 
             Constants.Drive.DISTANCE_D, ultrasonic, 
             (double output)->
             {
-                setLeft(output);
-                setRight(output);
+                setLeft(-output);
+                setRight(-output);
             });
         usPID.setAbsoluteTolerance(Constants.Drive.DISTANCE_TOLERANCE);
-        usPID.setInputRange(Constants.Drive.DISTANCE_INPUT_MIN, Constants.Drive.DISTANCE_INPUT_MAX);
+        //usPID.setInputRange(Constants.Drive.DISTANCE_INPUT_MIN, Constants.Drive.DISTANCE_INPUT_MAX);
         usPID.setOutputRange(Constants.Drive.DISTANCE_OUTPUT_MIN, Constants.Drive.DISTANCE_OUTPUT_MAX);
 
         new ValuePrinter(()-> 
@@ -130,6 +132,8 @@ public class Drive
                 SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
                 SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
                 SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
+                SmartDashboard.putNumber("setpoint: ", usPID.getSetpoint());
+                SmartDashboard.putNumber("input:", usPID.getError());
             },
             ValuePrinter.NORMAL_PRIORITY);
     }
@@ -141,6 +145,7 @@ public class Drive
      */
     public void setLeft(double power)
     {
+        System.out.println("l power: " + power);
         lMotor1.set(ControlMode.PercentOutput, power);
         lMotor2.set(ControlMode.PercentOutput, power);
     }
@@ -152,20 +157,10 @@ public class Drive
      */
     public void setRight(double power)
     {
+        System.out.println(" r power: " + power);
+
         rMotor1.set(ControlMode.PercentOutput, -power);
         rMotor2.set(ControlMode.PercentOutput, -power);
-    }
-
-    /**
-     * Zeros the yaw and turns the robot the given amount of degrees.
-     * @param degrees
-     *  The amount of degrees to turn from -180 to 180
-     */
-    public void beginTurn(double degrees)
-    {
-        navx.zeroYaw();
-        turnPID.setSetpoint(degrees);
-        turnPID.enable();
     }
 
     /**
@@ -208,6 +203,8 @@ public class Drive
      */
     public void moveToDistance(double distance)
     {
+        SmartDashboard.putNumber("set setpoint: ", distance);
+        System.out.println("!!!!!!!!!!!!!!!!!" + distance);
         usPID.setSetpoint(distance);
         usPID.enable();
     }
@@ -230,6 +227,18 @@ public class Drive
     public double getRightDistance()
     {
         return rEncoder.getDistance();
+    }
+
+        /**
+     * Zeros the yaw and turns the robot the given amount of degrees.
+     * @param degrees
+     *  The amount of degrees to turn from -180 to 180
+     */
+    public void beginTurn(double degrees)
+    {
+        navx.zeroYaw();
+        turnPID.setSetpoint(degrees);
+        turnPID.enable();
     }
 
     /**
