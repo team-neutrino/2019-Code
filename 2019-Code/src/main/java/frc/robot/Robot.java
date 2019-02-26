@@ -285,7 +285,7 @@ public class Robot extends TimedRobot
         }
         else //Control drive train using joysticks with a dead zone
         { 
-            //Disable PIDs from driver assist
+            //Disable PIDs from driver assist and sets boolean flags
             if(!initDriverAssist)
             {
                 drive.disablePID();
@@ -293,6 +293,7 @@ public class Robot extends TimedRobot
                 deliverDone = false;
             }
 
+            //TODO drive straight button
             double rPower = -rJoy.getY();
             if(Math.abs(rPower) < Constants.RJoy.DEAD_ZONE)
             {

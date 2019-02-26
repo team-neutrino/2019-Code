@@ -9,7 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.*;
@@ -47,11 +46,6 @@ public class Drive
     private TalonSRX rMotor2;
 
     /**
-     * The navx IMU
-     */
-    private AHRS navx;
-
-    /**
      * The encoder of the left side drive train
      */
     private Encoder lEncoder;
@@ -65,6 +59,16 @@ public class Drive
      * The Ultrasonic for measuring distance
      */
     private Ultrasonic ultrasonic;
+    
+    /**
+     * The navx IMU
+     */
+    private AHRS navx;
+
+    /**
+     * The network table to access the Limelight data
+     */
+    private NetworkTable limelight;
     
     /**
      * A PID object that makes the robot turn
@@ -93,13 +97,14 @@ public class Drive
         rMotor1 = new TalonSRX(Constants.Drive.RIGHT_MOTOR_ONE_PORT);
         rMotor2 = new TalonSRX(Constants.Drive.RIGHT_MOTOR_TWO_PORT);
 
-        navx = new AHRS(Constants.Drive.NAVX_PORT);
-        ultrasonic = new Ultrasonic(Constants.Drive.ULTRASONIC_PORT_1, Constants.Drive.ULTRASONIC_PORT_2);
         lEncoder = new Encoder(Constants.Drive.LEFT_ENCODER_PORT_ONE, Constants.Drive.LEFT_ENCODER_PORT_TWO);
         rEncoder = new Encoder(Constants.Drive.RIGHT_ENCODER_PORT_ONE, Constants.Drive.RIGHT_ENCODER_PORT_TWO);
-
         lEncoder.setDistancePerPulse(Constants.Drive.ENCODER_DISTANCE_PER_PULSE);
         rEncoder.setDistancePerPulse(Constants.Drive.ENCODER_DISTANCE_PER_PULSE);
+
+        navx = new AHRS(Constants.Drive.NAVX_PORT);
+        ultrasonic = new Ultrasonic(Constants.Drive.ULTRASONIC_PORT_1, Constants.Drive.ULTRASONIC_PORT_2);
+        limelight = NetworkTableInstance.getDefault().getTable("limelight");
 
         turnPID = new PIDController(Constants.Drive.TURN_P, 
             Constants.Drive.TURN_I, Constants.Drive.TURN_D, navx,             
@@ -112,8 +117,6 @@ public class Drive
         turnPID.setOutputRange(Constants.Drive.TURN_OUTPUT_MIN, Constants.Drive.TURN_OUTPUT_MAX);
         turnPID.setAbsoluteTolerance(Constants.Drive.TURN_TOLERANCE);
 
-        ultrasonic.setDistanceUnits(Ultrasonic.Unit.kInches);
-        //TODO tune PID
         usPID = new PIDController(Constants.Drive.DISTANCE_P, Constants.Drive.DISTANCE_I, 
             Constants.Drive.DISTANCE_D, ultrasonic, 
             (double output)->
@@ -132,8 +135,6 @@ public class Drive
                 SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
                 SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
                 SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
-                SmartDashboard.putNumber("setpoint: ", usPID.getSetpoint());
-                SmartDashboard.putNumber("input:", usPID.getError());
             },
             ValuePrinter.NORMAL_PRIORITY);
     }
@@ -145,7 +146,6 @@ public class Drive
      */
     public void setLeft(double power)
     {
-        System.out.println("l power: " + power);
         lMotor1.set(ControlMode.PercentOutput, power);
         lMotor2.set(ControlMode.PercentOutput, power);
     }
@@ -157,8 +157,6 @@ public class Drive
      */
     public void setRight(double power)
     {
-        System.out.println(" r power: " + power);
-
         rMotor1.set(ControlMode.PercentOutput, -power);
         rMotor2.set(ControlMode.PercentOutput, -power);
     }
@@ -203,8 +201,6 @@ public class Drive
      */
     public void moveToDistance(double distance)
     {
-        SmartDashboard.putNumber("set setpoint: ", distance);
-        System.out.println("!!!!!!!!!!!!!!!!!" + distance);
         usPID.setSetpoint(distance);
         usPID.enable();
     }
@@ -236,6 +232,7 @@ public class Drive
      */
     public void beginTurn(double degrees)
     {
+        navx.setAngleAdjustment(navx.getAngle() + navx.getYaw());
         navx.zeroYaw();
         turnPID.setSetpoint(degrees);
         turnPID.enable();
@@ -249,7 +246,7 @@ public class Drive
     public double getNavxAngle()
     {
         //TODO test this
-        return navx.getAngle() - navx.getAngleAdjustment();
+        return navx.getAngle();
     }
 
     /**
@@ -279,9 +276,9 @@ public class Drive
         //TODO test method
         disablePID();
         //TODO no target detected case
-        //TODO make constant thresholds 
-        if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0) >= 50
-        && Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0)) > 1)
+        //TODO tune thresholds
+        //TODO tune motor powers 
+        if(limelight.getEntry("ta").getDouble(0) >= 50 && Math.abs(limelight.getEntry("tx").getDouble(0)) > 1)
         {
             setLeft(-1.0);
             setRight(-1.0);
@@ -292,7 +289,7 @@ public class Drive
             setLeft(-1.0);
             setRight(-1.0);
 
-            if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0) < 25)
+            if(limelight.getEntry("ta").getDouble(0) < 25)
             {
                 backingUp = false;
             }
@@ -300,17 +297,17 @@ public class Drive
         else
         {
             //TODO tune turn amount
-            if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0) > 1)
+            if(limelight.getEntry("tx").getDouble(0) > 1)
             {
                 setRight(0.85);
                 setLeft(1);
             }
-            else if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0) < -1)
+            else if(limelight.getEntry("tx").getDouble(0) < -1)
             {
                 setLeft(0.85);
                 setRight(1);
             }
-            else if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0) >= 75)
+            else if(limelight.getEntry("ta").getDouble(0) >= 75)
             {
                 return true;
             }

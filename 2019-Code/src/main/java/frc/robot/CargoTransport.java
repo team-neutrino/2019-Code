@@ -36,7 +36,7 @@ public class CargoTransport implements PIDSource, PIDOutput
         ARM_DOWN(Constants.CargoTransport.ARM_DOWN_ANGLE);
 
         /**
-         * The angle of the encoder for the arm at the given position.
+         * The angle of the encoder for the arm at the given position
          */
         private final int angle;
 

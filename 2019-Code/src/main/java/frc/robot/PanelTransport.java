@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
- * Class for the panel transport
+ * Class for the panel transport to hold and deliver panels.
  * 
  * @author Team Neutrino
  * 

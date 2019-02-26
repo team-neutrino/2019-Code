@@ -74,7 +74,6 @@ public class LidarRaspberry
      */
     private float getAngle()
     {
-        //TODO test
         return (float) (drv.getNavxAngle()%360);
     }
 

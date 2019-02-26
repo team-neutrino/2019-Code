@@ -21,7 +21,7 @@ public class Constants
 
         public static final int CLIMBER_CHANNEL = 6;
 
-        public static final int CLIMB_DISTANCE = 50;
+        public static final int CLIMB_DISTANCE = 12;
     }
 
     /**
