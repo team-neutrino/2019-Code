@@ -103,6 +103,8 @@ public class Drive
         rEncoder.setDistancePerPulse(Constants.Drive.ENCODER_DISTANCE_PER_PULSE);
 
         navx = new AHRS(Constants.Drive.NAVX_PORT);
+        navx.reset();
+        System.out.println(navx.getYaw());
         ultrasonic = new Ultrasonic(Constants.Drive.ULTRASONIC_PORT_1, Constants.Drive.ULTRASONIC_PORT_2);
         limelight = NetworkTableInstance.getDefault().getTable("limelight");
 
@@ -170,28 +172,42 @@ public class Drive
     {
         //TODO test negative/shortest turn
         double modAngle = getNavxAngle()%360;
-        if(modAngle >= targetAngle)
+        
+        if(modAngle < 0)
         {
-            if(modAngle-targetAngle <= (targetAngle+360)-modAngle)
-            {
-                beginTurn(modAngle-targetAngle);
-            }
-            else
-            {
-                beginTurn((targetAngle+360)-modAngle);
-            }
+            modAngle += 360;
         }
-        else
-        {
-            if(targetAngle-modAngle <= (modAngle+360)-targetAngle)
-            {
-                beginTurn(targetAngle-modAngle);
-            }
-            else
-            {
-                beginTurn((modAngle+360)-targetAngle);
-            }
-        }
+
+        System.out.println(modAngle - targetAngle);
+
+        beginRelativeTurn(modAngle - targetAngle);
+        // if(Math.abs(modAngle - targetAngle) > 180)
+        // {
+        //     double turnAngle = modAngle - targetAngle;
+        //     targetAngle -= 180;
+        // }
+        // if(modAngle >= targetAngle)
+        // {
+        //     if(modAngle-targetAngle <= (targetAngle+360)-modAngle)
+        //     {
+        //         beginRelativeTurn(modAngle-targetAngle);
+        //     }
+        //     else
+        //     {
+        //         beginRelativeTurn((targetAngle+360)-modAngle);
+        //     }
+        // }
+        // else
+        // {
+        //     if(targetAngle-modAngle <= (modAngle+360)-targetAngle)
+        //     {
+        //         beginRelativeTurn(targetAngle-modAngle);
+        //     }
+        //     else
+        //     {
+        //         beginRelativeTurn((modAngle+360)-targetAngle);
+        //     }
+        // }
     }
 
     /**
@@ -230,9 +246,10 @@ public class Drive
      * @param degrees
      *  The amount of degrees to turn from -180 to 180
      */
-    public void beginTurn(double degrees)
+    public void beginRelativeTurn(double degrees)
     {
-        navx.setAngleAdjustment(navx.getAngle() + navx.getYaw());
+        System.out.println("relative turning");
+        navx.setAngleAdjustment(navx.getAngleAdjustment() + navx.getYaw());
         navx.zeroYaw();
         turnPID.setSetpoint(degrees);
         turnPID.enable();

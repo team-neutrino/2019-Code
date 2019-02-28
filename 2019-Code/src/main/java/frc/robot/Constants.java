@@ -93,10 +93,10 @@ public class Constants
         public static final int RIGHT_ENCODER_PORT_TWO = 5;
         public static final double ENCODER_DISTANCE_PER_PULSE = Math.PI/90;
     
-        public static final double TURN_P = 0.0365;
-        public static final double TURN_I = 0.0165;
-        public static final double TURN_D = 0.145;
-        public static final double TURN_TOLERANCE = 5.0;
+        public static final double TURN_P = 0.035;// 0.0365;
+        public static final double TURN_I = 0.0; //0.0165;
+        public static final double TURN_D = 0.1; //0.145;
+        public static final double TURN_TOLERANCE = 2.0;
         public static final double TURN_INPUT_MIN = -180.0;
         public static final double TURN_INPUT_MAX = 180.0;
         public static final double TURN_OUTPUT_MIN = -1.0;

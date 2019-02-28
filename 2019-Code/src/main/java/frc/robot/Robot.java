@@ -181,7 +181,7 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit() 
     {
-        drive.beginTurn(90);
+        drive.beginRelativeTurn(90);
     }
 
     /**
@@ -199,6 +199,11 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic() 
     {
+        if(rJoy.getRawButton(2))
+        {
+
+            drive.resetNavx();
+        }
         //Drivetrain control and driver assist
         if(lJoy.getRawButton(Constants.LJoy.DELIVER_LEFT_SIDE_BUTTON) 
             || lJoy.getRawButton(Constants.LJoy.DELIVER_RIGHT_SIDE_BUTTON)) //Line up with bay and deliver panel
@@ -216,7 +221,7 @@ public class Robot extends TimedRobot
                     {
                         angle = -angle;
                     }
-                    drive.beginTurn(angle);
+                    drive.beginRelativeTurn(angle);
 
                     initDriverAssist = false;
                 }
@@ -262,7 +267,7 @@ public class Robot extends TimedRobot
         {
             if(initDriverAssist)
             {
-                drive.beginTurn(-45);
+                drive.beginRelativeTurn(-45);
                 initDriverAssist = false;
             }
         }
@@ -270,7 +275,7 @@ public class Robot extends TimedRobot
         {
             if(initDriverAssist)
             {
-                drive.beginTurn(45);
+                drive.beginRelativeTurn(45);
                 initDriverAssist = false;
             }
         }
