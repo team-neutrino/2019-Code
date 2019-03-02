@@ -181,7 +181,7 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit() 
     {
-        drive.beginRelativeTurn(90);
+       // drive.beginRelativeTurn(90);
     }
 
     /**
@@ -199,59 +199,34 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic() 
     {
-        if(rJoy.getRawButton(2))
-        {
-
-            drive.resetNavx();
-        }
         //Drivetrain control and driver assist
         if(lJoy.getRawButton(Constants.LJoy.DELIVER_LEFT_SIDE_BUTTON) 
             || lJoy.getRawButton(Constants.LJoy.DELIVER_RIGHT_SIDE_BUTTON)) //Line up with bay and deliver panel
         {
-            //TODO include case where pixy isn't tracking - turn from navx
-            int angle = pixy.estimateAngle();
-            initDriverAssist = true;
-
-            //Turn if the angle reported by the pixy cam is more than 10 degrees
-            if(angle > 10)
+            initDriverAssist = false;
+            if(!deliverDone && drive.limeLightAlign()) //Deploy panel if not already deployed and is lined up
             {
-                if(initDriverAssist)
-                {
-                    if(lJoy.getRawButton(Constants.LJoy.DELIVER_RIGHT_SIDE_BUTTON))
-                    {
-                        angle = -angle;
-                    }
-                    drive.beginRelativeTurn(angle);
+                drive.disableDriverAssist();
+                //Ram
+                //TODO tune power and time
+                drive.setLeft(0.25);
+                drive.setRight(0.25);
+                Util.threadSleep(100);
+                drive.setLeft(0.0);
+                drive.setRight(0.0);
 
-                    initDriverAssist = false;
-                }
-            }
-            else //Line up using the Limelight
-            {
-                if(!deliverDone && drive.limeLightAlign()) //Deploy panel if not already deployed and is lined up
-                {
-                    drive.disablePID();
-                    //Ram
-                    //TODO tune power and time
-                    drive.setLeft(0.25);
-                    drive.setRight(0.25);
-                    Util.threadSleep(100);
-                    drive.setLeft(0.0);
-                    drive.setRight(0.0);
+                // panelTransport.setPanelHold(false);
+                // panelTransport.setPushersOut(true);
+                // Util.threadSleep(10);
 
-                    panelTransport.setPanelHold(false);
-                    panelTransport.setPushersOut(true);
-                    Util.threadSleep(10);
-
-                    deliverDone = true;
-                }
+                deliverDone = true;
             }
         }
         else if(rJoy.getRawButton(Constants.RJoy.NEG_45_DEG_FIELD_BUTTON))
         {
             if(initDriverAssist)
             {
-                drive.rotateToAngle(-45);
+                drive.rotateToAngle(315);
                 initDriverAssist = false;
             }
         }
@@ -293,7 +268,7 @@ public class Robot extends TimedRobot
             //Disable PIDs from driver assist and sets boolean flags
             if(!initDriverAssist)
             {
-                drive.disablePID();
+                drive.disableDriverAssist();
                 initDriverAssist = true;
                 deliverDone = false;
             }

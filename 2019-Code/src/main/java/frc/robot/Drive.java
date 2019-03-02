@@ -103,17 +103,18 @@ public class Drive
         rEncoder.setDistancePerPulse(Constants.Drive.ENCODER_DISTANCE_PER_PULSE);
 
         navx = new AHRS(Constants.Drive.NAVX_PORT);
-        navx.reset();
+        navx .reset();
         System.out.println(navx.getYaw());
         ultrasonic = new Ultrasonic(Constants.Drive.ULTRASONIC_PORT_1, Constants.Drive.ULTRASONIC_PORT_2);
         limelight = NetworkTableInstance.getDefault().getTable("limelight");
+        limelight.getEntry("ledMode").setNumber(1);
 
         turnPID = new PIDController(Constants.Drive.TURN_P, 
             Constants.Drive.TURN_I, Constants.Drive.TURN_D, navx,             
             (double output)->
             {
-                setLeft(-output);
-                setRight(output);
+                setLeft(output);
+                setRight(-output);
             });
         turnPID.setInputRange(Constants.Drive.TURN_INPUT_MIN, Constants.Drive.TURN_INPUT_MAX);
         turnPID.setOutputRange(Constants.Drive.TURN_OUTPUT_MIN, Constants.Drive.TURN_OUTPUT_MAX);
@@ -130,6 +131,8 @@ public class Drive
         //usPID.setInputRange(Constants.Drive.DISTANCE_INPUT_MIN, Constants.Drive.DISTANCE_INPUT_MAX);
         usPID.setOutputRange(Constants.Drive.DISTANCE_OUTPUT_MIN, Constants.Drive.DISTANCE_OUTPUT_MAX);
 
+        limelight.getEntry("camMode").setNumber(1);
+        limelight.getEntry("ledMode").setNumber(1);
         new ValuePrinter(()-> 
             {
                 SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
@@ -137,6 +140,8 @@ public class Drive
                 SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
                 SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
                 SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
+                SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
+                SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
             },
             ValuePrinter.NORMAL_PRIORITY);
     }
@@ -148,8 +153,8 @@ public class Drive
      */
     public void setLeft(double power)
     {
-        lMotor1.set(ControlMode.PercentOutput, power);
-        lMotor2.set(ControlMode.PercentOutput, power);
+        lMotor1.set(ControlMode.PercentOutput, -power);
+        lMotor2.set(ControlMode.PercentOutput, -power);
     }
 
     /**
@@ -159,8 +164,8 @@ public class Drive
      */
     public void setRight(double power)
     {
-        rMotor1.set(ControlMode.PercentOutput, -power);
-        rMotor2.set(ControlMode.PercentOutput, -power);
+        rMotor1.set(ControlMode.PercentOutput, power);
+        rMotor2.set(ControlMode.PercentOutput, power);
     }
 
     /**
@@ -171,16 +176,29 @@ public class Drive
     public void rotateToAngle(double targetAngle)
     {
         //TODO test negative/shortest turn
-        double modAngle = getNavxAngle()%360;
+        double modAngle = getNavxAngle() % 360;
         
         if(modAngle < 0)
         {
             modAngle += 360;
         }
 
-        System.out.println(modAngle - targetAngle);
+        System.out.println(targetAngle - modAngle);
+        double turnAngle = targetAngle - modAngle;
+        
+        if(Math.abs(turnAngle) > 180)
+        {
+            if(turnAngle > 0)
+            {
+                turnAngle -= 360;
+            }
+            else
+            {
+                turnAngle += 360;
+            }
+        }
 
-        beginRelativeTurn(modAngle - targetAngle);
+        beginRelativeTurn(turnAngle);
         // if(Math.abs(modAngle - targetAngle) > 180)
         // {
         //     double turnAngle = modAngle - targetAngle;
@@ -277,10 +295,11 @@ public class Drive
     /**
      * Disables the PID threads.
      */
-    public void disablePID()
+    public void disableDriverAssist()
     {
         turnPID.disable();
         usPID.disable();
+        //limelight.getEntry("ledMode").setNumber(1);
     }
 
     /**
@@ -290,23 +309,32 @@ public class Drive
      */
     public boolean limeLightAlign()
     {
+        System.out.println("Lining up");
+        disableDriverAssist();
+
+        limelight.getEntry("ledMode").setNumber(3);
+        //Util.threadSleep(50);
         //TODO test method
-        disablePID();
-        //TODO no target detected case
+
+        if(limelight.getEntry("tv").getDouble(0.0) == 0)
+        {
+            System.out.println("no target found");
+            return false;
+        }
         //TODO tune thresholds
         //TODO tune motor powers 
-        if(limelight.getEntry("ta").getDouble(0) >= 50 && Math.abs(limelight.getEntry("tx").getDouble(0)) > 1)
+        if(limelight.getEntry("ta").getDouble(0) > 7 && Math.abs(limelight.getEntry("tx").getDouble(0)) > 4)
         {
-            setLeft(-1.0);
-            setRight(-1.0);
+            setLeft(-0.3);
+            setRight(-0.3);
             backingUp = true;
         }
         else if(backingUp)
         {
-            setLeft(-1.0);
-            setRight(-1.0);
+            setLeft(-0.3);
+            setRight(-0.3);
 
-            if(limelight.getEntry("ta").getDouble(0) < 25)
+            if(limelight.getEntry("ta").getDouble(0) < 2)
             {
                 backingUp = false;
             }
@@ -316,22 +344,25 @@ public class Drive
             //TODO tune turn amount
             if(limelight.getEntry("tx").getDouble(0) > 1)
             {
-                setRight(0.85);
-                setLeft(1);
+                setRight(.15);
+                double pow = 0.15 + limelight.getEntry("tx").getDouble(0.0) * 0.025;
+                setLeft(pow);
             }
             else if(limelight.getEntry("tx").getDouble(0) < -1)
             {
-                setLeft(0.85);
-                setRight(1);
+                setLeft(0.15);
+                double pow = 0.15 + Math.abs(limelight.getEntry("tx").getDouble(0.0)) * 0.025;
+                setRight(pow);
             }
-            else if(limelight.getEntry("ta").getDouble(0) >= 75)
+            else if(limelight.getEntry("ta").getDouble(0) >= 9)
             {
+               // limelight.getEntry("ledMode").setNumber(1);
                 return true;
             }
             else
             {
-                setLeft(1);
-                setRight(1);
+                setLeft(0.3);
+                setRight(0.3);
             }
         }
 

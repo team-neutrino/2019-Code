@@ -66,7 +66,7 @@ public class Constants
 
         public static final int PREPARE_CLIMB_BUTTON = LJoy.PREPARE_CLIMB_BUTTON;
 
-        public static final int NEG_45_DEG_FIELD_BUTTON = 8;
+        public static final int NEG_45_DEG_FIELD_BUTTON = 6;
         public static final int NEG_45_DEG_ROBOT_BUTTON = 7;
         public static final int POS_45_DEG_FIELD_BUTTON = 11;
         public static final int POS_45_DEG_ROBOT_BUTTON = 10;
