@@ -9,8 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
-import edu.wpi.first.wpilibj.PIDSource;
-import edu.wpi.first.wpilibj.PIDSourceType;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
@@ -23,7 +21,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
  * @author Team Neutrino
  * 
  */
-public class CargoTransport implements PIDSource, PIDOutput
+public class CargoTransport implements PIDOutput
 {
     /**
      * Enum for the arm positions.
@@ -82,7 +80,7 @@ public class CargoTransport implements PIDSource, PIDOutput
         
         //TODO tune PID values when spring is attached
         armPID = new PIDController(Constants.CargoTransport.ARM_P, Constants.CargoTransport.ARM_I, 
-            Constants.CargoTransport.ARM_D, this, this);
+            Constants.CargoTransport.ARM_D, armEncoder, this);
         armPID.setAbsoluteTolerance(Constants.CargoTransport.ARM_PID_TOLERANCE);
         armPID.setInputRange(Constants.CargoTransport.ARM_MIN_INPUT, Constants.CargoTransport.ARM_MAX_INPUT);
         armPID.setOutputRange(-Constants.CargoTransport.PID_OUTPUT_RANGE, Constants.CargoTransport.PID_OUTPUT_RANGE);
@@ -118,12 +116,6 @@ public class CargoTransport implements PIDSource, PIDOutput
     }
 
     @Override
-    public double pidGet()
-    {
-        return armEncoder.get();
-    }
-
-    @Override
     public void pidWrite(double output)
     {
         //Limits motor power when gravity is assisting
@@ -144,13 +136,4 @@ public class CargoTransport implements PIDSource, PIDOutput
             armMotor.set(ControlMode.PercentOutput, -output);
         }
     }
-
-    @Override
-    public PIDSourceType getPIDSourceType()
-    {
-        return PIDSourceType.kDisplacement;
-    }
-
-    @Override
-    public void setPIDSourceType(PIDSourceType sourceType) {}
 }

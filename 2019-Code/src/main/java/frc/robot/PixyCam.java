@@ -12,7 +12,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Class for the PixyCam that reads data form the SPI and parses data of the 
- * object being tracked. This class only tracks one object at a time.
+ * object being tracked. 
+ * 
+ * This class only tracks one object at a time.
  * 
  * @author JoelNeppel
  *
@@ -137,7 +139,7 @@ public class PixyCam implements Runnable
 	 * Returns whether the pixy is currently tracking an object based
 	 * on if the checkSum is 0 and the last time data was processed.
 	 * @return
-	 * 	True if the pixy has sent non-zero data within
+	 * 	True if the pixy has sent non-zero, accurate data within
 	 * 	the last 100 milliseconds, false otherwise
 	 */
     public boolean isTracking()
@@ -154,7 +156,7 @@ public class PixyCam implements Runnable
 	 */
 	private int bytesToInt(byte[] bytes)
 	{
-		return ((bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF));
+		return (bytes[0] & 0xFF) << 8 | (bytes[1] & 0xFF);
 	}
 	
 	@Override

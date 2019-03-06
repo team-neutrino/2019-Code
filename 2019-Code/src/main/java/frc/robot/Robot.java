@@ -68,11 +68,6 @@ public class Robot extends TimedRobot
     private Solenoid climber;
 
     /**
-     * Controller for the pixy cam
-     */
-    private PixyController pixy;
-
-    /**
      * Flag for the beginning of a driver assist
      * used to enable and disable PID
      */
@@ -82,11 +77,6 @@ public class Robot extends TimedRobot
      * The odometry object
      */
     private Odometry odometry;
-
-    /**
-     * Lights that flash to indicate robot status
-     */
-    private LEDController dynamicLights;
 
     /**
      * A connection to the lidar
@@ -113,10 +103,6 @@ public class Robot extends TimedRobot
         cargoTransport = new CargoTransport();
         panelTransport = new PanelTransport();
         climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
-        pixy =  new PixyController();
-
-        //TODO put lights on robot
-       // dynamicLights = new LEDController(72, Mode.OFF);
 
         //TODO do stuff with odometry
         //odometry = new Odometry(drive);
@@ -179,10 +165,7 @@ public class Robot extends TimedRobot
      * Called once before the sandstorm period.
      */
     @Override
-    public void autonomousInit() 
-    {
-       // drive.beginRelativeTurn(90);
-    }
+    public void autonomousInit() {}
 
     /**
      * This function is called periodically during autonomous.
@@ -222,19 +205,19 @@ public class Robot extends TimedRobot
                 deliverDone = true;
             }
         }
-        else if(rJoy.getRawButton(Constants.RJoy.NEG_45_DEG_FIELD_BUTTON))
+        else if(rJoy.getRawButton(Constants.RJoy.TURN_FIELD_BUTTON_270))
         {
             if(initDriverAssist)
             {
-                drive.rotateToAngle(315);
+                drive.rotateToAngle(270);
                 initDriverAssist = false;
             }
         }
-        else if(rJoy.getRawButton(Constants.RJoy.POS_45_DEG_FIELD_BUTTON))
+        else if(rJoy.getRawButton(Constants.RJoy.TURN_FIELD_BUTTON_90))
         {
             if(initDriverAssist)
             {
-                drive.rotateToAngle(45);
+                drive.rotateToAngle(90);
                 initDriverAssist = false;
             }
         }
@@ -273,19 +256,29 @@ public class Robot extends TimedRobot
                 deliverDone = false;
             }
 
-            //TODO drive straight button
+            //Get joystick values and make correct direction and with a dead zone
             double rPower = -rJoy.getY();
             if(Math.abs(rPower) < Constants.RJoy.DEAD_ZONE)
             {
                 rPower = 0.0;
             }
-            drive.setRight(rPower);
-
             double lPower = -lJoy.getY();
             if(Math.abs(lPower) < Constants.LJoy.DEAD_ZONE)
             {
                 lPower = 0.0;
             }
+            
+            //Drive straight
+            if(rJoy.getRawButton(Constants.RJoy.DRIVE_STRAIGHT_BUTTON))
+            {
+                lPower = rPower;
+            }
+            else if(lJoy.getRawButton(Constants.LJoy.DRIVE_STRAIGHT_BUTTON))
+            {
+                rPower = lPower;
+            }
+
+            drive.setRight(rPower);
             drive.setLeft(lPower);
         }
 
@@ -336,8 +329,6 @@ public class Robot extends TimedRobot
             || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
         {
             climber.set(true);
-            // dynamicLights.setMessage("-....--.-...-.---");
-            // dynamicLights.setMode(LEDController.Mode.MORSE);
         }
 
         Util.threadSleep(1);
@@ -358,5 +349,5 @@ public class Robot extends TimedRobot
      * LiveWindow and SmartDashboard integrated updating.
      */
     @Override
-    public void robotPeriodic(){}
+    public void robotPeriodic() {}
 }

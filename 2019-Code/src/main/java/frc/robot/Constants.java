@@ -55,6 +55,8 @@ public class Constants
         public static final int DELIVER_RIGHT_SIDE_BUTTON = 2;
 
         public static final int PREPARE_CLIMB_BUTTON = 1;
+
+        public static final int DRIVE_STRAIGHT_BUTTON = 2;
     }
 
     /**
@@ -66,10 +68,12 @@ public class Constants
 
         public static final int PREPARE_CLIMB_BUTTON = LJoy.PREPARE_CLIMB_BUTTON;
 
-        public static final int NEG_45_DEG_FIELD_BUTTON = 6;
-        public static final int NEG_45_DEG_ROBOT_BUTTON = 7;
-        public static final int POS_45_DEG_FIELD_BUTTON = 11;
+        public static final int TURN_FIELD_BUTTON_90 = 11;
+        public static final int TURN_FIELD_BUTTON_270 = 6;
         public static final int POS_45_DEG_ROBOT_BUTTON = 10;
+        public static final int NEG_45_DEG_ROBOT_BUTTON = 7;
+
+        public static final int DRIVE_STRAIGHT_BUTTON = LJoy.DRIVE_STRAIGHT_BUTTON;
     }
 
     /**

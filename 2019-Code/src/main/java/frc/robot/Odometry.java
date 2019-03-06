@@ -10,8 +10,11 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
- * //TODO comment + @author tag
- * Add your docs here.
+ * Odometry class for tracking the position of the robot using encoders 
+ * and gyroscope.
+ * 
+ * @author Team Neutrino
+ * 
  */
 public class Odometry implements Runnable
 {
@@ -114,14 +117,11 @@ public class Odometry implements Runnable
 	 * 	The minimum Y position
 	 * @param maxY
 	 * 	The maximum Y position
-	 * @param inclusive
-	 * 	Whether or not being on the edge of the area counts as being within the area
 	 */
-	public boolean isInRange(double minX, double maxX, double minY, double maxY, boolean inclusive)
+	public boolean isInRange(double minX, double maxX, double minY, double maxY)
 	{
-		//TODO remove inclusive stuff - takes extra time and values won't ever be equal
-		if((minX < positionX && maxX > positionX && minY < positionY && maxY > positionY) ||
-		(inclusive && minX <= positionX && maxX >= positionX && minY <= positionY && maxY >= positionY)){
+		if(minX < positionX && maxX > positionX && minY < positionY && maxY > positionY)
+		{
 			return true;
 		}
 		else

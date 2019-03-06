@@ -103,11 +103,13 @@ public class Drive
         rEncoder.setDistancePerPulse(Constants.Drive.ENCODER_DISTANCE_PER_PULSE);
 
         navx = new AHRS(Constants.Drive.NAVX_PORT);
-        navx .reset();
-        System.out.println(navx.getYaw());
+        navx.reset();
+
         ultrasonic = new Ultrasonic(Constants.Drive.ULTRASONIC_PORT_1, Constants.Drive.ULTRASONIC_PORT_2);
+       
         limelight = NetworkTableInstance.getDefault().getTable("limelight");
         limelight.getEntry("ledMode").setNumber(1);
+        limelight.getEntry("camMode").setNumber(1);
 
         turnPID = new PIDController(Constants.Drive.TURN_P, 
             Constants.Drive.TURN_I, Constants.Drive.TURN_D, navx,             
@@ -128,11 +130,9 @@ public class Drive
                 setRight(-output);
             });
         usPID.setAbsoluteTolerance(Constants.Drive.DISTANCE_TOLERANCE);
-        //usPID.setInputRange(Constants.Drive.DISTANCE_INPUT_MIN, Constants.Drive.DISTANCE_INPUT_MAX);
+        usPID.setInputRange(Constants.Drive.DISTANCE_INPUT_MIN, Constants.Drive.DISTANCE_INPUT_MAX);
         usPID.setOutputRange(Constants.Drive.DISTANCE_OUTPUT_MIN, Constants.Drive.DISTANCE_OUTPUT_MAX);
 
-        limelight.getEntry("camMode").setNumber(1);
-        limelight.getEntry("ledMode").setNumber(1);
         new ValuePrinter(()-> 
             {
                 SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
@@ -167,6 +167,21 @@ public class Drive
         rMotor1.set(ControlMode.PercentOutput, power);
         rMotor2.set(ControlMode.PercentOutput, power);
     }
+    
+    /**
+     * Zeros the yaw and turns the robot the given amount of degrees.
+     * @param degrees
+     *  The amount of degrees to turn from -180 to 180
+     */
+    public void beginRelativeTurn(double degrees)
+    {
+        //Sets angle adjustment to keep robot angle relative to the field
+        navx.setAngleAdjustment(navx.getAngleAdjustment() + navx.getYaw());
+
+        navx.zeroYaw();
+        turnPID.setSetpoint(degrees);
+        turnPID.enable();
+    }
 
     /**
      * Rotates the robot to the specified angle (relative to field)
@@ -175,17 +190,17 @@ public class Drive
      */
     public void rotateToAngle(double targetAngle)
     {
-        //TODO test negative/shortest turn
+        //Get current position from 0 to 360
         double modAngle = getNavxAngle() % 360;
-        
         if(modAngle < 0)
         {
             modAngle += 360;
         }
 
-        System.out.println(targetAngle - modAngle);
+        //Amount needed to turn  to get to position from 0 to 360
         double turnAngle = targetAngle - modAngle;
         
+        //Turn shortest distane from -180 to 180
         if(Math.abs(turnAngle) > 180)
         {
             if(turnAngle > 0)
@@ -199,33 +214,6 @@ public class Drive
         }
 
         beginRelativeTurn(turnAngle);
-        // if(Math.abs(modAngle - targetAngle) > 180)
-        // {
-        //     double turnAngle = modAngle - targetAngle;
-        //     targetAngle -= 180;
-        // }
-        // if(modAngle >= targetAngle)
-        // {
-        //     if(modAngle-targetAngle <= (targetAngle+360)-modAngle)
-        //     {
-        //         beginRelativeTurn(modAngle-targetAngle);
-        //     }
-        //     else
-        //     {
-        //         beginRelativeTurn((targetAngle+360)-modAngle);
-        //     }
-        // }
-        // else
-        // {
-        //     if(targetAngle-modAngle <= (modAngle+360)-targetAngle)
-        //     {
-        //         beginRelativeTurn(targetAngle-modAngle);
-        //     }
-        //     else
-        //     {
-        //         beginRelativeTurn((modAngle+360)-targetAngle);
-        //     }
-        // }
     }
 
     /**
@@ -259,47 +247,35 @@ public class Drive
         return rEncoder.getDistance();
     }
 
-        /**
-     * Zeros the yaw and turns the robot the given amount of degrees.
-     * @param degrees
-     *  The amount of degrees to turn from -180 to 180
-     */
-    public void beginRelativeTurn(double degrees)
-    {
-        System.out.println("relative turning");
-        navx.setAngleAdjustment(navx.getAngleAdjustment() + navx.getYaw());
-        navx.zeroYaw();
-        turnPID.setSetpoint(degrees);
-        turnPID.enable();
-    }
-
     /**
-     * Returns the Navx yaw angle.
+     * Returns the continuous yaw angle from the navx. Zeroing the yaw during 
+     * a relative turn does not have an effect on this.
      * @return
      *  The degrees recorded by the Navx yaw
      */
     public double getNavxAngle()
     {
-        //TODO test this
         return navx.getAngle();
     }
 
     /**
-     * Resets the Navx.
+     * Sets angle adjustment to 0 and sets the navx to 0.
      */
     public void resetNavx()
     {
-        navx.reset();
+        navx.setAngleAdjustment(0.0);
+        navx.zeroYaw();
     }
 
     /**
-     * Disables the PID threads.
+     * Disables the PID threads and sets limelight in streaming mode.
      */
     public void disableDriverAssist()
     {
         turnPID.disable();
         usPID.disable();
-        //limelight.getEntry("ledMode").setNumber(1);
+        limelight.getEntry("ledMode").setNumber(1);
+        limelight.getEntry("camMode").setNumber(1);
     }
 
     /**
@@ -309,20 +285,16 @@ public class Drive
      */
     public boolean limeLightAlign()
     {
-        System.out.println("Lining up");
-        disableDriverAssist();
-
+        turnPID.disable();
+        usPID.disable();
         limelight.getEntry("ledMode").setNumber(3);
-        //Util.threadSleep(50);
-        //TODO test method
+        limelight.getEntry("camMode").setNumber(0);
 
         if(limelight.getEntry("tv").getDouble(0.0) == 0)
         {
-            System.out.println("no target found");
             return false;
         }
-        //TODO tune thresholds
-        //TODO tune motor powers 
+
         if(limelight.getEntry("ta").getDouble(0) > 7 && Math.abs(limelight.getEntry("tx").getDouble(0)) > 4)
         {
             setLeft(-0.3);
@@ -341,7 +313,7 @@ public class Drive
         }
         else
         {
-            //TODO tune turn amount
+            //TODO do actual math to get better propotional turn
             if(limelight.getEntry("tx").getDouble(0) > 1)
             {
                 setRight(.15);
@@ -356,7 +328,6 @@ public class Drive
             }
             else if(limelight.getEntry("ta").getDouble(0) >= 9)
             {
-               // limelight.getEntry("ledMode").setNumber(1);
                 return true;
             }
             else

@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 /**
  * Controller for the LEDs through the PCM.
  * 
- * Warning: Make sure PCM is in 12V mode to prevent damage to LEDs
+ * Warning: Make sure PCM and LED voltage are the same.
  * 
  * @author JoelNeppel
  * 
@@ -65,7 +65,6 @@ public class LEDController
      */
     private Thread ledThread;
 
-    //TODO consider using builder for learning experience (if time)
     /**
      * Constructor for an LED Controller with the given parameters.
      * @param channel
