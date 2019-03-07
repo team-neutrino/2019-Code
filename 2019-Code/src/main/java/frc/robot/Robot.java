@@ -107,13 +107,13 @@ public class Robot extends TimedRobot
         //TODO do stuff with odometry
         //odometry = new Odometry(drive);
 
-        UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
-        frontCam.setResolution(160, 120);
-        frontCam.setFPS(15); 
+        // UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
+        // frontCam.setResolution(160, 120);
+        // frontCam.setFPS(15); 
 
-        UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
-        backCam.setResolution(160, 120);
-        backCam.setFPS(15);
+        // UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
+        // backCam.setResolution(160, 120);
+        // backCam.setFPS(15);
 
         // //Makes camera image into black and white and sends to driver station.
         // new Thread(()->
@@ -189,20 +189,20 @@ public class Robot extends TimedRobot
             initDriverAssist = false;
             if(!deliverDone && drive.limeLightAlign()) //Deploy panel if not already deployed and is lined up
             {
-                drive.disableDriverAssist();
+                //drive.disableDriverAssist();
                 //Ram
                 //TODO tune power and time
-                drive.setLeft(0.25);
-                drive.setRight(0.25);
-                Util.threadSleep(100);
-                drive.setLeft(0.0);
-                drive.setRight(0.0);
+                // drive.setLeft(0.25);
+                // drive.setRight(0.25);
+                // Util.threadSleep(100);
+                // drive.setLeft(0.0);
+                // drive.setRight(0.0);
 
                 // panelTransport.setPanelHold(false);
                 // panelTransport.setPushersOut(true);
                 // Util.threadSleep(10);
 
-                deliverDone = true;
+                //deliverDone = true;
             }
         }
         else if(rJoy.getRawButton(Constants.RJoy.TURN_FIELD_BUTTON_270))

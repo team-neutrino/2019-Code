@@ -51,8 +51,8 @@ public class Constants
     {
         public static final double DEAD_ZONE = 0.1;
 
-        public static final int DELIVER_LEFT_SIDE_BUTTON = 2;
-        public static final int DELIVER_RIGHT_SIDE_BUTTON = 2;
+        public static final int DELIVER_LEFT_SIDE_BUTTON = 3;
+        public static final int DELIVER_RIGHT_SIDE_BUTTON = 3;
 
         public static final int PREPARE_CLIMB_BUTTON = 1;
 
