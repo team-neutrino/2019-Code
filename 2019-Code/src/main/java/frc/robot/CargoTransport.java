@@ -136,4 +136,23 @@ public class CargoTransport implements PIDOutput
             armMotor.set(ControlMode.PercentOutput, -output);
         }
     }
+
+    public void togglePID()
+    {
+        if(armPID.isEnabled())
+        {
+            armPID.disable();
+        }
+        else
+        {
+            armPID.enable();
+        }
+    }
+
+    public void overrideArm(double power)
+    {
+        armMotor.set(ControlMode.PercentOutput, power * 0.5);
+    }
+
+    
 }

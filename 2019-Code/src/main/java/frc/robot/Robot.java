@@ -87,6 +87,12 @@ public class Robot extends TimedRobot
      * Whether the panel was delivered during the driver assist or not.
      */
     private boolean deliverDone;
+
+    private UsbCamera cam;
+
+    private boolean isOverride;
+
+    private boolean tempIsOverride;
     
     /**
      * This function is run when the robot is first started up and should be
@@ -104,6 +110,10 @@ public class Robot extends TimedRobot
         panelTransport = new PanelTransport();
         climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
 
+        cam = CameraServer.getInstance().startAutomaticCapture("Arm Cam", 0);
+        cam.setFPS(0);
+        cam.setResolution(160, 120);
+        CameraServer.getInstance().removeCamera(cam.getName());
         //TODO do stuff with odometry
         //odometry = new Odometry(drive);
 
@@ -329,6 +339,35 @@ public class Robot extends TimedRobot
             || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
         {
             climber.set(true);
+        }
+
+        int pov = xBox.getPOV();  
+        if(pov == 0 || pov == 45 || pov == 315)
+        {
+            cam.setFPS(15);
+        }
+        else//pov == 180 || pov == 135 || pov == 225)
+        {
+            cam.setFPS(0);
+        }
+       
+        if(xBox.getRawButton(9))
+        {  
+            if(tempIsOverride == isOverride)
+            {
+                cargoTransport.togglePID();
+                isOverride =! isOverride;
+                tempIsOverride = false;
+            }
+        }
+        else
+        {
+            tempIsOverride = true;
+        }
+
+        if(isOverride)
+        {
+            cargoTransport.overrideArm(xBox.getRawAxis(1));
         }
 
         Util.threadSleep(1);

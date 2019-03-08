@@ -311,30 +311,31 @@ public class Drive
                 backingUp = false;
             }
         }
+        else if(limelight.getEntry("ta").getDouble(0) >= 9)
+        {
+            return true;
+        }
         else
         {
+            double offset = limelight.getEntry("tx").getDouble(0.0);
+            double p = 0.032;
+
+            double diff = Math.min(offset * p, 0.5);
+            setLeft(0.5 + diff);
+            setRight(0.5 - diff);
             //TODO do actual math to get better propotional turn
-            if(limelight.getEntry("tx").getDouble(0) > 1)
-            {
-                setRight(.15);
-                double pow = 0.15 + limelight.getEntry("tx").getDouble(0.0) * 0.025;
-                setLeft(pow);
-            }
-            else if(limelight.getEntry("tx").getDouble(0) < -1)
-            {
-                setLeft(0.15);
-                double pow = 0.15 + Math.abs(limelight.getEntry("tx").getDouble(0.0)) * 0.025;
-                setRight(pow);
-            }
-            else if(limelight.getEntry("ta").getDouble(0) >= 9)
-            {
-                return true;
-            }
-            else
-            {
-                setLeft(0.3);
-                setRight(0.3);
-            }
+            // if(limelight.getEntry("tx").getDouble(0) > 1)
+            // {
+            //     setRight(.15);
+            //     double pow = 0.15 + limelight.getEntry("tx").getDouble(0.0) * 0.025;
+            //     setLeft(pow);
+            // }
+            // else if(limelight.getEntry("tx").getDouble(0) < -1)
+            // {
+            //     setLeft(0.15);
+            //     double pow = 0.15 + Math.abs(limelight.getEntry("tx").getDouble(0.0)) * 0.025;
+            //     setRight(pow);
+            // }
         }
 
         return false;
