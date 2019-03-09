@@ -321,6 +321,7 @@ public class Drive
             double p = 0.032;
 
             double diff = Math.min(offset * p, 0.5);
+            diff = Math.max(diff, 0.1);
             setLeft(0.5 + diff);
             setRight(0.5 - diff);
             //TODO do actual math to get better propotional turn

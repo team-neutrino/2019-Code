@@ -151,7 +151,7 @@ public class CargoTransport implements PIDOutput
 
     public void overrideArm(double power)
     {
-        armMotor.set(ControlMode.PercentOutput, power * 0.5);
+        armMotor.set(ControlMode.PercentOutput, power);
     }
 
     

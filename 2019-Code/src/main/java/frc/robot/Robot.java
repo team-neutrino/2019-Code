@@ -353,7 +353,7 @@ public class Robot extends TimedRobot
        
         if(xBox.getRawButton(9))
         {  
-            if(tempIsOverride == isOverride)
+            if(tempIsOverride)
             {
                 cargoTransport.togglePID();
                 isOverride =! isOverride;
