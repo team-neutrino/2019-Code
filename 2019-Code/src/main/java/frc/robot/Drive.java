@@ -297,12 +297,14 @@ public class Drive
 
         if(limelight.getEntry("ta").getDouble(0) > 7 && Math.abs(limelight.getEntry("tx").getDouble(0)) > 4)
         {
+            //start backing up if too close and not aligned
             setLeft(-0.3);
             setRight(-0.3);
             backingUp = true;
         }
         else if(backingUp)
         {
+            //Back up until far enough away
             setLeft(-0.3);
             setRight(-0.3);
 
@@ -313,15 +315,20 @@ public class Drive
         }
         else if(limelight.getEntry("ta").getDouble(0) >= 9)
         {
+            //Lined up 
             return true;
         }
         else
         {
+            //Start lining up with proportion of the x
             double offset = limelight.getEntry("tx").getDouble(0.0);
-            double p = 0.032;
+            double p = 0.025 + 0.01 / limelight.getEntry("ta").getDouble(0.0);
 
+            //Get amount of power to add/subtract
             double diff = Math.min(offset * p, 0.5);
             diff = Math.max(diff, 0.1);
+
+            //Add left side subtract right to turn
             setLeft(0.5 + diff);
             setRight(0.5 - diff);
             //TODO do actual math to get better propotional turn
