@@ -35,7 +35,7 @@ public class Robot extends TimedRobot
     /**
      * The left drive joystick
      */
-    private Joystick lJoy;
+    public static Joystick lJoy;
 
     /**
      * The right drive joystick
@@ -212,7 +212,7 @@ public class Robot extends TimedRobot
                 // panelTransport.setPushersOut(true);
                 // Util.threadSleep(10);
 
-                //deliverDone = true;
+                deliverDone = true;
             }
         }
         else if(rJoy.getRawButton(Constants.RJoy.TURN_FIELD_BUTTON_270))
@@ -281,7 +281,7 @@ public class Robot extends TimedRobot
             //Drive straight
             if(rJoy.getRawButton(Constants.RJoy.DRIVE_STRAIGHT_BUTTON))
             {
-                lPower = rPower;
+                lPower = rPower * (lJoy.getZ()  + 1);
             }
             else if(lJoy.getRawButton(Constants.LJoy.DRIVE_STRAIGHT_BUTTON))
             {

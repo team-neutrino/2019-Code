@@ -58,7 +58,7 @@ public class PaintThread extends Thread
 		gc.setLineWidth(1);
 		killSwitch = false;
 		System.out.println("Controller working...");
-		parsedPacket = new String[3];
+		parsedPacket = new String[4];
 	}
 	
 	public void kill() {
@@ -84,7 +84,6 @@ public class PaintThread extends Thread
         } 
         catch (SocketException e) 
         {
-
 			e.printStackTrace();
 			kill(); //Cause the thread to end if the socket creation failed
 		}
@@ -162,15 +161,16 @@ public class PaintThread extends Thread
                     gc.stroke(); //See line 148
                     
                     //TODO: Test lines
-                    /*
+                    
                     gc.setStroke(Color.RED);
                     gc.beginPath();
 
-                    gc.moveTo(300,300); 
-                    gc.lineTo(Constants.Canvas.DIRECTION_LINE_MAG*Math.cos(Math.toRadians(Double.parseDouble(parsedPacket[3]))),Constants.Canvas.DIRECTION_LINE_MAG*Math.sin(Math.toRadians(Double.parseDouble(parsedPacket[3]))));
+                    gc.moveTo(300,300);
+                    System.out.println(parsedPacket.toString()); 
+                    gc.lineTo(Constants.Canvas.DIRECTION_LINE_MAG*Math.cos(Math.toRadians(Integer.parseInt(parsedPacket[3]))),Constants.Canvas.DIRECTION_LINE_MAG*Math.sin(Math.toRadians(Integer.parseInt(parsedPacket[3]))));
 
                     gc.stroke();
-					*/
+					
 					pxList.clear(); //Clear past rotation buffers
 					pyList.clear();
 					

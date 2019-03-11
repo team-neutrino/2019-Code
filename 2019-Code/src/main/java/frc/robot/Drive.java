@@ -85,7 +85,9 @@ public class Drive
      * True if the robot is backing up after being 
      * too close to the target, false otherwise
      */
-    private boolean backingUp;
+    private boolean backingLeft;
+
+    private boolean backingRight;
 
     /**
      * Constructor for the drive train.
@@ -142,8 +144,9 @@ public class Drive
                 SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
                 SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
                 SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
+                SmartDashboard.putNumber("skew", limelight.getEntry("ts").getDouble(0.0));
             },
-            ValuePrinter.NORMAL_PRIORITY);
+            ValuePrinter.HIGHEST_PRIORITY);
     }
 
     /**
@@ -295,42 +298,72 @@ public class Drive
             return false;
         }
 
-        if(limelight.getEntry("ta").getDouble(0) > 7 && Math.abs(limelight.getEntry("tx").getDouble(0)) > 4)
-        {
-            //start backing up if too close and not aligned
-            setLeft(-0.3);
-            setRight(-0.3);
-            backingUp = true;
-        }
-        else if(backingUp)
+        if(backingRight)
         {
             //Back up until far enough away
-            setLeft(-0.3);
-            setRight(-0.3);
+            setLeft(-0.4);
+            setRight(-0.4);//1
 
             if(limelight.getEntry("ta").getDouble(0) < 2)
             {
-                backingUp = false;
+                backingRight = false;
             }
         }
-        else if(limelight.getEntry("ta").getDouble(0) >= 9)
+        else if(backingLeft)
         {
-            //Lined up 
-            return true;
+            //Back up until far enough away
+            setLeft(-0.4);//1
+            setRight(-0.4);
+
+            if(limelight.getEntry("ta").getDouble(0) < 2)
+            {
+                backingLeft = false;
+            }
+        }
+        else if(limelight.getEntry("ta").getDouble(0) > 6 && Math.abs(limelight.getEntry("tx").getDouble(0)) > 7)
+        {
+            System.out.println("backing up x: " + limelight.getEntry("tx").getDouble(0.0));
+            //start backing up if too close and not aligned
+            if(limelight.getEntry("ts").getDouble(0.0) < -45)
+            {
+                backingRight = true;
+            }
+            else
+            {
+                backingLeft = true;
+            }
+        }
+        else if(limelight.getEntry("ta").getDouble(0) >= 6)
+        {
+            System.out.println("exiting");
+            if(limelight.getEntry("ts").getDouble(0.0) < -45)
+            {
+                backingRight = true;
+            }
+            else if(limelight.getEntry("ts").getDouble(0.0) < -10)
+            {
+                backingLeft = true;
+            }
+            else
+            {
+                return true;
+            }
         }
         else
         {
+            System.out.println("wiggling");
             //Start lining up with proportion of the x
             double offset = limelight.getEntry("tx").getDouble(0.0);
-            double p = 0.025 + 0.01 / limelight.getEntry("ta").getDouble(0.0);
+            double p = 0.025;// + 0.01 / limelight.getEntry("ta").getDouble(0.0);
 
             //Get amount of power to add/subtract
-            double diff = Math.min(offset * p, 0.5);
-            diff = Math.max(diff, 0.1);
+            // double diff = Math.min(offset * p, 0.5);
+            // diff = Math.max(diff, 0.1);
 
             //Add left side subtract right to turn
-            setLeft(0.5 + diff);
-            setRight(0.5 - diff);
+            SmartDashboard.putNumber("Joyz", Robot.lJoy.getZ());
+            setLeft((0.3 * (Robot.lJoy.getZ()  + 1) + p * offset));
+            setRight(0.3 - p*offset);
             //TODO do actual math to get better propotional turn
             // if(limelight.getEntry("tx").getDouble(0) > 1)
             // {

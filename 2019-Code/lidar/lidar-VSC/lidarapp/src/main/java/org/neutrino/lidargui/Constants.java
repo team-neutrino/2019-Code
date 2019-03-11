@@ -25,7 +25,7 @@ public class Constants
     public static class Networking
     {
         public static final int UDP_PORT = 5800;
-        public static final int BUFFER_SIZE = 21;
+        public static final int BUFFER_SIZE = 26;
     }
     
 }
