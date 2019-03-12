@@ -5,7 +5,7 @@
  * which now serves X and Y coords of valid samples over UDP.
  * 
  * The original information and licence is below.
- * /
+ */
 
 
 
@@ -37,9 +37,12 @@
 
 #include <stdio.h> 
 #include <stdlib.h>
+#include <iostream>
 #include <string>
 #include <cstring>
 #include <math.h>
+#include <thread>
+#include <atomic>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -70,8 +73,14 @@
 ///////////////////////////////////////////////////
 
 
-#define UDP_IP "10.26.210.165"
-#define UDP_PORT 5800
+#define DEST_IP "10.39.28.5"
+#define DEST_PORT 5800
+#define ROBO_IP "10.39.28.2"
+#define ROBO_PORT 5801
+
+#define LIDAR_ANGLE_OFFSET 90.0f
+#define LIDAR_X_OFFSET 0.0f
+#define LIDAR_Y_OFFSET 0.0f
 
 
 //////////////////////////////////////////////////////////
@@ -79,6 +88,18 @@
 //////////////////////////////////////////////////////////
 
 
+
+////////////////////////
+// IMPORANT VARIABLES //
+////////////////////////
+
+std::atomic<bool> activated(false);
+std::atomic<bool> sw(true);
+std::atomic<float> navxAngleBuf(0.0f);
+
+////////////////////////////////
+// END OF IMPORTANT VARIABLES //
+////////////////////////////////
 
 static inline void delay(_word_size_t ms){
     while (ms>=1000){
@@ -120,9 +141,70 @@ bool checkRPLIDARHealth(RPlidarDriver * drv)
 bool ctrl_c_pressed;
 void ctrlc(int)
 {
+    sw = false;
     ctrl_c_pressed = true;
 }
 
+
+
+int controlrecv()
+{
+    printf("Got into control thread\n");
+    
+    int robo;
+    if ( (robo = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
+        perror("socket failed");
+        return 1;
+    }
+    
+    socklen_t l;
+    struct sockaddr_in client;
+    memset( &client, 0, sizeof client );
+    
+    struct sockaddr_in servaddr;
+    memset( &servaddr, 0, sizeof(servaddr) );
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons( ROBO_PORT );              
+    //roboaddr.sin_addr.s_addr = inet_addr(ROBO_IP);  
+    servaddr.sin_addr.s_addr = INADDR_ANY;
+
+    char robobuf[5];
+
+
+    float fbuf = 0.0f;
+    
+    
+    
+    if (bind(robo, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0 ) {
+        perror("socket failed");
+        return 1;
+    }
+    
+    printf("Got past thread client setup\n");
+    
+    while(sw.load()){
+        recvfrom(robo, robobuf, 5, MSG_WAITALL, (struct sockaddr *) &client, (socklen_t*) &l);
+        memcpy(&fbuf, &robobuf, sizeof(float));
+        //fbuf=90.0f;
+        //printf("%f\n",fbuf);
+        navxAngleBuf.store(fbuf);
+        
+        if((int) robobuf[4] == 0x01){
+            printf("GOT ACTIVATION SIGNAL\n");
+            activated = true;
+        }
+        
+        if((int) robobuf[4] == 0x02){
+            printf("GOT STOP SIGNAL\n");
+            activated = false;
+            sw = false;
+        }
+            
+    }
+    
+    close( robo );
+    return 0;
+}
 
 
 
@@ -131,37 +213,53 @@ int main(int argc, const char * argv[]) {
     //wiringPiSetup();
     
     const char * opt_com_path = NULL;
+    const char * opt_ser_path = NULL;
     _u32         baudrateArray[2] = {115200, 256000};
     _u32         opt_com_baudrate = 0;
     u_result     op_result;
 
     bool useArgcBaudrate = false;
     
-    char msgbuf[22];
+    char msgbuf[26];
+    
+    float navxAngle = 0.0f;
     
     
     
     
     
+    printf("Got past basic variables\n");
     
-    int fd;
-    if ( (fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
+    int dest;
+    if ( (dest = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
         perror("socket failed");
         return 1;
     }
 
-    struct sockaddr_in serveraddr;
-    memset( &serveraddr, 0, sizeof(serveraddr) );
-    serveraddr.sin_family = AF_INET;
-    serveraddr.sin_port = htons( UDP_PORT );              
-    serveraddr.sin_addr.s_addr = inet_addr(UDP_IP);  
+    struct sockaddr_in destaddr;
+    memset( &destaddr, 0, sizeof destaddr );
+    destaddr.sin_family = AF_INET;
+    destaddr.sin_port = htons( DEST_PORT );              
+    destaddr.sin_addr.s_addr = inet_addr(DEST_IP);  
 
-
+    printf("Got past server variable setup\n");
     
     
     
+    std::thread threadThing(controlrecv);
+    
+    printf("WAITING FOR ROBORIO\n");
+    
+    while(!activated.load())
+    {
+        /////////////////////////
+        // Wait for activation //
+        /////////////////////////
+    }
 
-    printf("Ultra simple LIDAR data grabber for RPLIDAR.\n"
+
+
+    printf("Project LiMIT RoboRIO - Lidar adapter \n"
            "Version: "RPLIDAR_SDK_VERSION"\n");
 
     // read serial port from the command line...
@@ -173,6 +271,7 @@ int main(int argc, const char * argv[]) {
         opt_com_baudrate = strtoul(argv[2], NULL, 10);
         useArgcBaudrate = true;
     }
+
 
     if (!opt_com_path) {
 #ifdef _WIN32
@@ -269,8 +368,10 @@ int main(int argc, const char * argv[]) {
     // start scan...
     drv->startScan(0,1);
 
+    
+    
     // fetech result and print it out...
-    while (1) {
+    while (activated.load()) {
         rplidar_response_measurement_node_t nodes[8192];
         size_t   count = _countof(nodes);
 
@@ -285,20 +386,24 @@ int main(int argc, const char * argv[]) {
                 
                     std::memset(msgbuf, 0, sizeof msgbuf);
                 
+                    if(nodes[pos].sync_quality & RPLIDAR_RESP_MEASUREMENT_SYNCBIT){
+                        navxAngle = navxAngleBuf.load();
+                    }
                 
                     //std::snprintf(msgbuf, sizeof msgbuf, "%06.2f,%08.2f", 
                     //    (nodes[pos].angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f,
                     //    nodes[pos].distance_q2/4.0f);
                 
                 
-                    std::snprintf(msgbuf, sizeof msgbuf, "%s,%09.2f,%09.2f", 
+                    std::snprintf(msgbuf, sizeof msgbuf, "%s,%09.2f,%09.2f,%03.0f", 
                         (nodes[pos].sync_quality & RPLIDAR_RESP_MEASUREMENT_SYNCBIT) ?"1":"0",
-                        cos((nodes[pos].angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f * (PI/180))*nodes[pos].distance_q2/4.0f,
-                        sin((nodes[pos].angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f * (PI/180))*nodes[pos].distance_q2/4.0f);
+                        cos((nodes[pos].angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f * (PI/180) + LIDAR_ANGLE_OFFSET - navxAngle)*nodes[pos].distance_q2/4.0f + LIDAR_X_OFFSET,
+                        sin((nodes[pos].angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f * (PI/180) + LIDAR_ANGLE_OFFSET - navxAngle)*nodes[pos].distance_q2/4.0f + LIDAR_Y_OFFSET,
+                        navxAngle);
                     
                 
 
-                    sendto( fd, msgbuf, sizeof msgbuf, 0, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
+                    sendto( dest, msgbuf, sizeof msgbuf, 0, (struct sockaddr *)&destaddr, sizeof(destaddr));
 
                 
                 
@@ -306,11 +411,13 @@ int main(int argc, const char * argv[]) {
                 
                 
                 
-                    printf("%s,%09.2f,%09.2f \n", 
+                    printf("%s,%09.2f,%09.2f,%03.0f \n", 
                         (nodes[pos].sync_quality & RPLIDAR_RESP_MEASUREMENT_SYNCBIT) ?"1":"0",
                         cos((nodes[pos].angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f * (PI/180))*nodes[pos].distance_q2/4.0f,
-                        sin((nodes[pos].angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f * (PI/180))*nodes[pos].distance_q2/4.0f);
+                        sin((nodes[pos].angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f * (PI/180))*nodes[pos].distance_q2/4.0f,
+                        navxAngle);
                     
+                    //printf("%f,\n", navxAngle);
                     
                     //printf("%03.2f - %08.2f - Q: %d", 
                     //    (nodes[pos].angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f,
@@ -325,7 +432,9 @@ int main(int argc, const char * argv[]) {
             break;
         }
     }
-    close( fd );
+    threadThing.join();
+    close( dest );
+    
     drv->stop();
     drv->stopMotor();
     // done!
