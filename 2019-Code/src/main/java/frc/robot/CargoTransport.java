@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.PIDOutput;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 /**
@@ -76,8 +77,9 @@ public class CargoTransport implements PIDOutput
     {
         rollerMotor = new TalonSRX(Constants.CargoTransport.ROLLER_MOTOR_DEVICE_NUM);
         armMotor = new TalonSRX(Constants.CargoTransport.ARM_MOTOR_DEVICE_NUM);
-        armEncoder = new AnalogPotentiometer(Constants.CargoTransport.ARM_ENCODER_CHANNEL, Constants.CargoTransport.ENCODER_RANGE, 0);
         
+        armEncoder = new AnalogPotentiometer(Constants.CargoTransport.ARM_ENCODER_CHANNEL, Constants.CargoTransport.ENCODER_RANGE, 0);
+
         //TODO tune PID values when spring is attached
         armPID = new PIDController(Constants.CargoTransport.ARM_P, Constants.CargoTransport.ARM_I, 
             Constants.CargoTransport.ARM_D, armEncoder, this);
@@ -152,7 +154,5 @@ public class CargoTransport implements PIDOutput
     public void overrideArm(double power)
     {
         armMotor.set(ControlMode.PercentOutput, power);
-    }
-
-    
+    }    
 }

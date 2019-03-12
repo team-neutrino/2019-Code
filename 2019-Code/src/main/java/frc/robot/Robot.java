@@ -110,10 +110,9 @@ public class Robot extends TimedRobot
         panelTransport = new PanelTransport();
         climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
 
-        cam = CameraServer.getInstance().startAutomaticCapture("Arm Cam", 0);
-        cam.setFPS(0);
+        cam = CameraServer.getInstance().startAutomaticCapture("Wide angle", 0);
+        cam.setFPS(15);
         cam.setResolution(160, 120);
-        CameraServer.getInstance().removeCamera(cam.getName());
         //TODO do stuff with odometry
         //odometry = new Odometry(drive);
 
@@ -325,12 +324,21 @@ public class Robot extends TimedRobot
         {
             //TODO see if adding wait inbetween improves panel delivery
             panelTransport.setPanelHold(false);
+            Util.threadSleep(20);
             panelTransport.setPushersOut(true);
         }
         else
         {
             panelTransport.setPushersOut(false);
-            panelTransport.setPanelHold(!xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
+
+            if(panelTransport.getButton())
+            {
+                panelTransport.setPanelHold(true);
+            }
+            else
+            {
+                panelTransport.setPanelHold(!xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
+            }
         }
 
         //Climb if match time is in last 30 seconds and button is pushed
