@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -28,7 +29,10 @@ public class PanelTransport
      */
     private DoubleSolenoid holder;
 
-    //TODO think about adding button. Drive into panel grab automatically 
+    /**
+     * Button for telling whether there is a panel bein
+     */
+    private DigitalInput button;
 
     /**
      * Constructor for panel transport.
@@ -37,13 +41,21 @@ public class PanelTransport
     {
         pushers = new DoubleSolenoid(Constants.PanelTransport.PUSHER_CHANNEL_1, Constants.PanelTransport.PUSHER_CHANNEL_2);
         holder = new DoubleSolenoid(Constants.PanelTransport.HOLDER_CHANNEL_1, Constants.PanelTransport.HOLDER_CHANNEL_2);
-
+        button = new DigitalInput(9);
         new ValuePrinter(()->
             {
                 SmartDashboard.putString("Pushers state: ", pushers.get().toString());
                 SmartDashboard.putString("Holder state: ", holder.get().toString());
             }, 
             ValuePrinter.NORMAL_PRIORITY);
+    }
+
+    /**
+     * Returns the button state, true if being pushed, false if not.
+     */
+    public boolean getButton()
+    {
+        return !button.get();
     }
 
     /**
