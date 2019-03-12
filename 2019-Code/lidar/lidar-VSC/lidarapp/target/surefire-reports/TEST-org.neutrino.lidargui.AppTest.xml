@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="org.neutrino.lidargui.AppTest" time="0.214" tests="1" errors="0" skipped="0" failures="0">
+  <properties>
+    <property name="sun.desktop" value="windows"/>
+    <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
+    <property name="java.specification.version" value="11"/>
+    <property name="sun.cpu.isalist" value="amd64"/>
+    <property name="sun.jnu.encoding" value="Cp1252"/>
+    <property name="java.class.path" value="c:\Users\FRC Neutrino\Documents\GitHub\2019-Code\2019-Code\lidar\lidar-VSC\lidarapp\target\test-classes;c:\Users\FRC Neutrino\Documents\GitHub\2019-Code\2019-Code\lidar\lidar-VSC\lidarapp\target\classes;C:\Users\FRC Neutrino\.m2\repository\junit\junit\4.11\junit-4.11.jar;C:\Users\FRC Neutrino\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-swing\11.0.2\javafx-swing-11.0.2.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-swing\11.0.2\javafx-swing-11.0.2-win.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-controls\11.0.2\javafx-controls-11.0.2.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-controls\11.0.2\javafx-controls-11.0.2-win.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-graphics\11.0.2\javafx-graphics-11.0.2.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-graphics\11.0.2\javafx-graphics-11.0.2-win.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-base\11.0.2\javafx-base-11.0.2.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-base\11.0.2\javafx-base-11.0.2-win.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-fxml\11.0.2\javafx-fxml-11.0.2.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-fxml\11.0.2\javafx-fxml-11.0.2-win.jar;"/>
+    <property name="java.vm.vendor" value="Oracle Corporation"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="user.variant" value=""/>
+    <property name="java.vendor.url" value="http://java.oracle.com/"/>
+    <property name="user.timezone" value="America/Chicago"/>
+    <property name="java.vm.specification.version" value="11"/>
+    <property name="os.name" value="Windows 10"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="user.country" value="US"/>
+    <property name="sun.boot.library.path" value="C:\Users\Public\frc2019\jdk\bin"/>
+    <property name="sun.java.command" value="C:\Users\FRCNEU~1\AppData\Local\Temp\surefire6183127192337606304\surefirebooter18440426094460613340.jar C:\Users\FRC Neutrino\AppData\Local\Temp\surefire6183127192337606304 2019-03-11T18-07-30_969-jvmRun1 surefire13181385872332746728tmp surefire_04387307749285197565tmp"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="surefire.test.class.path" value="c:\Users\FRC Neutrino\Documents\GitHub\2019-Code\2019-Code\lidar\lidar-VSC\lidarapp\target\test-classes;c:\Users\FRC Neutrino\Documents\GitHub\2019-Code\2019-Code\lidar\lidar-VSC\lidarapp\target\classes;C:\Users\FRC Neutrino\.m2\repository\junit\junit\4.11\junit-4.11.jar;C:\Users\FRC Neutrino\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-swing\11.0.2\javafx-swing-11.0.2.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-swing\11.0.2\javafx-swing-11.0.2-win.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-controls\11.0.2\javafx-controls-11.0.2.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-controls\11.0.2\javafx-controls-11.0.2-win.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-graphics\11.0.2\javafx-graphics-11.0.2.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-graphics\11.0.2\javafx-graphics-11.0.2-win.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-base\11.0.2\javafx-base-11.0.2.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-base\11.0.2\javafx-base-11.0.2-win.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-fxml\11.0.2\javafx-fxml-11.0.2.jar;C:\Users\FRC Neutrino\.m2\repository\org\openjfx\javafx-fxml\11.0.2\javafx-fxml-11.0.2-win.jar;"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="user.home" value="C:\Users\FRC Neutrino"/>
+    <property name="user.language" value="en"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.version.date" value="2018-10-16"/>
+    <property name="java.home" value="C:\Users\Public\frc2019\jdk"/>
+    <property name="file.separator" value="\"/>
+    <property name="basedir" value="c:\Users\FRC Neutrino\Documents\GitHub\2019-Code\2019-Code\lidar\lidar-VSC\lidarapp"/>
+    <property name="java.vm.compressedOopsMode" value="32-bit"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"/>
+    <property name="surefire.real.class.path" value="C:\Users\FRCNEU~1\AppData\Local\Temp\surefire6183127192337606304\surefirebooter18440426094460613340.jar"/>
+    <property name="user.script" value=""/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="java.runtime.version" value="11.0.1+13"/>
+    <property name="user.name" value="FRC Neutrino"/>
+    <property name="path.separator" value=";"/>
+    <property name="os.version" value="10.0"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="file.encoding" value="Cp1252"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="java.vendor.version" value="18.9"/>
+    <property name="localRepository" value="C:\Users\FRC Neutrino\.m2\repository"/>
+    <property name="java.vendor.url.bug" value="http://bugreport.java.com/bugreport/"/>
+    <property name="java.io.tmpdir" value="C:\Users\FRCNEU~1\AppData\Local\Temp\"/>
+    <property name="java.version" value="11.0.1"/>
+    <property name="user.dir" value="c:\Users\FRC Neutrino\Documents\GitHub\2019-Code\2019-Code\lidar\lidar-VSC\lidarapp"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="java.awt.printerjob" value="sun.awt.windows.WPrinterJob"/>
+    <property name="sun.os.patch.level" value=""/>
+    <property name="java.library.path" value="C:\Users\Public\frc2019\jdk\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Users\Public\frc2019\jdk\bin:C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Java\jdk1.8.0_181\bin;C:\Users\Public\frc2019\roborio\bin;C:\Users\Public\frc2019\frccode;C:\Program Files\Git\cmd;C:\Users\Public\frc2019\roborio\bin;C:\Users\Public\frc2019\frccode;C:\Users\FRC Neutrino\AppData\Local\GitHubDesktop\bin;C:\ffmpeg\bin;C:\Program Files\apache-maven-3.6.0\bin;."/>
+    <property name="java.vendor" value="Oracle Corporation"/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="java.vm.version" value="11.0.1+13"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="55.0"/>
+  </properties>
+  <testcase name="shouldAnswerWithTrue" classname="org.neutrino.lidargui.AppTest" time="0.002"/>
+</testsuite>

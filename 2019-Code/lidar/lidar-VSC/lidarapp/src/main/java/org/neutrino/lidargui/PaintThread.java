@@ -161,13 +161,15 @@ public class PaintThread extends Thread
                     gc.stroke(); //See line 148
                     
                     //TODO: Test lines
+
+                    
                     
                     gc.setStroke(Color.RED);
                     gc.beginPath();
 
                     gc.moveTo(300,300);
-                    System.out.println(parsedPacket.toString()); 
-                    gc.lineTo(Constants.Canvas.DIRECTION_LINE_MAG*Math.cos(Math.toRadians(Integer.parseInt(parsedPacket[3]))),Constants.Canvas.DIRECTION_LINE_MAG*Math.sin(Math.toRadians(Integer.parseInt(parsedPacket[3]))));
+                    System.out.println(parsedPacket[3]); 
+                    gc.lineTo(300+Constants.Canvas.DIRECTION_LINE_MAG*Math.cos(Math.toRadians(270-Double.parseDouble(parsedPacket[3]))),300+Constants.Canvas.DIRECTION_LINE_MAG*Math.sin(Math.toRadians(270-Double.parseDouble(parsedPacket[3]))));
 
                     gc.stroke();
 					
