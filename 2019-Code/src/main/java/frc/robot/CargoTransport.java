@@ -71,6 +71,12 @@ public class CargoTransport implements PIDOutput
     private PIDController armPID;
 
     /**
+     * The time when the motor went over the current threshold 
+     * or 0 if the motor is not over current
+     */
+    private long currentOverTime;
+
+    /**
      * Contructor for the cargo manipulator.
      */
     public CargoTransport()
@@ -89,6 +95,8 @@ public class CargoTransport implements PIDOutput
         setArmPosition(ArmPosition.SHIP_FORWARD);
         armPID.enable();
 
+        currentOverTime = 0;
+
         new ValuePrinter(()-> 
             {
                 SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
@@ -98,12 +106,34 @@ public class CargoTransport implements PIDOutput
     }
 
     /**
-     * Sets the power of the roller motor.
+     * Sets the power of the roller motor with current sensing so the motor does
+     * not stall for more than 100 milliseconds.
      * @param power
      *  The power to set roller motor to, -1 out 1 in
      */
     public void setRoller(double power)
     {
+        if(Math.abs(power) < 0.1)
+		{
+			power = 0.0;
+			currentOverTime = 0;
+		}
+		else if(rollerMotor.getOutputCurrent() > Constants.CargoTransport.STALLED_CURRENT)
+		{
+            if(currentOverTime == 0)
+            {
+                currentOverTime = System.currentTimeMillis();
+            }
+            else if(System.currentTimeMillis() - currentOverTime > Constants.CargoTransport.HIGH_CURRENT_TIME_MAX)
+            {
+                power = 0.0;
+            }
+        }
+        else
+        {
+            currentOverTime = 0;
+        }
+		
         rollerMotor.set(ControlMode.PercentOutput, power);
     }
 
