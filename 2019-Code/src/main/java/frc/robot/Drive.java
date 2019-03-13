@@ -145,6 +145,21 @@ public class Drive
                 SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
                 SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
                 SmartDashboard.putNumber("skew", limelight.getEntry("ts").getDouble(0.0));
+                
+                getAngleOffset();
+                // double[] x = limelight.getEntry("tcornx").getDoubleArray(new double[5]);
+                // double[] y = limelight.getEntry("tcorny").getDoubleArray(new double[5]);
+
+                
+                // {
+                //     for(int i = 0; i<x.length; i++)
+                //     {
+                //         System.out.println("(" + x[i] + " , " + y[i] + ")");
+                //     }
+                // }
+ 
+
+
             },
             ValuePrinter.HIGHEST_PRIORITY);
     }
@@ -293,7 +308,7 @@ public class Drive
         limelight.getEntry("ledMode").setNumber(3);
         limelight.getEntry("camMode").setNumber(0);
 
-        if(limelight.getEntry("tv").getDouble(0.0) == 0)
+        if(limelight.getEntry("tv").getDouble(0.0) == 0) //Exit if no target is detected
         {
             return false;
         }
@@ -320,10 +335,9 @@ public class Drive
                 backingLeft = false;
             }
         }
-        else if(limelight.getEntry("ta").getDouble(0) > 6 && Math.abs(limelight.getEntry("tx").getDouble(0)) > 7)
+        else if(limelight.getEntry("ty").getDouble(0) > 20 && Math.abs(limelight.getEntry("tx").getDouble(0)) > 7) 
         {
-            System.out.println("backing up x: " + limelight.getEntry("tx").getDouble(0.0));
-            //start backing up if too close and not aligned
+            //Start backing up if target is too close and not lined up
             if(limelight.getEntry("ts").getDouble(0.0) < -45)
             {
                 backingRight = true;
@@ -333,25 +347,13 @@ public class Drive
                 backingLeft = true;
             }
         }
-        else if(limelight.getEntry("ta").getDouble(0) >= 6)
+        else if(limelight.getEntry("ty").getDouble(0) > 20) //Finish if close and lined up
         {
-            System.out.println("exiting");
-            if(limelight.getEntry("ts").getDouble(0.0) < -45)
-            {
-                backingRight = true;
-            }
-            else if(limelight.getEntry("ts").getDouble(0.0) < -10)
-            {
-                backingLeft = true;
-            }
-            else
-            {
-                return true;
-            }
+            disableDriverAssist();
+            return true;
         }
         else
         {
-            System.out.println("wiggling");
             //Start lining up with proportion of the x
             double offset = limelight.getEntry("tx").getDouble(0.0);
             double p = 0.025;// + 0.01 / limelight.getEntry("ta").getDouble(0.0);
@@ -364,21 +366,29 @@ public class Drive
             SmartDashboard.putNumber("Joyz", Robot.lJoy.getZ());
             setLeft((0.3 * (Robot.lJoy.getZ()  + 1) + p * offset));
             setRight(0.3 - p*offset);
-            //TODO do actual math to get better propotional turn
-            // if(limelight.getEntry("tx").getDouble(0) > 1)
-            // {
-            //     setRight(.15);
-            //     double pow = 0.15 + limelight.getEntry("tx").getDouble(0.0) * 0.025;
-            //     setLeft(pow);
-            // }
-            // else if(limelight.getEntry("tx").getDouble(0) < -1)
-            // {
-            //     setLeft(0.15);
-            //     double pow = 0.15 + Math.abs(limelight.getEntry("tx").getDouble(0.0)) * 0.025;
-            //     setRight(pow);
-            // }
         }
 
         return false;
+    }
+
+    private double getAngleOffset()
+    {
+        double[] xs = limelight.getEntry("tcornx").getDoubleArray(new double[0]);
+        double[] ys = limelight.getEntry("tcorny").getDoubleArray(new double[0]);
+        
+        if(xs.length >= 8)
+        {
+            double xDist1 = xs[7] - xs[1];
+            double yDist1 = ys[1] - ys[7];
+            double angle1 = Math.tanh(yDist1 / xDist1);
+
+            double xDist2 = xs[0] - xs[6];
+            double yDist2 = ys[0] - ys[6];
+            double angle2 = Math.tanh(yDist2 / xDist2);
+
+            return -0.7861*(angle1-angle2)+1.215;
+        }
+
+        return 0.0;
     }
 }

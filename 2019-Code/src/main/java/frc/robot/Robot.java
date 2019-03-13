@@ -93,6 +93,8 @@ public class Robot extends TimedRobot
     private boolean isOverride;
 
     private boolean tempIsOverride;
+
+    private boolean holdOverride;
     
     /**
      * This function is run when the robot is first started up and should be
@@ -326,18 +328,22 @@ public class Robot extends TimedRobot
             panelTransport.setPanelHold(false);
             Util.threadSleep(20);
             panelTransport.setPushersOut(true);
+            holdOverride = false;
         }
         else
         {
             panelTransport.setPushersOut(false);
-
             if(panelTransport.getButton())
             {
                 panelTransport.setPanelHold(true);
+                holdOverride = true;
             }
             else
             {
-                panelTransport.setPanelHold(!xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
+                if(!holdOverride)
+                {
+                    panelTransport.setPanelHold(!xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
+                }
             }
         }
 
