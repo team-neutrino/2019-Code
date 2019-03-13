@@ -153,6 +153,8 @@ public class Constants
         public static final int PUSHER_CHANNEL_2 = 3;
         public static final int HOLDER_CHANNEL_1 = 0;
         public static final int HOLDER_CHANNEL_2 = 1;
+
+        public static final int BUTTON_CHANNEL = 9;
     }
 
     /**

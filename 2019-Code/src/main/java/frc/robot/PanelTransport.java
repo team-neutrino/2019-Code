@@ -41,7 +41,8 @@ public class PanelTransport
     {
         pushers = new DoubleSolenoid(Constants.PanelTransport.PUSHER_CHANNEL_1, Constants.PanelTransport.PUSHER_CHANNEL_2);
         holder = new DoubleSolenoid(Constants.PanelTransport.HOLDER_CHANNEL_1, Constants.PanelTransport.HOLDER_CHANNEL_2);
-        button = new DigitalInput(9);
+        button = new DigitalInput(Constants.PanelTransport.BUTTON_CHANNEL);
+
         new ValuePrinter(()->
             {
                 SmartDashboard.putString("Pushers state: ", pushers.get().toString());
@@ -52,6 +53,8 @@ public class PanelTransport
 
     /**
      * Returns the button state, true if being pushed, false if not.
+     * @return
+     *  The state of the button true if pushed, false if not
      */
     public boolean getButton()
     {

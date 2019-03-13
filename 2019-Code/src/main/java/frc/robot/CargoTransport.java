@@ -117,6 +117,32 @@ public class CargoTransport implements PIDOutput
         armPID.setSetpoint(position.angle);
     }
 
+    /**
+     * Turns the arm PID on if it is off and off if it is on 
+     * to toggle override mode.
+     */
+    public void togglePID()
+    {
+        if(armPID.isEnabled())
+        {
+            armPID.disable();
+        }
+        else
+        {
+            armPID.enable();
+        }
+    }
+
+    /**
+     * Directly set arm motor power to the given value for override mode.
+     * @param power
+     *  The power to set the arm motor to form -1 to 1
+     */
+    public void overrideArm(double power)
+    {
+        armMotor.set(ControlMode.PercentOutput, power);
+    }  
+    
     @Override
     public void pidWrite(double output)
     {
@@ -137,22 +163,5 @@ public class CargoTransport implements PIDOutput
             }
             armMotor.set(ControlMode.PercentOutput, -output);
         }
-    }
-
-    public void togglePID()
-    {
-        if(armPID.isEnabled())
-        {
-            armPID.disable();
-        }
-        else
-        {
-            armPID.enable();
-        }
-    }
-
-    public void overrideArm(double power)
-    {
-        armMotor.set(ControlMode.PercentOutput, power);
-    }    
+    }  
 }

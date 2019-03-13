@@ -82,11 +82,15 @@ public class Drive
     private PIDController usPID;
 
     /**
-     * True if the robot is backing up after being 
-     * too close to the target, false otherwise
+     * True if the robot is backing up to the left after being 
+     * too close to the target and angled to the left, false otherwise
      */
     private boolean backingLeft;
 
+    /**
+     * True if the robot is backing up to the right after being 
+     * too close to the target and angled to the right, false otherwise
+     */
     private boolean backingRight;
 
     /**
@@ -144,22 +148,8 @@ public class Drive
                 SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
                 SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
                 SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
-                SmartDashboard.putNumber("skew", limelight.getEntry("ts").getDouble(0.0));
-                
-                getAngleOffset();
-                // double[] x = limelight.getEntry("tcornx").getDoubleArray(new double[5]);
-                // double[] y = limelight.getEntry("tcorny").getDoubleArray(new double[5]);
-
-                
-                // {
-                //     for(int i = 0; i<x.length; i++)
-                //     {
-                //         System.out.println("(" + x[i] + " , " + y[i] + ")");
-                //     }
-                // }
- 
-
-
+                SmartDashboard.putNumber("Limelight skew", limelight.getEntry("ts").getDouble(0.0));
+                SmartDashboard.putNumber("Calculated angle from target: ", getAngleOffset());
             },
             ValuePrinter.HIGHEST_PRIORITY);
     }
@@ -371,22 +361,31 @@ public class Drive
         return false;
     }
 
+    /**
+     * Returns an estimated angle of the rotation of the robot to a target
+     * using the distortion of the image.
+     * @return
+     *  An estimated angle of the roatation of the robot from the target
+     */
     private double getAngleOffset()
     {
         double[] xs = limelight.getEntry("tcornx").getDoubleArray(new double[0]);
         double[] ys = limelight.getEntry("tcorny").getDoubleArray(new double[0]);
         
-        if(xs.length >= 8)
+        if(xs.length >= 8) //Check if Limelight is sending data
         {
+            //Calculate first angle from triangle with hypotenuse from point 1 to 7
             double xDist1 = xs[7] - xs[1];
             double yDist1 = ys[1] - ys[7];
             double angle1 = Math.tanh(yDist1 / xDist1);
 
+            //Calculate first angle from triangle with hypotenuse from point 0 to 6
             double xDist2 = xs[0] - xs[6];
             double yDist2 = ys[0] - ys[6];
             double angle2 = Math.tanh(yDist2 / xDist2);
 
-            return -0.7861*(angle1-angle2)+1.215;
+            //Return calculated angle from experimetally generated equation
+            return -0.7861 * (angle1 - angle2) + 1.215;
         }
 
         return 0.0;
