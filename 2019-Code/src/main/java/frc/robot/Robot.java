@@ -374,15 +374,7 @@ public class Robot extends TimedRobot
 
         //Turn arm camera on if button pushed then turn off
         //TODO may remove later
-        int pov = xBox.getPOV();  
-        if(pov == 0 || pov == 45 || pov == 315)
-        {
-            cam.setFPS(15);
-        }
-        else//pov == 180 || pov == 135 || pov == 225)
-        {
-            cam.setFPS(0);
-        }
+
        
         //Toggle cargo arm override control
         if(xBox.getRawButton(9))

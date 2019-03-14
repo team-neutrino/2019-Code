@@ -170,7 +170,7 @@ public class CargoTransport implements PIDOutput
      */
     public void overrideArm(double power)
     {
-        armMotor.set(ControlMode.PercentOutput, power);
+        armMotor.set(ControlMode.PercentOutput, -power);
     }  
     
     @Override
@@ -179,19 +179,19 @@ public class CargoTransport implements PIDOutput
         //Limits motor power when gravity is assisting
         if(armEncoder.get() > Constants.CargoTransport.ARM_UP_ANGLE)
         {
-            if(output > 0)
-            {
-                output *= Constants.CargoTransport.GRAVITY_ASSIST_MULTIPLIER;
-            }
-            armMotor.set(ControlMode.PercentOutput, -output);
-        }
-        else
-        {
             if(output < 0)
             {
                 output *= Constants.CargoTransport.GRAVITY_ASSIST_MULTIPLIER;
             }
-            armMotor.set(ControlMode.PercentOutput, -output);
+            armMotor.set(ControlMode.PercentOutput, output);
+        }
+        else
+        {
+            if(output > 0)
+            {
+                output *= Constants.CargoTransport.GRAVITY_ASSIST_MULTIPLIER;
+            }
+            armMotor.set(ControlMode.PercentOutput, output);
         }
     }  
 }

@@ -315,8 +315,8 @@ public class Drive
     {
         turnPID.disable();
         usPID.disable();
-        leftStraightPID.disable();
-        rightStraightPID.disable();
+        // leftStraightPID.disable();
+        // rightStraightPID.disable();
         limelight.getEntry("ledMode").setNumber(1);
         limelight.getEntry("camMode").setNumber(1);
     }
