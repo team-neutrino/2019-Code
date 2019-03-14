@@ -110,12 +110,23 @@ public class Robot extends TimedRobot
     private boolean holdOverride;
     
     /**
+     * This shuts off the lidar once we get into teleop.
+     */
+    private boolean lidarSwitch;
+
+    /**
+     * This variable stores weather the lidar is in use or not.
+     */
+    private boolean lidarInUse;
+
+    /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
     @Override
     public void robotInit() 
     {
+        lidarInUse = false;
         lJoy = new Joystick(Constants.Robot.LEFT_JOYSTICK_PORT);
         rJoy = new Joystick(Constants.Robot.RIGHT_JOYSTICK_PORT);
         xBox = new XboxController(Constants.Robot.XBOX_CONTROLLER_PORT);
@@ -129,6 +140,8 @@ public class Robot extends TimedRobot
         cam = CameraServer.getInstance().startAutomaticCapture("Wide angle", 0);
         cam.setFPS(15);
         cam.setResolution(320, 240);
+
+        lidarSwitch = true;
 
         //TODO do stuff with odometry
         //odometry = new Odometry(drive);
@@ -184,14 +197,19 @@ public class Robot extends TimedRobot
                 SmartDashboard.putNumber("Left Joystick: ", lJoy.getY());
                 SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
             }, 
-            ValuePrinter.NORMAL_PRIORITY);    
+            ValuePrinter.NORMAL_PRIORITY);
+        lidar = new LidarRaspberry(drive);
+        
     }
 
     /**
      * Called once before the sandstorm period.
      */
     @Override
-    public void autonomousInit() {}
+    public void autonomousInit() {
+        lidar.enable();
+        lidarInUse = true;
+    }
 
     /**
      * This function is called periodically during autonomous.
@@ -208,6 +226,15 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic() 
     {
+        //Turn off the lidar once we get out of auto.
+        if(!isAutonomous() && lidarSwitch)
+        {
+            System.out.println("Out of auto!");
+            lidarSwitch = false;
+            lidar.disable();
+        }
+        lidar.update();
+
         //Drivetrain control and driver assist
         if(lJoy.getRawButton(Constants.LJoy.DELIVER_LEFT_SIDE_BUTTON) 
             || lJoy.getRawButton(Constants.LJoy.DELIVER_RIGHT_SIDE_BUTTON)) //Line up with bay and deliver panel
@@ -416,4 +443,16 @@ public class Robot extends TimedRobot
      */
     @Override
     public void robotPeriodic() {}
+
+    @Override
+    public void disabledInit()
+    {
+        if (lidarInUse) {
+            try {
+                lidar.disable();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

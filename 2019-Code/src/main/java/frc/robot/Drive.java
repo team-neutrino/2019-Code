@@ -152,19 +152,19 @@ public class Drive
         usPID.setInputRange(Constants.Drive.DISTANCE_INPUT_MIN, Constants.Drive.DISTANCE_INPUT_MAX);
         usPID.setOutputRange(Constants.Drive.DISTANCE_OUTPUT_MIN, Constants.Drive.DISTANCE_OUTPUT_MAX);
 
-        new ValuePrinter(()-> 
-            {
-                SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
-                SmartDashboard.putNumber("Navx Angle: ", getNavxAngle());
-                SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
-                SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
-                SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
-                SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
-                SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
-                SmartDashboard.putNumber("Limelight skew", limelight.getEntry("ts").getDouble(0.0));
-                SmartDashboard.putNumber("Calculated angle from target: ", getAngleOffset());
-            },
-            ValuePrinter.HIGHEST_PRIORITY);
+        // new ValuePrinter(()-> 
+        //     {
+        //         SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
+        //         SmartDashboard.putNumber("Navx Angle: ", getNavxAngle());
+        //         SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
+        //         SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
+        //         SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
+        //         SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
+        //         SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
+        //         SmartDashboard.putNumber("Limelight skew", limelight.getEntry("ts").getDouble(0.0));
+        //         SmartDashboard.putNumber("Calculated angle from target: ", getAngleOffset());
+        //     },
+        //     ValuePrinter.HIGHEST_PRIORITY);
     }
 
     /**
