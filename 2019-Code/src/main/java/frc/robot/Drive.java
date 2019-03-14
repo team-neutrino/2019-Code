@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.*;
@@ -82,6 +83,16 @@ public class Drive
     private PIDController usPID;
 
     /**
+     * The PID Controller for the left side drive train when driving straight
+     */
+    private PIDController leftStraightPID;
+
+    /**
+     * The PID Controller for the right side drive train when driving straight
+     */
+    private PIDController rightStraightPID;
+
+    /**
      * True if the robot is backing up to the left after being 
      * too close to the target and angled to the left, false otherwise
      */
@@ -107,6 +118,8 @@ public class Drive
         rEncoder = new Encoder(Constants.Drive.RIGHT_ENCODER_PORT_ONE, Constants.Drive.RIGHT_ENCODER_PORT_TWO);
         lEncoder.setDistancePerPulse(Constants.Drive.ENCODER_DISTANCE_PER_PULSE);
         rEncoder.setDistancePerPulse(Constants.Drive.ENCODER_DISTANCE_PER_PULSE);
+        lEncoder.setPIDSourceType(PIDSourceType.kRate);
+        rEncoder.setPIDSourceType(PIDSourceType.kRate);
 
         navx = new AHRS(Constants.Drive.NAVX_PORT);
         navx.reset();
@@ -183,10 +196,7 @@ public class Drive
      */
     public void beginRelativeTurn(double degrees)
     {
-        //Sets angle adjustment to keep robot angle relative to the field
-        navx.setAngleAdjustment(navx.getAngleAdjustment() + navx.getYaw());
-
-        navx.zeroYaw();
+        zeroNavx();
         turnPID.setSetpoint(degrees);
         turnPID.enable();
     }
@@ -236,6 +246,19 @@ public class Drive
     }
 
     /**
+     * Makes the robot drive straight
+     */
+    public void driveStraight(double power)
+    {
+        double velocity = 0.0 * power;
+        zeroNavx();
+        leftStraightPID.setSetpoint(velocity);
+        rightStraightPID.setSetpoint(velocity);
+        leftStraightPID.enable();
+        rightStraightPID.enable();
+    }
+
+    /**
      * Returns the distance travelled recoreded by the left encoder.
      * @return
      *  The distance travelled in inches
@@ -267,6 +290,16 @@ public class Drive
     }
 
     /**
+     * Zeros the Navx while setting the offset to maintain current 
+     * position relative to the field.
+     */
+    private void zeroNavx()
+    {
+        navx.setAngleAdjustment(navx.getAngleAdjustment() + navx.getYaw());
+        navx.zeroYaw();
+    }
+
+    /**
      * Sets angle adjustment to 0 and sets the navx to 0.
      */
     public void resetNavx()
@@ -282,6 +315,8 @@ public class Drive
     {
         turnPID.disable();
         usPID.disable();
+        leftStraightPID.disable();
+        rightStraightPID.disable();
         limelight.getEntry("ledMode").setNumber(1);
         limelight.getEntry("camMode").setNumber(1);
     }
