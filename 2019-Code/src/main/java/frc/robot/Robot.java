@@ -398,10 +398,6 @@ public class Robot extends TimedRobot
         {
             climber.set(true);
         }
-
-        //Turn arm camera on if button pushed then turn off
-        //TODO may remove later
-
        
         //Toggle cargo arm override control
         if(xBox.getRawButton(9))
