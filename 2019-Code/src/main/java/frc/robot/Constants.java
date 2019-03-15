@@ -184,7 +184,7 @@ public class Constants
      */
     public static class Lidar
     {
-        public static final String LIDAR_ADDR = "10.39.28.14";
+        public static final String LIDAR_ADDR = "10.39.28.19";
         public static final int LIDAR_PORT = 5801;
         public static final byte LIDAR_CMD_START = (byte) 0x01;
         public static final byte LIDAR_CMD_STOP = (byte) 0x02;

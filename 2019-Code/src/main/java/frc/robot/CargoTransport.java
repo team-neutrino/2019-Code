@@ -97,12 +97,12 @@ public class CargoTransport implements PIDOutput
 
         currentOverTime = 0;
 
-        new ValuePrinter(()-> 
-            {
-                SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
-                SmartDashboard.putNumber("Arm setpoint: ", armPID.getSetpoint());
-            }, 
-            ValuePrinter.NORMAL_PRIORITY);
+        // new ValuePrinter(()-> 
+        //     {
+        //         SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
+        //         SmartDashboard.putNumber("Arm setpoint: ", armPID.getSetpoint());
+        //     }, 
+        //     ValuePrinter.NORMAL_PRIORITY);
     }
 
     /**

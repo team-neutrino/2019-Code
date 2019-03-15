@@ -43,12 +43,12 @@ public class PanelTransport
         holder = new DoubleSolenoid(Constants.PanelTransport.HOLDER_CHANNEL_1, Constants.PanelTransport.HOLDER_CHANNEL_2);
         button = new DigitalInput(Constants.PanelTransport.BUTTON_CHANNEL);
 
-        new ValuePrinter(()->
-            {
-                SmartDashboard.putString("Pushers state: ", pushers.get().toString());
-                SmartDashboard.putString("Holder state: ", holder.get().toString());
-            }, 
-            ValuePrinter.NORMAL_PRIORITY);
+        // new ValuePrinter(()->
+        //     {
+        //         SmartDashboard.putString("Pushers state: ", pushers.get().toString());
+        //         SmartDashboard.putString("Holder state: ", holder.get().toString());
+        //     }, 
+        //     ValuePrinter.NORMAL_PRIORITY);
     }
 
     /**

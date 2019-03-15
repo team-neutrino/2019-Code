@@ -59,6 +59,7 @@ public class CanvasController
         
         pt = new PaintThread(gc);
         mt = new Thread(pt);
+        mt.setPriority(10);
         
         hook = pt.startServer();
         mt.start();

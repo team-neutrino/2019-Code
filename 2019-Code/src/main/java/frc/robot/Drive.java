@@ -174,9 +174,9 @@ public class Drive
 
             setLeft(output);
         });
-        leftStraightPID.setAbsoluteTolerance(0.0);
-        leftStraightPID.setInputRange(-20, 20);
-        leftStraightPID.setOutputRange(-1.0, 1.0);
+        rightStraightPID.setAbsoluteTolerance(0.0);
+        rightStraightPID.setInputRange(-20, 20);
+        rightStraightPID.setOutputRange(-1.0, 1.0);
 
 
         new ValuePrinter(()-> 
@@ -345,8 +345,8 @@ public class Drive
     {
         turnPID.disable();
         usPID.disable();
-        // leftStraightPID.disable();
-        // rightStraightPID.disable();
+        leftStraightPID.disable();
+        rightStraightPID.disable();
         limelight.getEntry("ledMode").setNumber(1);
         limelight.getEntry("camMode").setNumber(1);
     }
@@ -419,7 +419,7 @@ public class Drive
 
             //Add left side subtract right to turn
             SmartDashboard.putNumber("Joyz", Robot.lJoy.getZ());
-            setLeft((0.3 * (Robot.lJoy.getZ()  + 1) + p * offset));
+            setLeft((0.3 + p * offset));
             setRight(0.3 - p*offset);
         }
 
