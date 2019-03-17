@@ -145,25 +145,22 @@ public class LEDController
      */
     public void setMode(Mode mode)
     {
+        ledThread.interrupt();
         if(mode == Mode.ON)
         {
-            ledThread.interrupt();
             ledPort.set(true);
         }
         else if(mode == Mode.OFF)
         {
-            ledThread.interrupt();
             ledPort.set(false);
         }
         else if(mode == Mode.FLASH)
         {
-            ledThread.interrupt();
             ledThread = new Thread(this::flash);
             ledThread.start(); 
         }
         else if(mode == Mode.MORSE)
         {
-            ledThread.interrupt();
             ledThread = new Thread(this::morse);
             ledThread.start(); 
         }
@@ -172,7 +169,7 @@ public class LEDController
     /**
      * Sets the message to display in morse mode
      * @param morseMessage
-     *  The message to set (must contain "-"" for long flashes and "." for short 
+     *  The message to set (must contain "-" for long flashes and "." for short 
      *  flashes; other characters will be ignored)
      */
     public void setMessage(String morseMessage)

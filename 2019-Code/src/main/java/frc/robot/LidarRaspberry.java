@@ -84,6 +84,11 @@ public class LidarRaspberry
     {
         System.arraycopy(ByteBuffer.allocate(4).putFloat(getAngle()).array(), 0, message, 0, 4);
         message[4] = Constants.Lidar.LIDAR_CMD_START;
+        //message[0] = (byte) 0x00;
+        //message[1] = (byte) 0x00;
+        //message[2] = (byte) 0x00;
+        //message[3] = (byte) 0x00;
+        //message[4] = (byte) 0x01;
         try 
         {
             clientSocket.send(packet);
@@ -101,6 +106,12 @@ public class LidarRaspberry
     {   
         System.arraycopy(ByteBuffer.allocate(4).putFloat(getAngle()).array(), 0, message, 0, 4);
         message[4] = Constants.Lidar.LIDAR_CMD_STOP;
+
+        //message[0] = (byte) 0x00;
+        //message[1] = (byte) 0x00;
+        //message[2] = (byte) 0x00;
+        //message[3] = (byte) 0x00;
+        //message[4] = (byte) 0x02;
         try 
         {
             clientSocket.send(packet);
@@ -118,6 +129,7 @@ public class LidarRaspberry
     {
         System.arraycopy(ByteBuffer.allocate(4).putFloat(getAngle()).array(), 0, message, 0, 4);
         message[4] = Constants.Lidar.LIDAR_CMD_UPDATE;
+        
         try 
         {
             clientSocket.send(packet);

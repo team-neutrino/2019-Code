@@ -168,7 +168,7 @@ public class PaintThread extends Thread
                     gc.beginPath();
 
                     gc.moveTo(300,300);
-                    System.out.println(parsedPacket[3]); 
+                    //System.out.println(parsedPacket[3]); 
                     gc.lineTo(300+Constants.Canvas.DIRECTION_LINE_MAG*Math.cos(Math.toRadians(270-Double.parseDouble(parsedPacket[3]))),300+Constants.Canvas.DIRECTION_LINE_MAG*Math.sin(Math.toRadians(270-Double.parseDouble(parsedPacket[3]))));
 
                     gc.stroke();
@@ -183,7 +183,7 @@ public class PaintThread extends Thread
 					yList.clear();
 					
 				}
-				//System.out.println(ParsedPacket[0] + " : " + Double.parseDouble(ParsedPacket[1]) + " : " + Double.parseDouble(ParsedPacket[2])); //Optional console display
+				System.out.println(parsedPacket[0] + " : " + Double.parseDouble(parsedPacket[1]) + " : " + Double.parseDouble(parsedPacket[2])); //Optional console display
 				currentX = Double.parseDouble(parsedPacket[1]); //Added in-between for ease to read.
 				currentY = Double.parseDouble(parsedPacket[2]);
 				xList.add(clamp(currentX/10,-300,300)+300);

@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.*;
@@ -82,11 +83,25 @@ public class Drive
     private PIDController usPID;
 
     /**
-     * True if the robot is backing up after being 
-     * too close to the target, false otherwise
+     * The PID Controller for the left side drive train when driving straight
+     */
+    private PIDController leftStraightPID;
+
+    /**
+     * The PID Controller for the right side drive train when driving straight
+     */
+    private PIDController rightStraightPID;
+
+    /**
+     * True if the robot is backing up to the left after being 
+     * too close to the target and angled to the left, false otherwise
      */
     private boolean backingLeft;
 
+    /**
+     * True if the robot is backing up to the right after being 
+     * too close to the target and angled to the right, false otherwise
+     */
     private boolean backingRight;
 
     /**
@@ -103,6 +118,8 @@ public class Drive
         rEncoder = new Encoder(Constants.Drive.RIGHT_ENCODER_PORT_ONE, Constants.Drive.RIGHT_ENCODER_PORT_TWO);
         lEncoder.setDistancePerPulse(Constants.Drive.ENCODER_DISTANCE_PER_PULSE);
         rEncoder.setDistancePerPulse(Constants.Drive.ENCODER_DISTANCE_PER_PULSE);
+        lEncoder.setPIDSourceType(PIDSourceType.kRate);
+        rEncoder.setPIDSourceType(PIDSourceType.kRate);
 
         navx = new AHRS(Constants.Drive.NAVX_PORT);
         navx.reset();
@@ -135,6 +152,23 @@ public class Drive
         usPID.setInputRange(Constants.Drive.DISTANCE_INPUT_MIN, Constants.Drive.DISTANCE_INPUT_MAX);
         usPID.setOutputRange(Constants.Drive.DISTANCE_OUTPUT_MIN, Constants.Drive.DISTANCE_OUTPUT_MAX);
 
+        leftStraightPID = new PIDController(0.0, 0.0, 0.0, lEncoder, (double output)->
+            {
+                setLeft(output);
+            });
+        leftStraightPID.setAbsoluteTolerance(0.0);
+        leftStraightPID.setInputRange(-20, 20);
+        leftStraightPID.setOutputRange(-1.0, 1.0);
+
+        rightStraightPID = new PIDController(0.0, 0.0, 0.0, rEncoder, (double output)->
+        {
+            setRight(output);
+        });
+        rightStraightPID.setAbsoluteTolerance(0.0);
+        rightStraightPID.setInputRange(-20, 20);
+        rightStraightPID.setOutputRange(-1.0, 1.0);
+
+
         new ValuePrinter(()-> 
             {
                 SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
@@ -144,22 +178,11 @@ public class Drive
                 SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
                 SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
                 SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
-                SmartDashboard.putNumber("skew", limelight.getEntry("ts").getDouble(0.0));
-                
-                getAngleOffset();
-                // double[] x = limelight.getEntry("tcornx").getDoubleArray(new double[5]);
-                // double[] y = limelight.getEntry("tcorny").getDoubleArray(new double[5]);
+                SmartDashboard.putNumber("Limelight skew", limelight.getEntry("ts").getDouble(0.0));
+                SmartDashboard.putNumber("Calculated angle from target: ", getAngleOffset());
 
-                
-                // {
-                //     for(int i = 0; i<x.length; i++)
-                //     {
-                //         System.out.println("(" + x[i] + " , " + y[i] + ")");
-                //     }
-                // }
- 
-
-
+                SmartDashboard.putNumber("Left rate: ", lEncoder.getRate());
+                SmartDashboard.putNumber("Right rate: ", rEncoder.getRate());
             },
             ValuePrinter.HIGHEST_PRIORITY);
     }
@@ -193,10 +216,7 @@ public class Drive
      */
     public void beginRelativeTurn(double degrees)
     {
-        //Sets angle adjustment to keep robot angle relative to the field
-        navx.setAngleAdjustment(navx.getAngleAdjustment() + navx.getYaw());
-
-        navx.zeroYaw();
+        zeroNavx();
         turnPID.setSetpoint(degrees);
         turnPID.enable();
     }
@@ -246,6 +266,32 @@ public class Drive
     }
 
     /**
+     * Makes the robot drive straight by using a PID to control the speed the
+     * wheels rotate at while using the Navx  to correct for any drift.
+     * @param power
+     *  The multiplier for the max speed from -1 to 1 to set the set point to
+     * @param zeroHeading
+     *  True if the heading should be set to zero, false to align with the current zero
+     */
+    public void driveStraight(double power, boolean zeroHeading)
+    {
+        if(zeroHeading)
+        {
+            zeroNavx();
+        }
+
+        double velocity = 0.0 * power;
+
+        double correction = navx.getYaw() * 0.0;//TODO get P
+
+        //TODO change velocities with correction val - consider forwards and backwards cases
+        leftStraightPID.setSetpoint(velocity);
+        rightStraightPID.setSetpoint(velocity);
+        leftStraightPID.enable();
+        rightStraightPID.enable();
+    }
+
+    /**
      * Returns the distance travelled recoreded by the left encoder.
      * @return
      *  The distance travelled in inches
@@ -277,6 +323,16 @@ public class Drive
     }
 
     /**
+     * Zeros the Navx while setting the offset to maintain current 
+     * position relative to the field.
+     */
+    private void zeroNavx()
+    {
+        navx.setAngleAdjustment(navx.getAngleAdjustment() + navx.getYaw());
+        navx.zeroYaw();
+    }
+
+    /**
      * Sets angle adjustment to 0 and sets the navx to 0.
      */
     public void resetNavx()
@@ -292,6 +348,8 @@ public class Drive
     {
         turnPID.disable();
         usPID.disable();
+        leftStraightPID.disable();
+        rightStraightPID.disable();
         limelight.getEntry("ledMode").setNumber(1);
         limelight.getEntry("camMode").setNumber(1);
     }
@@ -313,9 +371,8 @@ public class Drive
             return false;
         }
 
-        if(backingRight)
+        if(backingRight) //Back up until far enough away
         {
-            //Back up until far enough away
             setLeft(-0.4);
             setRight(-0.4);//1
 
@@ -324,9 +381,8 @@ public class Drive
                 backingRight = false;
             }
         }
-        else if(backingLeft)
+        else if(backingLeft) //Back up until far enough away
         {
-            //Back up until far enough away
             setLeft(-0.4);//1
             setRight(-0.4);
 
@@ -363,30 +419,38 @@ public class Drive
             // diff = Math.max(diff, 0.1);
 
             //Add left side subtract right to turn
-            SmartDashboard.putNumber("Joyz", Robot.lJoy.getZ());
-            setLeft((0.3 * (Robot.lJoy.getZ()  + 1) + p * offset));
+            setLeft(0.3 + p * offset);
             setRight(0.3 - p*offset);
         }
 
         return false;
     }
 
+    /**
+     * Returns an estimated angle of the rotation of the robot to a target
+     * using the distortion of the image.
+     * @return
+     *  An estimated angle of the roatation of the robot from the target
+     */
     private double getAngleOffset()
     {
         double[] xs = limelight.getEntry("tcornx").getDoubleArray(new double[0]);
         double[] ys = limelight.getEntry("tcorny").getDoubleArray(new double[0]);
         
-        if(xs.length >= 8)
+        if(xs.length >= 8) //Check if Limelight is sending data
         {
+            //Calculate first angle from triangle with hypotenuse from point 1 to 7
             double xDist1 = xs[7] - xs[1];
             double yDist1 = ys[1] - ys[7];
             double angle1 = Math.tanh(yDist1 / xDist1);
 
+            //Calculate first angle from triangle with hypotenuse from point 0 to 6
             double xDist2 = xs[0] - xs[6];
             double yDist2 = ys[0] - ys[6];
             double angle2 = Math.tanh(yDist2 / xDist2);
 
-            return -0.7861*(angle1-angle2)+1.215;
+            //Return calculated angle from experimetally generated equation
+            return -0.7861 * (angle1 - angle2) + 1.215;
         }
 
         return 0.0;

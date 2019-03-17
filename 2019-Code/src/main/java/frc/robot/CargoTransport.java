@@ -32,7 +32,8 @@ public class CargoTransport implements PIDOutput
         ROCKET_BACK(Constants.CargoTransport.ROCKET_BACK_ANGLE), 
         SHIP_BACK(Constants.CargoTransport.SHIP_BACK_ANGLE), 
         SHIP_FORWARD(Constants.CargoTransport.SHIP_FORWARD_ANGLE), 
-        ARM_DOWN(Constants.CargoTransport.ARM_DOWN_ANGLE);
+        ARM_DOWN(Constants.CargoTransport.ARM_DOWN_ANGLE),
+        ARM_UP(Constants.CargoTransport.ARM_UP_ANGLE);
 
         /**
          * The angle of the encoder for the arm at the given position
@@ -71,6 +72,12 @@ public class CargoTransport implements PIDOutput
     private PIDController armPID;
 
     /**
+     * The time when the motor went over the current threshold 
+     * or 0 if the motor is not over current
+     */
+    private long currentOverTime;
+
+    /**
      * Contructor for the cargo manipulator.
      */
     public CargoTransport()
@@ -89,6 +96,8 @@ public class CargoTransport implements PIDOutput
         setArmPosition(ArmPosition.SHIP_FORWARD);
         armPID.enable();
 
+        currentOverTime = 0;
+
         new ValuePrinter(()-> 
             {
                 SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
@@ -98,12 +107,34 @@ public class CargoTransport implements PIDOutput
     }
 
     /**
-     * Sets the power of the roller motor.
+     * Sets the power of the roller motor with current sensing so the motor does
+     * not stall for more than 100 milliseconds.
      * @param power
      *  The power to set roller motor to, -1 out 1 in
      */
     public void setRoller(double power)
     {
+        if(Math.abs(power) < 0.1)
+		{
+			power = 0.0;
+			currentOverTime = 0;
+		}
+		else if(rollerMotor.getOutputCurrent() > Constants.CargoTransport.STALLED_CURRENT)
+		{
+            if(currentOverTime == 0)
+            {
+                currentOverTime = System.currentTimeMillis();
+            }
+            else if(System.currentTimeMillis() - currentOverTime > Constants.CargoTransport.HIGH_CURRENT_TIME_MAX)
+            {
+                power = 0.0;
+            }
+        }
+        else
+        {
+            currentOverTime = 0;
+        }
+		
         rollerMotor.set(ControlMode.PercentOutput, power);
     }
 
@@ -117,28 +148,10 @@ public class CargoTransport implements PIDOutput
         armPID.setSetpoint(position.angle);
     }
 
-    @Override
-    public void pidWrite(double output)
-    {
-        //Limits motor power when gravity is assisting
-        if(armEncoder.get() > Constants.CargoTransport.ARM_UP_ANGLE)
-        {
-            if(output > 0)
-            {
-                output *= Constants.CargoTransport.GRAVITY_ASSIST_MULTIPLIER;
-            }
-            armMotor.set(ControlMode.PercentOutput, -output);
-        }
-        else
-        {
-            if(output < 0)
-            {
-                output *= Constants.CargoTransport.GRAVITY_ASSIST_MULTIPLIER;
-            }
-            armMotor.set(ControlMode.PercentOutput, -output);
-        }
-    }
-
+    /**
+     * Turns the arm PID on if it is off and off if it is on 
+     * to toggle override mode.
+     */
     public void togglePID()
     {
         if(armPID.isEnabled())
@@ -151,8 +164,35 @@ public class CargoTransport implements PIDOutput
         }
     }
 
+    /**
+     * Directly set arm motor power to the given value for override mode.
+     * @param power
+     *  The power to set the arm motor to form -1 to 1
+     */
     public void overrideArm(double power)
     {
-        armMotor.set(ControlMode.PercentOutput, power);
-    }    
+        armMotor.set(ControlMode.PercentOutput, -power);
+    }  
+    
+    @Override
+    public void pidWrite(double output)
+    {
+        //Limits motor power when gravity is assisting
+        if(armEncoder.get() > Constants.CargoTransport.ARM_UP_ANGLE)
+        {
+            if(output < 0)
+            {
+                output *= Constants.CargoTransport.GRAVITY_ASSIST_MULTIPLIER;
+            }
+            armMotor.set(ControlMode.PercentOutput, output);
+        }
+        else
+        {
+            if(output > 0)
+            {
+                output *= Constants.CargoTransport.GRAVITY_ASSIST_MULTIPLIER;
+            }
+            armMotor.set(ControlMode.PercentOutput, output);
+        }
+    }  
 }

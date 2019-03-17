@@ -140,8 +140,11 @@ public class Constants
         public static final int SHIP_BACK_ANGLE = 229;
         public static final int SHIP_FORWARD_ANGLE = 325;
         public static final int ARM_DOWN_ANGLE = 163;
+        public static final int ARM_UP_ANGLE = 311;
 
-        public static final int ARM_UP_ANGLE = 300;
+        public static final int STALLED_CURRENT = 55;
+        public static final int HIGH_CURRENT_TIME_MAX = 100;
+
     }
 
     /**
@@ -153,6 +156,8 @@ public class Constants
         public static final int PUSHER_CHANNEL_2 = 3;
         public static final int HOLDER_CHANNEL_1 = 0;
         public static final int HOLDER_CHANNEL_2 = 1;
+
+        public static final int BUTTON_CHANNEL = 9;
     }
 
     /**
@@ -178,7 +183,7 @@ public class Constants
      */
     public static class Lidar
     {
-        public static final String LIDAR_ADDR = "10.39.28.14";
+        public static final String LIDAR_ADDR = "10.39.28.19";
         public static final int LIDAR_PORT = 5801;
         public static final byte LIDAR_CMD_START = (byte) 0x01;
         public static final byte LIDAR_CMD_STOP = (byte) 0x02;
