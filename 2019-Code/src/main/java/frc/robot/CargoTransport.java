@@ -32,7 +32,8 @@ public class CargoTransport implements PIDOutput
         ROCKET_BACK(Constants.CargoTransport.ROCKET_BACK_ANGLE), 
         SHIP_BACK(Constants.CargoTransport.SHIP_BACK_ANGLE), 
         SHIP_FORWARD(Constants.CargoTransport.SHIP_FORWARD_ANGLE), 
-        ARM_DOWN(Constants.CargoTransport.ARM_DOWN_ANGLE);
+        ARM_DOWN(Constants.CargoTransport.ARM_DOWN_ANGLE),
+        ARM_UP(Constants.CargoTransport.ARM_UP_ANGLE);
 
         /**
          * The angle of the encoder for the arm at the given position
@@ -97,12 +98,12 @@ public class CargoTransport implements PIDOutput
 
         currentOverTime = 0;
 
-        // new ValuePrinter(()-> 
-        //     {
-        //         SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
-        //         SmartDashboard.putNumber("Arm setpoint: ", armPID.getSetpoint());
-        //     }, 
-        //     ValuePrinter.NORMAL_PRIORITY);
+        new ValuePrinter(()-> 
+            {
+                SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
+                SmartDashboard.putNumber("Arm setpoint: ", armPID.getSetpoint());
+            }, 
+            ValuePrinter.NORMAL_PRIORITY);
     }
 
     /**

@@ -140,8 +140,7 @@ public class Constants
         public static final int SHIP_BACK_ANGLE = 229;
         public static final int SHIP_FORWARD_ANGLE = 325;
         public static final int ARM_DOWN_ANGLE = 163;
-
-        public static final int ARM_UP_ANGLE = 300;
+        public static final int ARM_UP_ANGLE = 311;
 
         public static final int STALLED_CURRENT = 55;
         public static final int HIGH_CURRENT_TIME_MAX = 100;

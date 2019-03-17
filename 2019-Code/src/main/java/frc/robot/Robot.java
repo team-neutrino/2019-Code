@@ -396,7 +396,8 @@ public class Robot extends TimedRobot
         if((DriverStation.getInstance().getMatchTime() <= 30 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
             || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
         {
-            climber.set(true);
+            //climber.set(true);
+            cargoTransport.setArmPosition(ArmPosition.ARM_UP);
         }
        
         //Toggle cargo arm override control
