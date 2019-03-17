@@ -137,10 +137,10 @@ public class Constants
         public static final double GRAVITY_ASSIST_MULTIPLIER = 0.5;
 
         public static final int ROCKET_BACK_ANGLE = 210;
-        public static final int SHIP_BACK_ANGLE = 229;
+        public static final int SHIP_BACK_ANGLE = 230;
         public static final int SHIP_FORWARD_ANGLE = 325;
-        public static final int ARM_DOWN_ANGLE = 163;
-        public static final int ARM_UP_ANGLE = 311;
+        public static final int ARM_DOWN_ANGLE = 161;
+        public static final int ARM_UP_ANGLE = 290;
 
         public static final int STALLED_CURRENT = 55;
         public static final int HIGH_CURRENT_TIME_MAX = 100;

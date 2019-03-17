@@ -177,6 +177,7 @@ public class CargoTransport implements PIDOutput
     @Override
     public void pidWrite(double output)
     {
+        output = -output;
         //Limits motor power when gravity is assisting
         if(armEncoder.get() > Constants.CargoTransport.ARM_UP_ANGLE)
         {

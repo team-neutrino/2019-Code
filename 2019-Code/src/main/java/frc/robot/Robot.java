@@ -206,9 +206,11 @@ public class Robot extends TimedRobot
      * Called once before the sandstorm period.
      */
     @Override
-    public void autonomousInit() {
+    public void autonomousInit() 
+    {
         lidar.enable();
         lidarInUse = true;
+        drive.driveStraight(0.0, true);
     }
 
     /**
@@ -217,7 +219,8 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic() 
     {
-        teleopPeriodic();
+        //teleopPeriodic();
+        drive.driveStraight(lJoy.getY(), false);
     }
 
     /**
@@ -242,6 +245,7 @@ public class Robot extends TimedRobot
             initDriverAssist = false;
             if(!deliverDone && drive.limeLightAlign()) //Deploy panel if not already deployed and is lined up
             {
+                System.out.println("aligned");
                 //drive.disableDriverAssist();
                 //Ram
                 //TODO tune power and time
@@ -301,14 +305,6 @@ public class Robot extends TimedRobot
         }
         else //Control drive train using joysticks with a dead zone
         { 
-            //Disable PIDs from driver assist and sets boolean flags for driver assist being done
-            if(!initDriverAssist)
-            {
-                drive.disableDriverAssist();
-                initDriverAssist = true;
-                deliverDone = false;
-            }
-
             //Get joystick values and make correct direction and with a dead zone
             double rPower = -rJoy.getY();
             if(Math.abs(rPower) < Constants.RJoy.DEAD_ZONE)
@@ -322,18 +318,42 @@ public class Robot extends TimedRobot
             }
             
             //Drive straight by setting powers equal and compensating for robot mechanical drift
-            //TODO make more consistent way to go straight
             if(rJoy.getRawButton(Constants.RJoy.DRIVE_STRAIGHT_BUTTON))
             {
-                lPower = rPower * (lJoy.getZ()  + 1);
+                if(initDriverAssist)
+                {
+                    drive.driveStraight(lPower, true);
+                    initDriverAssist = false;
+                }
+                else
+                {
+                    drive.driveStraight(lPower, false);
+                }
             }
             else if(lJoy.getRawButton(Constants.LJoy.DRIVE_STRAIGHT_BUTTON))
             {
-                rPower = lPower;
+                if(initDriverAssist)
+                {
+                    drive.driveStraight(rPower, true);
+                    initDriverAssist = false;
+                }
+                else
+                {
+                    drive.driveStraight(rPower, false);
+                }            
             }
-
-            drive.setRight(rPower);
-            drive.setLeft(lPower);
+            else
+            {
+                //Disable PIDs from driver assist and sets boolean flags for driver assist being done
+                if(!initDriverAssist)
+                {
+                    drive.disableDriverAssist();
+                    initDriverAssist = true;
+                    deliverDone = false;
+                }
+                drive.setRight(rPower);
+                drive.setLeft(lPower);
+            }
         }
 
         //Arm position control
@@ -397,7 +417,6 @@ public class Robot extends TimedRobot
             || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
         {
             //climber.set(true);
-            cargoTransport.setArmPosition(ArmPosition.ARM_UP);
         }
        
         //Toggle cargo arm override control

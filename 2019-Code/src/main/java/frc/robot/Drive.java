@@ -104,6 +104,8 @@ public class Drive
      */
     private boolean backingRight;
 
+    private boolean encoderDrive;
+
     /**
      * Constructor for the drive train.
      */
@@ -168,21 +170,22 @@ public class Drive
         rightStraightPID.setInputRange(-20, 20);
         rightStraightPID.setOutputRange(-1.0, 1.0);
 
-
+        encoderDrive = true;
         new ValuePrinter(()-> 
             {
-                SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
-                SmartDashboard.putNumber("Navx Angle: ", getNavxAngle());
-                SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
-                SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
-                SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
-                SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
-                SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
-                SmartDashboard.putNumber("Limelight skew", limelight.getEntry("ts").getDouble(0.0));
-                SmartDashboard.putNumber("Calculated angle from target: ", getAngleOffset());
+                // SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
+                // SmartDashboard.putNumber("Navx Angle: ", getNavxAngle());
+                // SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
+                // SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
+                // SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
+                // SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
+                // SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
+                // SmartDashboard.putNumber("Limelight skew", limelight.getEntry("ts").getDouble(0.0));
+                // SmartDashboard.putNumber("Calculated angle from target: ", Math.toDegrees(getAngleOffset()));
 
                 SmartDashboard.putNumber("Left rate: ", lEncoder.getRate());
                 SmartDashboard.putNumber("Right rate: ", rEncoder.getRate());
+                SmartDashboard.putNumber("l current", lMotor1.getOutputCurrent());
             },
             ValuePrinter.HIGHEST_PRIORITY);
     }
@@ -209,6 +212,46 @@ public class Drive
         rMotor2.set(ControlMode.PercentOutput, power);
     }
     
+    public void driveEncoderLeft(double power)
+    {
+        if(encoderDrive)
+        {
+            leftStraightPID.setSetpoint(40 * power);
+
+            if(lMotor1.getOutputCurrent() > 0.5 && lEncoder.getRate() == 0)
+            {
+                //Drive by power if encoder is unplugged
+                leftStraightPID.disable();
+                encoderDrive = false;
+                setLeft(power);
+            }
+        }
+        else
+        {
+            setLeft(power);
+        }
+    }
+
+    public void driveEncoderRight(double power)
+    {
+        if(encoderDrive)
+        {
+            rightStraightPID.setSetpoint(40 * power);
+
+            if(rMotor1.getOutputCurrent() > 0.5 && rEncoder.getRate() == 0)
+            {
+                //Drive by power if encoder is unplugged
+                rightStraightPID.disable();
+                encoderDrive = false;
+                setRight(power);
+            }
+        }
+        else
+        {
+            setRight(power);
+        }
+    }
+
     /**
      * Zeros the yaw and turns the robot the given amount of degrees.
      * @param degrees
@@ -273,22 +316,17 @@ public class Drive
      * @param zeroHeading
      *  True if the heading should be set to zero, false to align with the current zero
      */
-    public void driveStraight(double power, boolean zeroHeading)
+    public void driveStraight(double power, boolean begin)
     {
-        if(zeroHeading)
+        if(begin)
         {
             zeroNavx();
+            leftStraightPID.enable();
+            rightStraightPID.enable();
         }
 
-        double velocity = 0.0 * power;
-
-        double correction = navx.getYaw() * 0.0;//TODO get P
-
-        //TODO change velocities with correction val - consider forwards and backwards cases
-        leftStraightPID.setSetpoint(velocity);
-        rightStraightPID.setSetpoint(velocity);
-        leftStraightPID.enable();
-        rightStraightPID.enable();
+        leftStraightPID.setSetpoint(power);
+        rightStraightPID.setSetpoint(power);
     }
 
     /**
@@ -437,7 +475,11 @@ public class Drive
         double[] xs = limelight.getEntry("tcornx").getDoubleArray(new double[0]);
         double[] ys = limelight.getEntry("tcorny").getDoubleArray(new double[0]);
         
-        if(xs.length >= 8) //Check if Limelight is sending data
+        // for(int i = 0; i < xs.length; i++)
+        // {
+        //     System.out.println("x: " + xs[i] + " y: " + ys[i]);
+        // }
+        if(xs.length >= 8 && ys.length >= 8) //Check if Limelight is sending data
         {
             //Calculate first angle from triangle with hypotenuse from point 1 to 7
             double xDist1 = xs[7] - xs[1];
@@ -448,9 +490,9 @@ public class Drive
             double xDist2 = xs[0] - xs[6];
             double yDist2 = ys[0] - ys[6];
             double angle2 = Math.tanh(yDist2 / xDist2);
-
+            //System.out.println("angle 1:" + angle1 + " \n angle2: " + angle2 + "\n diff: " + (angle1 - angle2));
             //Return calculated angle from experimetally generated equation
-            return -0.7861 * (angle1 - angle2) + 1.215;
+            return Math.PI / 2 - (-0.7861 * (angle1 - angle2) + 1.215);
         }
 
         return 0.0;
