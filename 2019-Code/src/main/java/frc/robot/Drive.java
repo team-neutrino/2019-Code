@@ -152,27 +152,17 @@ public class Drive
         usPID.setInputRange(Constants.Drive.DISTANCE_INPUT_MIN, Constants.Drive.DISTANCE_INPUT_MAX);
         usPID.setOutputRange(Constants.Drive.DISTANCE_OUTPUT_MIN, Constants.Drive.DISTANCE_OUTPUT_MAX);
 
-        leftStraightPID = new PIDController(0.0, 0.0, 0.0, lEncoder, (output)->
+        leftStraightPID = new PIDController(0.0, 0.0, 0.0, lEncoder, (double output)->
             {
-                if(navx.getYaw() > 0)
-                {
-                    output -= navx.getYaw() * 0.2;
-                }
-
                 setLeft(output);
             });
         leftStraightPID.setAbsoluteTolerance(0.0);
         leftStraightPID.setInputRange(-20, 20);
         leftStraightPID.setOutputRange(-1.0, 1.0);
 
-        rightStraightPID = new PIDController(0.0, 0.0, 0.0, rEncoder, (output)->
+        rightStraightPID = new PIDController(0.0, 0.0, 0.0, rEncoder, (double output)->
         {
-            if(navx.getYaw() < 0)
-            {
-                output -= -navx.getYaw() * 0.02;
-            }
-
-            setLeft(output);
+            setRight(output);
         });
         rightStraightPID.setAbsoluteTolerance(0.0);
         rightStraightPID.setInputRange(-20, 20);
@@ -276,12 +266,25 @@ public class Drive
     }
 
     /**
-     * Makes the robot drive straight
+     * Makes the robot drive straight by using a PID to control the speed the
+     * wheels rotate at while using the Navx  to correct for any drift.
+     * @param power
+     *  The multiplier for the max speed from -1 to 1 to set the set point to
+     * @param zeroHeading
+     *  True if the heading should be set to zero, false to align with the current zero
      */
-    public void driveStraight(double power)
+    public void driveStraight(double power, boolean zeroHeading)
     {
+        if(zeroHeading)
+        {
+            zeroNavx();
+        }
+
         double velocity = 0.0 * power;
-        zeroNavx();
+
+        double correction = navx.getYaw() * 0.0;//TODO get P
+
+        //TODO change velocities with correction val - consider forwards and backwards cases
         leftStraightPID.setSetpoint(velocity);
         rightStraightPID.setSetpoint(velocity);
         leftStraightPID.enable();
@@ -368,9 +371,8 @@ public class Drive
             return false;
         }
 
-        if(backingRight)
+        if(backingRight) //Back up until far enough away
         {
-            //Back up until far enough away
             setLeft(-0.4);
             setRight(-0.4);//1
 
@@ -379,9 +381,8 @@ public class Drive
                 backingRight = false;
             }
         }
-        else if(backingLeft)
+        else if(backingLeft) //Back up until far enough away
         {
-            //Back up until far enough away
             setLeft(-0.4);//1
             setRight(-0.4);
 
@@ -418,8 +419,7 @@ public class Drive
             // diff = Math.max(diff, 0.1);
 
             //Add left side subtract right to turn
-            SmartDashboard.putNumber("Joyz", Robot.lJoy.getZ());
-            setLeft((0.3 + p * offset));
+            setLeft(0.3 + p * offset);
             setRight(0.3 - p*offset);
         }
 
