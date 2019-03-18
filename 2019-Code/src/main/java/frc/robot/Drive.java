@@ -106,6 +106,9 @@ public class Drive
 
     private boolean encoderDrive;
 
+    private long lRateTime;
+    private long rRateTime;
+
     /**
      * Constructor for the drive train.
      */
@@ -216,14 +219,29 @@ public class Drive
     {
         if(encoderDrive)
         {
-            leftStraightPID.setSetpoint(40 * power);
-
             if(lMotor1.getOutputCurrent() > 0.5 && lEncoder.getRate() == 0)
             {
-                //Drive by power if encoder is unplugged
-                leftStraightPID.disable();
-                encoderDrive = false;
-                setLeft(power);
+                if(lRateTime == 0)
+                {
+                    lRateTime = System.currentTimeMillis();
+                    leftStraightPID.setSetpoint(40 * power);
+                }
+                else if(System.currentTimeMillis() - lRateTime > 100)
+                {
+                    //Drive by power if encoder is unplugged
+                    leftStraightPID.disable();
+                    encoderDrive = false;
+                    setLeft(power);
+                }
+                else
+                {
+                    leftStraightPID.setSetpoint(40 * power);
+                }
+            }
+            else
+            {
+                lRateTime = 0;
+                leftStraightPID.setSetpoint(40 * power);
             }
         }
         else
@@ -236,14 +254,29 @@ public class Drive
     {
         if(encoderDrive)
         {
-            rightStraightPID.setSetpoint(40 * power);
-
             if(rMotor1.getOutputCurrent() > 0.5 && rEncoder.getRate() == 0)
             {
-                //Drive by power if encoder is unplugged
-                rightStraightPID.disable();
-                encoderDrive = false;
-                setRight(power);
+                if(rRateTime == 0)
+                {
+                    rRateTime = System.currentTimeMillis();
+                    rightStraightPID.setSetpoint(40 * power);
+                }
+                else if(System.currentTimeMillis() - rRateTime > 100)
+                {
+                    //Drive by power if encoder is unplugged
+                    rightStraightPID.disable();
+                    encoderDrive = false;
+                    setRight(power);
+                }
+                else
+                {
+                    rightStraightPID.setSetpoint(40 * power);
+                }
+            }
+            else
+            {
+                rRateTime = 0;
+                rightStraightPID.setSetpoint(40 * power);
             }
         }
         else

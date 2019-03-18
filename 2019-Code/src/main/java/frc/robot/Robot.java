@@ -68,6 +68,11 @@ public class Robot extends TimedRobot
     private Solenoid climber;
 
     /**
+     * The solenoid to make sure the climber doesn't trigger accidently
+     */
+    private Solenoid antiClimber;
+
+    /**
      * Flag for the beginning of a driver assist
      * used to enable and disable PID
      */
@@ -135,7 +140,10 @@ public class Robot extends TimedRobot
         cargoTransport = new CargoTransport();
         panelTransport = new PanelTransport();
         climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
-
+        antiClimber = new Solenoid(5);
+        climber.set(false);
+        antiClimber.set(true);
+        
         //TODO actually set camera resolution and frame rate
         cam = CameraServer.getInstance().startAutomaticCapture("Wide angle", 0);
         cam.setFPS(15);
@@ -413,10 +421,17 @@ public class Robot extends TimedRobot
 
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
-        if((DriverStation.getInstance().getMatchTime() <= 30 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
-            || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
+        if((DriverStation.getInstance().getMatchTime() <= 20 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
+            || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON))
+            || (lJoy.getRawButton(1) && lJoy.getRawButton(2) && rJoy.getRawButton(1) && rJoy.getRawButton(2)))
         {
-            //climber.set(true);
+            antiClimber.set(false);
+            climber.set(true);
+        }
+        else
+        {
+            antiClimber.set(true);
+            climber.set(false);
         }
        
         //Toggle cargo arm override control
