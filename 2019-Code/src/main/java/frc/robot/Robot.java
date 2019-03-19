@@ -11,14 +11,14 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.CargoTransport.ArmPosition;
+//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
+// import org.opencv.core.Mat;
+// import org.opencv.imgproc.Imgproc;
 
-import edu.wpi.cscore.CvSink;
-import edu.wpi.cscore.CvSource;
+// import edu.wpi.cscore.CvSink;
+// import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -78,10 +78,10 @@ public class Robot extends TimedRobot
      */
     private boolean initDriverAssist;
 
-    /**
-     * The odometry object
-     */
-    private Odometry odometry;
+    // /**
+    //  * The odometry object
+    //  */
+    // private Odometry odometry;
 
     /**
      * A connection to the lidar
@@ -101,26 +101,26 @@ public class Robot extends TimedRobot
     /**
      * True if the cargo arm control is overriden, false if not
      */
-    private boolean isOverride;
+    private boolean armOverride;
+
+    /**
+     * True if the panel button is being used, false if not
+     */
+    private boolean usePanelButton;
 
     /**
      * True if override has been toggled, false if it has not been toggled
      */
     private boolean tempIsOverride;
-
+    
     /**
      * True if the panel holder is in hold override and not to be put down, false to 
      * have complete control from the button monkey
      */
     private boolean holdOverride;
-    
-    /**
-     * This shuts off the lidar once we get into teleop.
-     */
-    private boolean lidarSwitch;
 
     /**
-     * This variable stores weather the lidar is in use or not.
+     * Stores whether the lidar is in use or not.
      */
     private boolean lidarInUse;
 
@@ -131,7 +131,6 @@ public class Robot extends TimedRobot
     @Override
     public void robotInit() 
     {
-        lidarInUse = false;
         lJoy = new Joystick(Constants.Robot.LEFT_JOYSTICK_PORT);
         rJoy = new Joystick(Constants.Robot.RIGHT_JOYSTICK_PORT);
         xBox = new XboxController(Constants.Robot.XBOX_CONTROLLER_PORT);
@@ -144,12 +143,15 @@ public class Robot extends TimedRobot
         climber.set(false);
         antiClimber.set(true);
         
+        usePanelButton = true;
+
         //TODO actually set camera resolution and frame rate
         cam = CameraServer.getInstance().startAutomaticCapture("Wide angle", 0);
         cam.setFPS(15);
         cam.setResolution(320, 240);
 
-        lidarSwitch = true;
+        lidar = new LidarRaspberry(drive);
+        lidarInUse = false;
 
         //TODO do stuff with odometry
         //odometry = new Odometry(drive);
@@ -200,14 +202,12 @@ public class Robot extends TimedRobot
         //         }
         //     }).start();
 
-        new ValuePrinter(()->
-            {
-                SmartDashboard.putNumber("Left Joystick: ", lJoy.getY());
-                SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
-            }, 
-            ValuePrinter.NORMAL_PRIORITY);
-        lidar = new LidarRaspberry(drive);
-        
+        // new ValuePrinter(()->
+        //     {
+        //         SmartDashboard.putNumber("Left Joystick: ", lJoy.getY());
+        //         SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
+        //     }, 
+        //     ValuePrinter.NORMAL_PRIORITY);        
     }
 
     /**
@@ -218,7 +218,6 @@ public class Robot extends TimedRobot
     {
         lidar.enable();
         lidarInUse = true;
-        drive.driveStraight(0.0, true);
     }
 
     /**
@@ -227,8 +226,14 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic() 
     {
-        //teleopPeriodic();
-        drive.driveStraight(lJoy.getY(), false);
+        teleopPeriodic();
+        lidar.update();
+    }
+
+    @Override
+    public void teleopInit()
+    {
+        lidar.disable();
     }
 
     /**
@@ -237,23 +242,15 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic() 
     {
-        //Turn off the lidar once we get out of auto.
-        if(!isAutonomous() && lidarSwitch)
-        {
-            System.out.println("Out of auto!");
-            lidarSwitch = false;
-            lidar.disable();
-        }
-        lidar.update();
-
         //Drivetrain control and driver assist
         if(lJoy.getRawButton(Constants.LJoy.DELIVER_LEFT_SIDE_BUTTON) 
-            || lJoy.getRawButton(Constants.LJoy.DELIVER_RIGHT_SIDE_BUTTON)) //Line up with bay and deliver panel
+            || lJoy.getRawButton(Constants.LJoy.DELIVER_RIGHT_SIDE_BUTTON)) 
         {
+            //Line up with bay and deliver panel
             initDriverAssist = false;
             if(!deliverDone && drive.limeLightAlign()) //Deploy panel if not already deployed and is lined up
             {
-                System.out.println("aligned");
+                //System.out.println("aligned");
                 //drive.disableDriverAssist();
                 //Ram
                 //TODO tune power and time
@@ -270,49 +267,46 @@ public class Robot extends TimedRobot
                 deliverDone = true;
             }
         } 
-        else if(rJoy.getRawButton(Constants.RJoy.TURN_FIELD_BUTTON_270)) //Turn 270 relative to the field from robot init
+        else if(rJoy.getRawButton(Constants.RJoy.TURN_FIELD_BUTTON_270))
         {
+            //Turn 270 relative to the field from robot init
             if(initDriverAssist)
             {
                 drive.rotateToAngle(270);
                 initDriverAssist = false;
             }
         }
-        else if(rJoy.getRawButton(Constants.RJoy.TURN_FIELD_BUTTON_90)) //Turn 90 relative to the field from robot init
+        else if(rJoy.getRawButton(Constants.RJoy.TURN_FIELD_BUTTON_90)) 
         {
+            //Turn 90 relative to the field from robot init
             if(initDriverAssist)
             {
                 drive.rotateToAngle(90);
                 initDriverAssist = false;
             }
         }
-        else if(rJoy.getRawButton(Constants.RJoy.NEG_45_DEG_ROBOT_BUTTON))//Turn 45 relative to the robot
+        else if(rJoy.getRawButton(Constants.RJoy.NEG_45_DEG_ROBOT_BUTTON))
         {
+            //Turn 45 relative to the robot
             if(initDriverAssist)
             {
                 drive.beginRelativeTurn(-45);
                 initDriverAssist = false;
             }
         }
-        else if(rJoy.getRawButton(Constants.RJoy.POS_45_DEG_ROBOT_BUTTON)) //Turn -45 relative to the robot
+        else if(rJoy.getRawButton(Constants.RJoy.POS_45_DEG_ROBOT_BUTTON)) 
         {
+            //Turn -45 relative to the robot
             if(initDriverAssist)
             {
                 drive.beginRelativeTurn(45);
                 initDriverAssist = false;
             }
         }
-        else if(lJoy.getRawButton(Constants.LJoy.PREPARE_CLIMB_BUTTON) //Drive to distance away from wall to set up climb
-            || rJoy.getRawButton(Constants.RJoy.PREPARE_CLIMB_BUTTON)) //TODO might not need this climb set up
-        {
-            if(initDriverAssist)
-            {
-                drive.moveToDistance(Constants.Robot.CLIMB_DISTANCE);
-                initDriverAssist = false;
-            }
-        }
-        else //Control drive train using joysticks with a dead zone
+        else 
         { 
+            //Control drive train using joysticks with a dead zone
+
             //Get joystick values and make correct direction and with a dead zone
             double rPower = -rJoy.getY();
             if(Math.abs(rPower) < Constants.RJoy.DEAD_ZONE)
@@ -325,30 +319,34 @@ public class Robot extends TimedRobot
                 lPower = 0.0;
             }
             
-            //Drive straight by setting powers equal and compensating for robot mechanical drift
+            //Drive straight
             if(rJoy.getRawButton(Constants.RJoy.DRIVE_STRAIGHT_BUTTON))
             {
-                if(initDriverAssist)
-                {
-                    drive.driveStraight(lPower, true);
-                    initDriverAssist = false;
-                }
-                else
-                {
-                    drive.driveStraight(lPower, false);
-                }
+                // if(initDriverAssist)
+                // {
+                //     drive.driveStraight(lPower, true);
+                //     initDriverAssist = false;
+                // }
+                // else
+                // {
+                //     drive.driveStraight(lPower, false);
+                // }
+                drive.setRight(lPower);
+                drive.setLeft(lPower);
             }
             else if(lJoy.getRawButton(Constants.LJoy.DRIVE_STRAIGHT_BUTTON))
             {
-                if(initDriverAssist)
-                {
-                    drive.driveStraight(rPower, true);
-                    initDriverAssist = false;
-                }
-                else
-                {
-                    drive.driveStraight(rPower, false);
-                }            
+                // if(initDriverAssist)
+                // {
+                //     drive.driveStraight(rPower, true);
+                //     initDriverAssist = false;
+                // }
+                // else
+                // {
+                //     drive.driveStraight(rPower, false);
+                // } 
+                drive.setRight(rPower);
+                drive.setLeft(rPower);          
             }
             else
             {
@@ -359,6 +357,8 @@ public class Robot extends TimedRobot
                     initDriverAssist = true;
                     deliverDone = false;
                 }
+
+                //Set motor power using joysticks
                 drive.setRight(rPower);
                 drive.setLeft(lPower);
             }
@@ -395,9 +395,8 @@ public class Robot extends TimedRobot
         //Panel transport control
         if(xBox.getRawAxis(Constants.XBox.OUTTAKE_PANEL_AXIS) > 0.5)
         {
-            //TODO see if adding wait inbetween improves panel delivery
             panelTransport.setPanelHold(false);
-            Util.threadSleep(20);
+            Util.threadSleep(Constants.Robot.HOLD_PUSH_WAIT);
             panelTransport.setPushersOut(true);
             holdOverride = false;
         }
@@ -405,7 +404,7 @@ public class Robot extends TimedRobot
         {
             panelTransport.setPushersOut(false);
 
-            if(panelTransport.getButton())
+            if(panelTransport.getButton() && usePanelButton)
             {
                 panelTransport.setPanelHold(true);
                 holdOverride = true;
@@ -434,56 +433,48 @@ public class Robot extends TimedRobot
             climber.set(false);
         }
        
-        //Toggle cargo arm override control
-        if(xBox.getRawButton(9))
+        //Override Control
+        if(xBox.getRawButton(Constants.XBox.TOGGLE_ARM_OVERRIDE_BUTTON))
         {  
-            if(tempIsOverride) //Only toggle once per button push
+            //Only toggle once per button push
+            if(tempIsOverride)
             {
+                //Toggle cargo arm PID
                 cargoTransport.togglePID();
-                isOverride =! isOverride;
+                armOverride =! armOverride;
                 tempIsOverride = false;
             }
         }
-        else //Allow for toggle after button is released
+        else if(xBox.getRawButton(Constants.XBox.TOGGLE_PANEL_OVERRIDE_BUTTON))
+        {            
+            //Only toggle once per button push
+            if(tempIsOverride)
+            {
+                usePanelButton = !usePanelButton;
+                tempIsOverride = false;
+            }
+        }
+        else
         {
+            //Allow for toggle after button is released
             tempIsOverride = true;
         }
 
         //Sets arm motor power during override mode
-        if(isOverride)
+        if(armOverride)
         {
-            cargoTransport.overrideArm(xBox.getRawAxis(1));
+            cargoTransport.overrideArm(xBox.getRawAxis(Constants.XBox.ARM_OVERRIDE_AXIS));
         }
 
         Util.threadSleep(1);
     }
 
-    /**
-     * This function is called periodically during test mode.
-     */
-    @Override
-    public void testPeriodic() {}
-
-    /**
-     * This function is called every robot packet, no matter the mode. Use
-     * this for items like diagnostics that you want ran during disabled,
-     * autonomous, teleoperated and test.
-     *
-     * <p>This runs after the mode specific periodic functions, but before
-     * LiveWindow and SmartDashboard integrated updating.
-     */
-    @Override
-    public void robotPeriodic() {}
-
     @Override
     public void disabledInit()
     {
-        if (lidarInUse) {
-            try {
-                lidar.disable();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        if (lidarInUse) 
+        {
+            lidar.disable();
         }
     }
 }

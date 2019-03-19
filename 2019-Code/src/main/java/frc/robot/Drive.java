@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.Ultrasonic;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.*;
+//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -104,9 +104,20 @@ public class Drive
      */
     private boolean backingRight;
 
+    /**
+     * True if driving should use the encoders, false if the encoders
+     * should not be used probably due to not functioning
+     */
     private boolean encoderDrive;
 
+    /**
+     * The time when the left encoder reported not moving with a motor current
+     */
     private long lRateTime;
+
+    /**
+     * The time when the right encoder reported not moving with a motor current
+     */
     private long rRateTime;
 
     /**
@@ -127,7 +138,7 @@ public class Drive
         rEncoder.setPIDSourceType(PIDSourceType.kRate);
 
         navx = new AHRS(Constants.Drive.NAVX_PORT);
-        navx.reset();
+        resetNavx();
 
         ultrasonic = new Ultrasonic(Constants.Drive.ULTRASONIC_PORT_1, Constants.Drive.ULTRASONIC_PORT_2);
        
@@ -157,40 +168,45 @@ public class Drive
         usPID.setInputRange(Constants.Drive.DISTANCE_INPUT_MIN, Constants.Drive.DISTANCE_INPUT_MAX);
         usPID.setOutputRange(Constants.Drive.DISTANCE_OUTPUT_MIN, Constants.Drive.DISTANCE_OUTPUT_MAX);
 
-        leftStraightPID = new PIDController(0.0, 0.0, 0.0, lEncoder, (double output)->
+        leftStraightPID = new PIDController(Constants.Drive.RATE_P, Constants.Drive.RATE_I, 
+            Constants.Drive.RATE_D, lEncoder, 
+            (double output)->
             {
                 setLeft(output);
             });
-        leftStraightPID.setAbsoluteTolerance(0.0);
-        leftStraightPID.setInputRange(-20, 20);
-        leftStraightPID.setOutputRange(-1.0, 1.0);
+        leftStraightPID.setAbsoluteTolerance(Constants.Drive.RATE_TOLERANCE);
+        leftStraightPID.setInputRange(Constants.Drive.RATE_INPUT_MIN, Constants.Drive.RATE_INPUT_MAX);
+        leftStraightPID.setOutputRange(Constants.Drive.RATE_OUTPUT_MIN, Constants.Drive.RATE_OUTPUT_MAX);
 
-        rightStraightPID = new PIDController(0.0, 0.0, 0.0, rEncoder, (double output)->
-        {
-            setRight(output);
-        });
-        rightStraightPID.setAbsoluteTolerance(0.0);
-        rightStraightPID.setInputRange(-20, 20);
-        rightStraightPID.setOutputRange(-1.0, 1.0);
+        rightStraightPID = new PIDController(Constants.Drive.RATE_P, Constants.Drive.RATE_I, 
+        Constants.Drive.RATE_D, rEncoder, 
+            (double output)->
+            {
+                setRight(output);
+            });
+        rightStraightPID.setAbsoluteTolerance(Constants.Drive.RATE_TOLERANCE);
+        rightStraightPID.setInputRange(Constants.Drive.RATE_INPUT_MIN, Constants.Drive.RATE_INPUT_MAX);
+        rightStraightPID.setOutputRange(Constants.Drive.RATE_OUTPUT_MIN, Constants.Drive.RATE_OUTPUT_MAX);
 
         encoderDrive = true;
-        new ValuePrinter(()-> 
-            {
-                // SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
-                // SmartDashboard.putNumber("Navx Angle: ", getNavxAngle());
-                // SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
-                // SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
-                // SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
-                // SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
-                // SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
-                // SmartDashboard.putNumber("Limelight skew", limelight.getEntry("ts").getDouble(0.0));
-                // SmartDashboard.putNumber("Calculated angle from target: ", Math.toDegrees(getAngleOffset()));
+        
+        // new ValuePrinter(()-> 
+        //     {
+        //         // SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
+        //         // SmartDashboard.putNumber("Navx Angle: ", getNavxAngle());
+        //         // SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
+        //         // SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
+        //         // SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
+        //         // SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
+        //         // SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
+        //         // SmartDashboard.putNumber("Limelight skew", limelight.getEntry("ts").getDouble(0.0));
+        //         // SmartDashboard.putNumber("Calculated angle from target: ", Math.toDegrees(getAngleOffset()));
 
-                SmartDashboard.putNumber("Left rate: ", lEncoder.getRate());
-                SmartDashboard.putNumber("Right rate: ", rEncoder.getRate());
-                SmartDashboard.putNumber("l current", lMotor1.getOutputCurrent());
-            },
-            ValuePrinter.HIGHEST_PRIORITY);
+        //         SmartDashboard.putNumber("Left rate: ", lEncoder.getRate());
+        //         SmartDashboard.putNumber("Right rate: ", rEncoder.getRate());
+        //         SmartDashboard.putNumber("l current", lMotor1.getOutputCurrent());
+        //     },
+        //     ValuePrinter.HIGHEST_PRIORITY);
     }
 
     /**
@@ -215,72 +231,100 @@ public class Drive
         rMotor2.set(ControlMode.PercentOutput, power);
     }
     
+    /**
+     * Drives the left side at the given rates using encoders and a PID Controller
+     * or sets the motor power if the encoders are suspected to not be functioning.
+     * @param power
+     *  The power to drive the wheels at from -1 to 1
+     */
     public void driveEncoderLeft(double power)
     {
-        if(encoderDrive)
+        if(encoderDrive) 
         {
-            if(lMotor1.getOutputCurrent() > 0.5 && lEncoder.getRate() == 0)
+            //Drive using encoders
+            //Check motor current and wheel rates to deicde if encoders are functioning
+            if(lMotor1.getOutputCurrent() > Constants.Drive.ENCODER_CURRENT_THRESHOLD && lEncoder.getRate() == 0)
             {
                 if(lRateTime == 0)
                 {
+                    //Save time when encoder is first suspected broken
                     lRateTime = System.currentTimeMillis();
-                    leftStraightPID.setSetpoint(40 * power);
+                    leftStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
                 }
-                else if(System.currentTimeMillis() - lRateTime > 100)
+                else if(System.currentTimeMillis() - lRateTime > Constants.Drive.ENCODER_TIMEOUT)
                 {
-                    //Drive by power if encoder is unplugged
+                    //Drive by power if encoder is suspected to not be working
+                    //Wheel rate is 0 while motor is getting a current for a 
+                    //given amount of time
                     leftStraightPID.disable();
                     encoderDrive = false;
                     setLeft(power);
                 }
                 else
                 {
-                    leftStraightPID.setSetpoint(40 * power);
+                    //Set setpoint if everything is working for now
+                    leftStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
                 }
             }
             else
             {
+                //Sets PID at specified rate and resets encoder timeout
                 lRateTime = 0;
-                leftStraightPID.setSetpoint(40 * power);
+                leftStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
             }
         }
         else
         {
+            //Set motor power if encoders are suspected to not be working
             setLeft(power);
         }
     }
 
+    /**
+     * Drives the right side at the given rates using encoders and a PID Controller
+     * or sets the motor power if the encoders are suspected to not be functioning.
+     * @param power
+     *  The power to drive the wheels at from -1 to 1
+     */
     public void driveEncoderRight(double power)
     {
         if(encoderDrive)
         {
-            if(rMotor1.getOutputCurrent() > 0.5 && rEncoder.getRate() == 0)
+            //Drive using encoders
+            //Check motor current and wheel rates to deicde if encoders are functioning
+            if(rMotor1.getOutputCurrent() > Constants.Drive.ENCODER_CURRENT_THRESHOLD && rEncoder.getRate() == 0)
             {
                 if(rRateTime == 0)
                 {
+                    //Save time when encoder is first suspected broken
                     rRateTime = System.currentTimeMillis();
-                    rightStraightPID.setSetpoint(40 * power);
+                    rightStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
                 }
-                else if(System.currentTimeMillis() - rRateTime > 100)
+                else if(System.currentTimeMillis() - rRateTime > Constants.Drive.ENCODER_TIMEOUT)
                 {
-                    //Drive by power if encoder is unplugged
+                    //Drive by power if encoder is suspected to not be working
+                    //Wheel rate is 0 while motor is getting a current for a 
+                    //given amount of time
                     rightStraightPID.disable();
                     encoderDrive = false;
                     setRight(power);
                 }
                 else
                 {
-                    rightStraightPID.setSetpoint(40 * power);
+                    //Set setpoint if everything is working for now
+                    rightStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
                 }
             }
             else
             {
+                //Sets PID at specified rate and resets encoder timeout
                 rRateTime = 0;
-                rightStraightPID.setSetpoint(40 * power);
+                rightStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
             }
         }
         else
         {
+            //Set motor power if encoders are suspected to not be working
             setRight(power);
         }
     }
@@ -342,12 +386,13 @@ public class Drive
     }
 
     /**
-     * Makes the robot drive straight by using a PID to control the speed the
-     * wheels rotate at while using the Navx  to correct for any drift.
+     * Makes the robot drive straight by using PID to control the speed the
+     * wheels while using the Navx  to correct for any drift.
      * @param power
      *  The multiplier for the max speed from -1 to 1 to set the set point to
-     * @param zeroHeading
-     *  True if the heading should be set to zero, false to align with the current zero
+     * @param begin
+     *  True if the heading should be set to zero, and enable the PID, 
+     *  false to align with the current zero
      */
     public void driveStraight(double power, boolean begin)
     {
@@ -413,7 +458,7 @@ public class Drive
     }
 
     /**
-     * Disables the PID threads and sets limelight in streaming mode.
+     * Disables the PIDs and sets limelight in streaming mode.
      */
     public void disableDriverAssist()
     {
@@ -437,13 +482,15 @@ public class Drive
         limelight.getEntry("ledMode").setNumber(3);
         limelight.getEntry("camMode").setNumber(0);
 
-        if(limelight.getEntry("tv").getDouble(0.0) == 0) //Exit if no target is detected
+        if(limelight.getEntry("tv").getDouble(0.0) == 0) 
         {
+            //Exit if no target is detected
             return false;
         }
 
-        if(backingRight) //Back up until far enough away
+        if(backingRight) 
         {
+            //Back up until far enough away
             setLeft(-0.4);
             setRight(-0.4);//1
 
@@ -452,8 +499,9 @@ public class Drive
                 backingRight = false;
             }
         }
-        else if(backingLeft) //Back up until far enough away
+        else if(backingLeft) 
         {
+            //Back up until far enough away
             setLeft(-0.4);//1
             setRight(-0.4);
 
@@ -474,8 +522,9 @@ public class Drive
                 backingLeft = true;
             }
         }
-        else if(limelight.getEntry("ty").getDouble(0) > 20) //Finish if close and lined up
+        else if(limelight.getEntry("ty").getDouble(0) > 20) 
         {
+            //Finish if close and lined up
             disableDriverAssist();
             return true;
         }
@@ -497,37 +546,37 @@ public class Drive
         return false;
     }
 
-    /**
-     * Returns an estimated angle of the rotation of the robot to a target
-     * using the distortion of the image.
-     * @return
-     *  An estimated angle of the roatation of the robot from the target
-     */
-    private double getAngleOffset()
-    {
-        double[] xs = limelight.getEntry("tcornx").getDoubleArray(new double[0]);
-        double[] ys = limelight.getEntry("tcorny").getDoubleArray(new double[0]);
+    // /**
+    //  * Returns an estimated angle of the rotation of the robot to a target
+    //  * using the distortion of the image.
+    //  * @return
+    //  *  An estimated angle of the roatation of the robot from the target
+    //  */
+    // private double getAngleOffset()
+    // {
+    //     double[] xs = limelight.getEntry("tcornx").getDoubleArray(new double[0]);
+    //     double[] ys = limelight.getEntry("tcorny").getDoubleArray(new double[0]);
         
-        // for(int i = 0; i < xs.length; i++)
-        // {
-        //     System.out.println("x: " + xs[i] + " y: " + ys[i]);
-        // }
-        if(xs.length >= 8 && ys.length >= 8) //Check if Limelight is sending data
-        {
-            //Calculate first angle from triangle with hypotenuse from point 1 to 7
-            double xDist1 = xs[7] - xs[1];
-            double yDist1 = ys[1] - ys[7];
-            double angle1 = Math.tanh(yDist1 / xDist1);
+    //     // for(int i = 0; i < xs.length; i++)
+    //     // {
+    //     //     System.out.println("x: " + xs[i] + " y: " + ys[i]);
+    //     // }
+    //     if(xs.length >= 8 && ys.length >= 8) //Check if Limelight is sending data
+    //     {
+    //         //Calculate first angle from triangle with hypotenuse from point 1 to 7
+    //         double xDist1 = xs[7] - xs[1];
+    //         double yDist1 = ys[1] - ys[7];
+    //         double angle1 = Math.tanh(yDist1 / xDist1);
 
-            //Calculate first angle from triangle with hypotenuse from point 0 to 6
-            double xDist2 = xs[0] - xs[6];
-            double yDist2 = ys[0] - ys[6];
-            double angle2 = Math.tanh(yDist2 / xDist2);
-            //System.out.println("angle 1:" + angle1 + " \n angle2: " + angle2 + "\n diff: " + (angle1 - angle2));
-            //Return calculated angle from experimetally generated equation
-            return Math.PI / 2 - (-0.7861 * (angle1 - angle2) + 1.215);
-        }
+    //         //Calculate first angle from triangle with hypotenuse from point 0 to 6
+    //         double xDist2 = xs[0] - xs[6];
+    //         double yDist2 = ys[0] - ys[6];
+    //         double angle2 = Math.tanh(yDist2 / xDist2);
+    //         //System.out.println("angle 1:" + angle1 + " \n angle2: " + angle2 + "\n diff: " + (angle1 - angle2));
+    //         //Return calculated angle from experimetally generated equation
+    //         return Math.PI / 2 - (-0.7861 * (angle1 - angle2) + 1.215);
+    //     }
 
-        return 0.0;
-    }
+    //     return 0.0;
+    // }
 }
