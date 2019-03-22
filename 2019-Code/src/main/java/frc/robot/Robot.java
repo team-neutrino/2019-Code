@@ -314,7 +314,6 @@ public class Robot extends TimedRobot
                 drive.beginRelativeTurn(-45);
                 initDriverAssist = false;
             }
-    
         }
         else if(rJoy.getRawButton(Constants.RJoy.TURN_ROBOT_BUTTON_90))
         {
