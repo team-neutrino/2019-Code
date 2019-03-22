@@ -22,7 +22,7 @@ public class LidarRaspberry
     /**
      * Drive access
      */
-    private Drive drv;
+    private Drive drive;
 
     /**
      * Message buffer
@@ -51,7 +51,7 @@ public class LidarRaspberry
      */
     public LidarRaspberry(Drive drive)
     {
-        drv = drive;
+        this.drive = drive;
 
         message = new byte[5];
 
@@ -74,7 +74,7 @@ public class LidarRaspberry
      */
     private float getAngle()
     {
-        return (float) (drv.getNavxAngle()%360);
+        return (float) (drive.getNavxAngle()%360);
     }
 
     /**
@@ -123,7 +123,8 @@ public class LidarRaspberry
     }
 
     /**
-     * Sends the current angle to the Raspberry PI
+     * Sends the current angle of the robot relative to the 
+     * field to the Raspberry PI
      */
     public void update()
     {

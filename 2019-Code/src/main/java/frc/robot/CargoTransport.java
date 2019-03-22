@@ -9,11 +9,10 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
+//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import edu.wpi.first.wpilibj.AnalogPotentiometer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 /**
@@ -29,11 +28,10 @@ public class CargoTransport implements PIDOutput
      */
     public static enum ArmPosition
     {
+        ARM_DOWN(Constants.CargoTransport.ARM_DOWN_ANGLE),
         ROCKET_BACK(Constants.CargoTransport.ROCKET_BACK_ANGLE), 
         SHIP_BACK(Constants.CargoTransport.SHIP_BACK_ANGLE), 
-        SHIP_FORWARD(Constants.CargoTransport.SHIP_FORWARD_ANGLE), 
-        ARM_DOWN(Constants.CargoTransport.ARM_DOWN_ANGLE),
-        ARM_UP(Constants.CargoTransport.ARM_UP_ANGLE);
+        SHIP_FORWARD(Constants.CargoTransport.SHIP_FORWARD_ANGLE); 
 
         /**
          * The angle of the encoder for the arm at the given position
@@ -52,7 +50,7 @@ public class CargoTransport implements PIDOutput
     }
 
     /**
-     * Motor to control the intake/outtake of cargo transport
+     * Motor to control the intake and outtake of cargo transport
      */
     private TalonSRX rollerMotor;
     
@@ -87,7 +85,6 @@ public class CargoTransport implements PIDOutput
         
         armEncoder = new AnalogPotentiometer(Constants.CargoTransport.ARM_ENCODER_CHANNEL, Constants.CargoTransport.ENCODER_RANGE, 0);
 
-        //TODO tune PID values when spring is attached
         armPID = new PIDController(Constants.CargoTransport.ARM_P, Constants.CargoTransport.ARM_I, 
             Constants.CargoTransport.ARM_D, armEncoder, this);
         armPID.setAbsoluteTolerance(Constants.CargoTransport.ARM_PID_TOLERANCE);
@@ -98,12 +95,12 @@ public class CargoTransport implements PIDOutput
 
         currentOverTime = 0;
 
-        new ValuePrinter(()-> 
-            {
-                SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
-                SmartDashboard.putNumber("Arm setpoint: ", armPID.getSetpoint());
-            }, 
-            ValuePrinter.NORMAL_PRIORITY);
+        // new ValuePrinter(()-> 
+        //     {
+        //         SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
+        //         SmartDashboard.putNumber("Arm setpoint: ", armPID.getSetpoint());
+        //     }, 
+        //     ValuePrinter.NORMAL_PRIORITY);
     }
 
     /**
@@ -114,24 +111,29 @@ public class CargoTransport implements PIDOutput
      */
     public void setRoller(double power)
     {
-        if(Math.abs(power) < 0.1)
+        if(Math.abs(power) < Constants.CargoTransport.POWER_DEAD_ZONE)
 		{
+            //Turn off motor and reset stall time if power is low
 			power = 0.0;
 			currentOverTime = 0;
 		}
-		else if(rollerMotor.getOutputCurrent() > Constants.CargoTransport.STALLED_CURRENT)
+		else if(rollerMotor.getOutputCurrent() > Constants.CargoTransport.STALLED_CURRENT) 
 		{
             if(currentOverTime == 0)
             {
+                //Set time where current first went over threshold 
                 currentOverTime = System.currentTimeMillis();
             }
             else if(System.currentTimeMillis() - currentOverTime > Constants.CargoTransport.HIGH_CURRENT_TIME_MAX)
             {
+                //Turn off motor if current has been high for a 
+                //while indicating stall
                 power = 0.0;
             }
         }
         else
         {
+            //Set time back to 0 since motor is not stalled
             currentOverTime = 0;
         }
 		
@@ -178,6 +180,7 @@ public class CargoTransport implements PIDOutput
     public void pidWrite(double output)
     {
         output = -output;
+
         //Limits motor power when gravity is assisting
         if(armEncoder.get() > Constants.CargoTransport.ARM_UP_ANGLE)
         {
