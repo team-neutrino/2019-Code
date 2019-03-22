@@ -401,8 +401,8 @@ public class Drive
             zeroNavx();
             leftStraightPID.enable();
             rightStraightPID.enable();
-
         }
+         
         double adjust = navx.getYaw() * 0.01;
 
         driveEncoderLeft(power - adjust); 
