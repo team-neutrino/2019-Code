@@ -14,11 +14,11 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.CargoTransport.ArmPosition;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-// import org.opencv.core.Mat;
-// import org.opencv.imgproc.Imgproc;
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
-// import edu.wpi.cscore.CvSink;
-// import edu.wpi.cscore.CvSource;
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -145,10 +145,9 @@ public class Robot extends TimedRobot
         
         usePanelButton = true;
 
-        //TODO actually set camera resolution and frame rate
         cam = CameraServer.getInstance().startAutomaticCapture("Wide angle", 0);
         cam.setFPS(15);
-        cam.setResolution(320, 240);
+        cam.setResolution(160, 120);
 
         lidar = new LidarRaspberry(drive);
         lidarInUse = false;
@@ -156,51 +155,25 @@ public class Robot extends TimedRobot
         //TODO do stuff with odometry
         //odometry = new Odometry(drive);
 
-        // UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
-        // frontCam.setResolution(160, 120);
-        // frontCam.setFPS(15); 
-
-        // UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
-        // backCam.setResolution(160, 120);
-        // backCam.setFPS(15);
-
         // //Makes camera image into black and white and sends to driver station.
-        // new Thread(()->
-        //     {
-        //         UsbCamera frontCam = CameraServer.getInstance().startAutomaticCapture("front", 0);
-        //         frontCam.setResolution(160, 120);
-        //         frontCam.setFPS(15); 
+        new Thread(()->
+            {
+                CvSink frontSink = CameraServer.getInstance().getVideo(cam);
+                CvSource frontOutputStream = CameraServer.getInstance().putVideo("Wide BW", 160, 120);
 
-        //         UsbCamera backCam = CameraServer.getInstance().startAutomaticCapture("back", 1);
-        //         backCam.setResolution(160, 120);
-        //         backCam.setFPS(15);
+                Mat source = new Mat();
+                Mat output = new Mat();
 
-        //         CvSink frontSink = CameraServer.getInstance().getVideo(frontCam);
-        //         CvSource frontOutputStream = CameraServer.getInstance().putVideo("Front BW", 160, 120);
-
-        //         CvSink backSink = CameraServer.getInstance().getVideo(backCam);
-        //         CvSource backOutputStream = CameraServer.getInstance().putVideo("Back BW", 160, 120);
-
-        //         Mat source = new Mat();
-        //         Mat output = new Mat();
-
-        //         while(true)
-        //         {
-        //             frontSink.grabFrame(source);
-        //             if(source.size().area() > 2)
-        //             {
-        //                 Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
-        //                 frontOutputStream.putFrame(output);
-        //             }
-
-        //             backSink.grabFrame(source);
-        //             if(source.size().area() > 2)
-        //             {
-        //                 Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
-        //                 backOutputStream.putFrame(output);
-        //             }
-        //         }
-        //     }).start();
+                while(true)
+                {
+                    frontSink.grabFrame(source);
+                    if(source.size().area() > 2)
+                    {
+                        Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
+                        frontOutputStream.putFrame(output);                    
+                    }
+                }
+            }).start();
 
         // new ValuePrinter(()->
         //     {
@@ -417,10 +390,11 @@ public class Robot extends TimedRobot
         }
         else
         {
-            cargoTransport.setRoller(-xBox.getRawAxis(Constants.XBox.OUTTAKE_CARGO_AXIS));
+            cargoTransport.setRoller(-xBox.getRawAxis(Constants.XBox.OUTTAKE_CARGO_AXIS) * 0.8);
         }
 
         //Panel transport control
+        //drive.checkLongPress();
         if(xBox.getRawAxis(Constants.XBox.OUTTAKE_PANEL_AXIS) > 0.5)
         {
             panelTransport.setPanelHold(false);
@@ -428,6 +402,13 @@ public class Robot extends TimedRobot
             panelTransport.setPushersOut(true);
             holdOverride = false;
         }
+        //else if((System.currentTimeMillis()-drive.checkLongPress()) > 1500 && drive.checkLongPress() != 0)
+        //{
+            //panelTransport.setPanelHold(false);
+            //Util.threadSleep(Constants.Robot.HOLD_PUSH_WAIT);
+            //panelTransport.setPushersOut(true);
+            //holdOverride = false;
+        //}
         else
         {
             panelTransport.setPushersOut(false);
@@ -439,6 +420,11 @@ public class Robot extends TimedRobot
             }
             else
             {
+                // if(!xBox.getRawButton(Constants.XBox.INTAKE_CARGO_BUTTON))
+                // {
+                //     holdOverride = false;
+                // }
+
                 if(!holdOverride)
                 {
                     panelTransport.setPanelHold(!xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
@@ -446,6 +432,7 @@ public class Robot extends TimedRobot
             }
         }
 
+       
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
         if((DriverStation.getInstance().getMatchTime() <= 20 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
@@ -504,5 +491,18 @@ public class Robot extends TimedRobot
         {
             lidar.disable();
         }
+    }
+
+    @Override
+    public void testInit()
+    {
+        drive.driveStraight(0.0, true);
+    }
+
+    @Override
+    public void testPeriodic()
+    {
+        drive.driveStraight(lJoy.getY(), false);
+        Util.threadSleep(1);
     }
 }

@@ -121,6 +121,16 @@ public class Drive
     private long rRateTime;
 
     /**
+     * The system's most recent time, in milliseconds, when the robot panel button has last been pressed. 
+     */
+    //private long startTime;
+
+    /**
+     * For the robot panel button, there will need to be some sort of button object for this to work.
+     * I assumed that 1 meant pressed and 0 meant not pressed for this nonexistent button.
+     */
+
+    /**
      * Constructor for the drive train.
      */
     public Drive()
@@ -532,7 +542,7 @@ public class Drive
         }
         else
         {
-            //Start lining up with proportion of the x
+            //Start lining up with proportional correction amount to the amount offset of tx
             double offset = limelight.getEntry("tx").getDouble(0.0);
             double p = 0.025;// + 0.01 / limelight.getEntry("ta").getDouble(0.0);
 
@@ -542,7 +552,7 @@ public class Drive
 
             //Add left side subtract right to turn
             setLeft(0.3 + p * offset);
-            setRight(0.3 - p*offset);
+            setRight(0.3 - p * offset);
         }
 
         return false;
@@ -581,4 +591,20 @@ public class Drive
 
     //     return 0.0;
     // }
-}
+
+    /**
+     * check to see if panelButton has been pressed down
+     * @return  
+     * A long value if it has been pressed, 0 otherwise
+     */
+    //private long checklongPress()
+    //{
+        //if (panelButton == 1) 
+        //{
+            //return System.currentTimeMillis();
+        //}
+        //else
+        //{
+            //return 0;
+        //}
+    }
