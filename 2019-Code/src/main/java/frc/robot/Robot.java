@@ -359,6 +359,12 @@ public class Robot extends TimedRobot
                     deliverDone = false;
                 }
 
+                //Set powers equal to go straight if joysticks are close enough together
+                if(Math.abs(rPower - lPower) < 0.05)
+                {
+                    rPower = lPower;
+                }
+
                 //Set motor power using joysticks
                 drive.setRight(rPower);
                 drive.setLeft(lPower);
@@ -413,7 +419,7 @@ public class Robot extends TimedRobot
         {
             panelTransport.setPushersOut(false);
 
-            if(panelTransport.getButton() && usePanelButton)
+            if(panelTransport.getButton() && xBox.getRawButton(Constants.XBox.INTAKE_CARGO_BUTTON) && usePanelButton)
             {
                 panelTransport.setPanelHold(true);
                 holdOverride = true;
@@ -503,6 +509,6 @@ public class Robot extends TimedRobot
     public void testPeriodic()
     {
         drive.driveStraight(lJoy.getY(), false);
-        Util.threadSleep(1);
+        Util.threadSleep(5);
     }
 }

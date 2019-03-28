@@ -123,7 +123,7 @@ public class Constants
 
         public static final int  MAX_SPEED = 40;
 
-        public static final double RATE_P = 0.0;
+        public static final double RATE_P = 0.1;
         public static final double RATE_I = 0.0;
         public static final double RATE_D = 0.0;
         public static final double RATE_TOLERANCE = 1.0;

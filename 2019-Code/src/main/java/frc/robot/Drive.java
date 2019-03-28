@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.networktables.*;
-//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -200,23 +200,25 @@ public class Drive
 
         encoderDrive = true;
         
-        // new ValuePrinter(()-> 
-        //     {
-        //         // SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
-        //         // SmartDashboard.putNumber("Navx Angle: ", getNavxAngle());
-        //         // SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
-        //         // SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
-        //         // SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
-        //         // SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
-        //         // SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
-        //         // SmartDashboard.putNumber("Limelight skew", limelight.getEntry("ts").getDouble(0.0));
-        //         // SmartDashboard.putNumber("Calculated angle from target: ", Math.toDegrees(getAngleOffset()));
+        new ValuePrinter(()-> 
+            {
+                SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
+                // SmartDashboard.putNumber("Navx Angle: ", getNavxAngle());
+                // SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
+                // SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
+                // SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
+                // SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
+                // SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
+                // SmartDashboard.putNumber("Limelight skew", limelight.getEntry("ts").getDouble(0.0));
+                // SmartDashboard.putNumber("Calculated angle from target: ", Math.toDegrees(getAngleOffset()));
 
-        //         SmartDashboard.putNumber("Left rate: ", lEncoder.getRate());
-        //         SmartDashboard.putNumber("Right rate: ", rEncoder.getRate());
-        //         SmartDashboard.putNumber("l current", lMotor1.getOutputCurrent());
-        //     },
-        //     ValuePrinter.HIGHEST_PRIORITY);
+                SmartDashboard.putNumber("Left rate: ", lEncoder.getRate());
+                SmartDashboard.putNumber("Right rate: ", rEncoder.getRate());
+                SmartDashboard.putNumber("right setPoint: ", rightStraightPID.getSetpoint());
+                SmartDashboard.putNumber("Left setPoint: ", leftStraightPID.getSetpoint());
+                SmartDashboard.putNumber("l current", lMotor1.getOutputCurrent());
+            },
+            ValuePrinter.HIGHEST_PRIORITY);
     }
 
     /**
@@ -418,8 +420,7 @@ public class Drive
         driveEncoderLeft(power - adjust); 
         driveEncoderRight(power + adjust);
     }
-
-    /**
+     /**
      * Returns the distance travelled recoreded by the left encoder.
      * @return
      *  The distance travelled in inches
