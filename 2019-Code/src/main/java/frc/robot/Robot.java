@@ -189,8 +189,9 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit() 
     {
-        lidar.enable();
-        lidarInUse = true;
+        // lidar.enable();
+        // lidarInUse = true;
+        drive.driveStraight(0.0, true);
     }
 
     /**
@@ -199,8 +200,11 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic() 
     {
-        teleopPeriodic();
-        lidar.update();
+        drive.driveStraight(0.4, false);
+
+        Util.threadSleep(2);
+        // teleopPeriodic();
+        // lidar.update();
     }
 
     @Override
@@ -216,8 +220,8 @@ public class Robot extends TimedRobot
     public void teleopPeriodic() 
     {
         //Drivetrain control and driver assist
-        if(lJoy.getRawButton(Constants.LJoy.DELIVER_LEFT_SIDE_BUTTON) 
-            || lJoy.getRawButton(Constants.LJoy.DELIVER_RIGHT_SIDE_BUTTON)) 
+        if(lJoy.getRawButton(Constants.LJoy.LIMELIGHT_ALIGN_BUTTON) 
+            || rJoy.getRawButton(Constants.RJoy.LIMELIGHT_ALIGN_BUTTON)) 
         {
             //Line up with bay and deliver panel
             initDriverAssist = false;
@@ -248,14 +252,6 @@ public class Robot extends TimedRobot
                 initDriverAssist= false;
             }
         }
-        else if(lJoy.getRawButton(Constants.LJoy.TURN_FIELD_BUTTON_270))
-        {
-            if(initDriverAssist)
-            {
-                drive.rotateToAngle(270);
-                initDriverAssist= false;
-            }
-        }
         else if(lJoy.getRawButton(Constants.LJoy.TURN_FIELD_BUTTON_90))
         {
             if(initDriverAssist)
@@ -269,6 +265,14 @@ public class Robot extends TimedRobot
             if(initDriverAssist)
             {
                 drive.rotateToAngle(180);
+                initDriverAssist= false;
+            }
+        }
+        else if(lJoy.getRawButton(Constants.LJoy.TURN_FIELD_BUTTON_270))
+        {
+            if(initDriverAssist)
+            {
+                drive.rotateToAngle(270);
                 initDriverAssist= false;
             }
         }
@@ -323,31 +327,27 @@ public class Robot extends TimedRobot
             //Drive straight
             if(rJoy.getRawButton(Constants.RJoy.DRIVE_STRAIGHT_BUTTON))
             {
-                // if(initDriverAssist)
-                // {
-                //     drive.driveStraight(lPower, true);
-                //     initDriverAssist = false;
-                // }
-                // else
-                // {
-                //     drive.driveStraight(lPower, false);
-                // }
-                drive.setRight(lPower);
-                drive.setLeft(lPower);
+                if(initDriverAssist)
+                {
+                    drive.driveStraight(lPower, true);
+                    initDriverAssist = false;
+                }
+                else
+                {
+                    drive.driveStraight(lPower, false);
+                }
             }
             else if(lJoy.getRawButton(Constants.LJoy.DRIVE_STRAIGHT_BUTTON))
             {
-                // if(initDriverAssist)
-                // {
-                //     drive.driveStraight(rPower, true);
-                //     initDriverAssist = false;
-                // }
-                // else
-                // {
-                //     drive.driveStraight(rPower, false);
-                // } 
-                drive.setRight(rPower);
-                drive.setLeft(rPower);          
+                if(initDriverAssist)
+                {
+                    drive.driveStraight(rPower, true);
+                    initDriverAssist = false;
+                }
+                else
+                {
+                    drive.driveStraight(rPower, false);
+                }         
             }
             else
             {
@@ -360,6 +360,7 @@ public class Robot extends TimedRobot
                 }
 
                 //Set powers equal to go straight if joysticks are close enough together
+                //TODO see if Joel likes this
                 if(Math.abs(rPower - lPower) < 0.05)
                 {
                     rPower = lPower;
@@ -438,7 +439,6 @@ public class Robot extends TimedRobot
             }
         }
 
-       
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
         if((DriverStation.getInstance().getMatchTime() <= 20 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
@@ -508,7 +508,7 @@ public class Robot extends TimedRobot
     @Override
     public void testPeriodic()
     {
-        drive.driveStraight(lJoy.getY(), false);
+        drive.driveStraight(0.5, false);
         Util.threadSleep(5);
     }
 }

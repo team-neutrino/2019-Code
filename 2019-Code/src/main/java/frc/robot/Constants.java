@@ -56,10 +56,9 @@ public class Constants
     {
         public static final double DEAD_ZONE = 0.1;
 
-        public static final int DELIVER_LEFT_SIDE_BUTTON = 3;
-        public static final int DELIVER_RIGHT_SIDE_BUTTON = 3;
+        public static final int DRIVE_STRAIGHT_BUTTON = 9;
 
-        public static final int DRIVE_STRAIGHT_BUTTON = 2;
+        public static final int LIMELIGHT_ALIGN_BUTTON = 8;
         
         public static final int TURN_FIELD_BUTTON_0 = 6;
         public static final int TURN_FIELD_BUTTON_270 = 7;
@@ -74,12 +73,14 @@ public class Constants
     {
         public static final double DEAD_ZONE = LJoy.DEAD_ZONE;
 
+        public static final int DRIVE_STRAIGHT_BUTTON = 8;
+
+        public static final int LIMELIGHT_ALIGN_BUTTON = 9;
+
         public static final int TURN_ROBOT_BUTTON_NEG90 = 6;
         public static final int TURN_ROBOT_BUTTON_NEG45 = 7;
         public static final int TURN_ROBOT_BUTTON_90 = 10;
         public static final int TURN_ROBOT_BUTTON_45 = 11;
-
-        public static final int DRIVE_STRAIGHT_BUTTON = LJoy.DRIVE_STRAIGHT_BUTTON;
     }
 
     /**
@@ -121,11 +122,11 @@ public class Constants
         public static final double DISTANCE_OUTPUT_MIN = -1.0;
         public static final double DISTANCE_OUTPUT_MAX = 1.0;
 
-        public static final int  MAX_SPEED = 40;
+        public static final int  MAX_SPEED = 80;
 
-        public static final double RATE_P = 0.1;
-        public static final double RATE_I = 0.0;
-        public static final double RATE_D = 0.0;
+        public static final double RATE_P = 0.0013;
+        public static final double RATE_I = 0.0005;
+        public static final double RATE_D = 0.001;
         public static final double RATE_TOLERANCE = 1.0;
         public static final double RATE_INPUT_MIN = -MAX_SPEED;
         public static final double RATE_INPUT_MAX = MAX_SPEED;
