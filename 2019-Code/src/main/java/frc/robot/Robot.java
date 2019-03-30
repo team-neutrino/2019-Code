@@ -189,9 +189,10 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit() 
     {
+        drive.resetNavx();
         // lidar.enable();
         // lidarInUse = true;
-        drive.driveStraight(0.0, true);
+        //drive.driveStraight(0.0, true);
     }
 
     /**
@@ -200,10 +201,10 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic() 
     {
-        drive.driveStraight(0.4, false);
+       // drive.driveStraight(0.4, false);
 
-        Util.threadSleep(2);
-        // teleopPeriodic();
+        //Util.threadSleep(2);
+         teleopPeriodic();
         // lidar.update();
     }
 
@@ -225,21 +226,21 @@ public class Robot extends TimedRobot
         {
             //Line up with bay and deliver panel
             initDriverAssist = false;
-            if(!deliverDone && drive.limeLightAlign()) //Deploy panel if not already deployed and is lined up
+            if(!deliverDone && drive.limeLightAlign()) 
             {
-                //System.out.println("aligned");
-                //drive.disableDriverAssist();
+                //Deploy panel if not already deployed and is lined up
+                drive.disableDriverAssist();
                 //Ram
-                //TODO tune power and time
-                // drive.setLeft(0.25);
-                // drive.setRight(0.25);
-                // Util.threadSleep(100);
-                // drive.setLeft(0.0);
-                // drive.setRight(0.0);
+                drive.driveEncoderLeft(1.0, true);
+                drive.driveEncoderRight(1.0, true);
+                Util.threadSleep(300);
+                drive.driveEncoderLeft(0.0, false);
+                drive.driveEncoderRight(0.0, false);
+                drive.disableDriverAssist();
 
-                // panelTransport.setPanelHold(false);
-                // panelTransport.setPushersOut(true);
-                // Util.threadSleep(10);
+                panelTransport.setPanelHold(false);
+                panelTransport.setPushersOut(true);
+                Util.threadSleep(10);
 
                 deliverDone = true;
             }
@@ -311,7 +312,6 @@ public class Robot extends TimedRobot
         else 
         { 
             //Control drive train using joysticks with a dead zone
-
             //Get joystick values and make correct direction and with a dead zone
             double rPower = -rJoy.getY();
             if(Math.abs(rPower) < Constants.RJoy.DEAD_ZONE)
@@ -497,18 +497,5 @@ public class Robot extends TimedRobot
         {
             lidar.disable();
         }
-    }
-
-    @Override
-    public void testInit()
-    {
-        drive.driveStraight(0.0, true);
-    }
-
-    @Override
-    public void testPeriodic()
-    {
-        drive.driveStraight(0.5, false);
-        Util.threadSleep(5);
     }
 }

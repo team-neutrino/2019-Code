@@ -79,8 +79,8 @@ public class Constants
 
         public static final int TURN_ROBOT_BUTTON_NEG90 = 6;
         public static final int TURN_ROBOT_BUTTON_NEG45 = 7;
-        public static final int TURN_ROBOT_BUTTON_90 = 10;
-        public static final int TURN_ROBOT_BUTTON_45 = 11;
+        public static final int TURN_ROBOT_BUTTON_90 = 11;
+        public static final int TURN_ROBOT_BUTTON_45 = 10;
     }
 
     /**

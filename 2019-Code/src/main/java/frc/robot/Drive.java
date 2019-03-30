@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.networktables.*;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -94,16 +94,9 @@ public class Drive
     private PIDController rightStraightPID;
 
     /**
-     * True if the robot is backing up to the left after being 
-     * too close to the target and angled to the left, false otherwise
+     * True if the robot is backing up while using the limelight, false if still aligning forawrd
      */
-    private boolean backingLeft;
-
-    /**
-     * True if the robot is backing up to the right after being 
-     * too close to the target and angled to the right, false otherwise
-     */
-    private boolean backingRight;
+    private boolean backingUp;
 
     /**
      * True if driving should use the encoders, false if the encoders
@@ -184,7 +177,6 @@ public class Drive
             Constants.Drive.RATE_D, lEncoder, 
             (double output)->
             {
-                SmartDashboard.putNumber("left outpur", output);
                 setLeft(output);
             });
         leftStraightPID.setAbsoluteTolerance(Constants.Drive.RATE_TOLERANCE);
@@ -195,7 +187,6 @@ public class Drive
         Constants.Drive.RATE_D, rEncoder, 
             (double output)->
             {
-                SmartDashboard.putNumber("right output", output);
                 setRight(output);
             });
         rightStraightPID.setAbsoluteTolerance(Constants.Drive.RATE_TOLERANCE);
@@ -204,28 +195,29 @@ public class Drive
 
         encoderDrive = true;
         
-        new ValuePrinter(()-> 
-            {
-                SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
-                SmartDashboard.putNumber("Navx Angle: ", getNavxAngle());
-                // SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
-                // SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
-                // SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
-                SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
-                SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
-                SmartDashboard.putNumber("Limelight skew", limelight.getEntry("ts").getDouble(0.0));
-                SmartDashboard.putNumber("Limelight y: ", limelight.getEntry("ty").getDouble(0.0));
-                // SmartDashboard.putNumber("Calculated angle from target: ", Math.toDegrees(getAngleOffset()));
+        // new ValuePrinter(()-> 
+        //     {
+        //         SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
+        //         SmartDashboard.putNumber("Navx Angle: ", getNavxAngle());
+        //         // SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
+        //         // SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
+        //         // SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
+        //         SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
+        //         SmartDashboard.putNumber("Limelight X: ", limelight.getEntry("tx").getDouble(0));
+        //         SmartDashboard.putNumber("Limelight skew", limelight.getEntry("ts").getDouble(0.0));
+        //         SmartDashboard.putNumber("Limelight y: ", limelight.getEntry("ty").getDouble(0.0));
+        //         // SmartDashboard.putNumber("Calculated angle from target: ", Math.toDegrees(getAngleOffset()));
 
-                SmartDashboard.putNumber("Left rate: ", lEncoder.getRate());
-                SmartDashboard.putNumber("Right rate: ", rEncoder.getRate());
-                SmartDashboard.putNumber("right setPoint: ", rightStraightPID.getSetpoint());
-                SmartDashboard.putNumber("Left setPoint: ", leftStraightPID.getSetpoint());
-                SmartDashboard.putNumber("left error", leftStraightPID.getError());
-                SmartDashboard.putNumber("right error: ", rightStraightPID.getError());
-                SmartDashboard.putNumber("l current", lMotor1.getOutputCurrent());
-            },
-            ValuePrinter.HIGHEST_PRIORITY);
+        //         SmartDashboard.putNumber("Left rate: ", lEncoder.getRate());
+        //         SmartDashboard.putNumber("Right rate: ", rEncoder.getRate());
+        //         SmartDashboard.putNumber("right setPoint: ", rightStraightPID.getSetpoint());
+        //         SmartDashboard.putNumber("Left setPoint: ", leftStraightPID.getSetpoint());
+        //         SmartDashboard.putNumber("left error", leftStraightPID.getError());
+        //         SmartDashboard.putNumber("right error: ", rightStraightPID.getError());
+        //         SmartDashboard.putNumber("l current", lMotor1.getOutputCurrent());
+        //         SmartDashboard.putNumber("offset Target", getAngleOffset());
+        //     },
+        //     ValuePrinter.HIGHEST_PRIORITY);
     }
 
     /**
@@ -235,7 +227,6 @@ public class Drive
      */
     public void setLeft(double power)
     {
-        SmartDashboard.putNumber("set left power: ", power);
         lMotor1.set(ControlMode.PercentOutput, -power);
         lMotor2.set(ControlMode.PercentOutput, -power);
     }
@@ -247,7 +238,6 @@ public class Drive
      */
     public void setRight(double power)
     {
-        SmartDashboard.putNumber("set Right Power: ", power);
         rMotor1.set(ControlMode.PercentOutput, power);
         rMotor2.set(ControlMode.PercentOutput, power);
     }
@@ -257,10 +247,16 @@ public class Drive
      * or sets the motor power if the encoders are suspected to not be functioning.
      * @param power
      *  The power to drive the wheels at from -1 to 1
+     * @param begin
+     *  True to enable PID, false to only set the setpoint
      */
-    public void driveEncoderLeft(double power)
+    public void driveEncoderLeft(double power, boolean begin)
     {
-        SmartDashboard.putNumber("left power: ", power);
+        if(begin)
+        {
+            leftStraightPID.enable();
+        }
+
         //leftStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
         if(encoderDrive) 
         {
@@ -283,12 +279,11 @@ public class Drive
                     rightStraightPID.disable();
                     encoderDrive = false;
                     setLeft(power);
-                    DriverStation.reportWarning("stopped using encoders", false);
+                    DriverStation.reportWarning("Encoders seem to not be working at the moment :(", false);
                 }
                 else
                 {
                     //Set setpoint if everything is working for now
-                    SmartDashboard.putNumber("broken l set point", power);
                     leftStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
                 }
             }
@@ -296,7 +291,6 @@ public class Drive
             {
                 //Sets PID at specified rate and resets encoder timeout
                 lRateTime = 0;
-                SmartDashboard.putNumber("ok l set point", power);
                 leftStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
             }
         }
@@ -312,10 +306,16 @@ public class Drive
      * or sets the motor power if the encoders are suspected to not be functioning.
      * @param power
      *  The power to drive the wheels at from -1 to 1
+     * @param begin
+     *  True to enable PID, false to only set the setpoint
      */
-    public void driveEncoderRight(double power)
+    public void driveEncoderRight(double power, boolean begin)
     {
-        SmartDashboard.putNumber("right power: ", power);
+        if(begin)
+        {
+            rightStraightPID.enable();
+        }
+
         //rightStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
         if(encoderDrive)
         {
@@ -338,13 +338,11 @@ public class Drive
                     rightStraightPID.disable();
                     encoderDrive = false;
                     setRight(power);
-                    DriverStation.reportWarning("stopped using encoders", false);
+                    DriverStation.reportWarning("Encoders seem to not be working at the moment :(", false);
                 }
                 else
                 {
                     //Set setpoint if everything is working for now
-                    SmartDashboard.putNumber("broken r set point", power);
-
                     rightStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
                 }
             }
@@ -352,8 +350,6 @@ public class Drive
             {
                 //Sets PID at specified rate and resets encoder timeout
                 rRateTime = 0;
-                SmartDashboard.putNumber("ok r set point", power);
-
                 rightStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
             }
         }
@@ -442,13 +438,10 @@ public class Drive
             }
         }
          
-        double adjust = 0.0;//navx.getYaw() * 0.01;
+        double adjust = navx.getYaw() * 0.01;
         
-        SmartDashboard.putNumber("power", power);
-        // setLeft(power - adjust);
-        // setRight(power + adjust);
-        driveEncoderLeft(power - adjust); 
-        driveEncoderRight(power + adjust);
+        driveEncoderLeft(power - adjust, false); 
+        driveEncoderRight(power + adjust, false);
     }
      
      /**
@@ -512,6 +505,7 @@ public class Drive
         rightStraightPID.disable();
         limelight.getEntry("ledMode").setNumber(1);
         limelight.getEntry("camMode").setNumber(1);
+        backingUp = false;
     }
 
     /**
@@ -532,47 +526,41 @@ public class Drive
             return false;
         }
 
-        if(backingRight) 
+        if(backingUp)
         {
             //Back up until far enough away
-            setLeft(-0.4);
-            setRight(-0.4);//1
-
-            if(limelight.getEntry("ty").getDouble(0) < 0)
+            double offset = getAngleOffset();
+            if(Math.abs(offset) < 3)
             {
-                backingRight = false;
+                //Correct for tx offset
+                double xOffset = limelight.getEntry("tx").getDouble(0.0);
+                double p = 0.025;
+                double adjust = p * xOffset;
+    
+                //Go faster on left to  
+                setLeft(-0.4 - adjust);
+                setRight(-0.4 + adjust);
+            }
+            else
+            {
+                //Correct for angle offset
+                double correction = getAngleOffset() * -0.01;
+                setLeft(-0.4 - correction);
+                setRight(-0.4 + correction);
+            }
+
+            if(limelight.getEntry("ty").getDouble(0) < -5)
+            {
+                backingUp = false;
             }
         }
-        else if(backingLeft) 
-        {
-            //Back up until far enough away
-            setLeft(-0.4);//1
-            setRight(-0.4);
-
-            if(limelight.getEntry("ty").getDouble(0) < 0)
-            {
-                backingLeft = false;
-            }
-        }
-        else if(limelight.getEntry("ty").getDouble(0) > 18) 
+        else if(limelight.getEntry("ty").getDouble(0) > 15) 
         {
             //Robot is too close to keep going forward
-            if(Math.abs(limelight.getEntry("tx").getDouble(0)) > 7)
+            if(Math.abs(limelight.getEntry("tx").getDouble(0)) > 7 || Math.abs(getAngleOffset()) > 7)
             {
-                //Back up if target is not centered
-                if(limelight.getEntry("ts").getDouble(0.0) < -45)
-                {
-                    backingRight = true;
-                }
-                else
-                {
-                    backingLeft = true;
-                }
-            }
-            else if(limelight.getEntry("ts").getDouble(0.0) > 0)//TODO check angle
-            {
-                //Back up if robot is not parallel to target
-                //TODO back up
+                //Back up if target is not centered or not flat against the target
+                backingUp = true;
             }
             else
             {
@@ -597,6 +585,18 @@ public class Drive
         }
 
         return false;
+    }
+
+    /**
+     * Returns the offset of robot angle to the nearest 45.
+     * @return
+     *  The offset of the robot
+     */
+    private double getAngleOffset()
+    {
+        int target = 45 * (int) Math.round(navx.getAngle() / 45);
+
+        return target - navx.getAngle();
     }
 
     // /**
