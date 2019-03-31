@@ -231,9 +231,14 @@ public class Robot extends TimedRobot
                 //Deploy panel if not already deployed and is lined up
                 drive.disableDriverAssist();
                 //Ram
-                drive.driveEncoderLeft(1.0, true);
-                drive.driveEncoderRight(1.0, true);
+                drive.driveEncoderLeft(0.7, true);
+                drive.driveEncoderRight(0.7, true);
                 Util.threadSleep(300);
+                panelTransport.setPanelHold(false);
+                panelTransport.setPushersOut(true);
+                drive.driveEncoderLeft(-0.5, false);
+                drive.driveEncoderRight(-0.5, false);
+                Util.threadSleep(200);
                 drive.driveEncoderLeft(0.0, false);
                 drive.driveEncoderRight(0.0, false);
                 drive.disableDriverAssist();

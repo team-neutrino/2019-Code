@@ -257,7 +257,6 @@ public class Drive
             leftStraightPID.enable();
         }
 
-        //leftStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
         if(encoderDrive) 
         {
             //Drive using encoders
@@ -316,7 +315,6 @@ public class Drive
             rightStraightPID.enable();
         }
 
-        //rightStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
         if(encoderDrive)
         {
             //Drive using encoders
@@ -549,7 +547,7 @@ public class Drive
                 setRight(-0.4 + correction);
             }
 
-            if(limelight.getEntry("ty").getDouble(0) < -5)
+            if(limelight.getEntry("ty").getDouble(0) < -2)
             {
                 backingUp = false;
             }
