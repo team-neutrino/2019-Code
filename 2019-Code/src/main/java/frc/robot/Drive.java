@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDSourceType;
-import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.networktables.*;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -56,11 +55,6 @@ public class Drive
      * The encoder of the right side drive train
      */
     private Encoder rEncoder;
-
-    /**
-     * The Ultrasonic for measuring distance
-     */
-    private Ultrasonic ultrasonic;
     
     /**
      * The navx IMU
@@ -78,20 +72,14 @@ public class Drive
     private PIDController turnPID;      
 
     /**
-     * PIDController for using the Ultrasonic 
-     * to drive a distance away from an object
-     */
-    private PIDController usPID;
-
-    /**
      * The PID Controller for the left side drive train when driving straight
      */
-    private PIDController leftStraightPID;
+    private PIDController lRatePID;
 
     /**
      * The PID Controller for the right side drive train when driving straight
      */
-    private PIDController rightStraightPID;
+    private PIDController rRatePID;
 
     /**
      * True if the robot is backing up while using the limelight, false if still aligning forawrd
@@ -115,16 +103,6 @@ public class Drive
     private long rRateTime;
 
     /**
-     * The system's most recent time, in milliseconds, when the robot panel button has last been pressed. 
-     */
-    //private long startTime;
-
-    /**
-     * For the robot panel button, there will need to be some sort of button object for this to work.
-     * I assumed that 1 meant pressed and 0 meant not pressed for this nonexistent button.
-     */
-
-    /**
      * Constructor for the drive train.
      */
     public Drive()
@@ -144,8 +122,6 @@ public class Drive
 
         navx = new AHRS(Constants.Drive.NAVX_PORT);
         resetNavx();
-
-        ultrasonic = new Ultrasonic(Constants.Drive.ULTRASONIC_PORT_1, Constants.Drive.ULTRASONIC_PORT_2);
        
         limelight = NetworkTableInstance.getDefault().getTable("limelight");
         limelight.getEntry("ledMode").setNumber(1);
@@ -162,36 +138,25 @@ public class Drive
         turnPID.setOutputRange(Constants.Drive.TURN_OUTPUT_MIN, Constants.Drive.TURN_OUTPUT_MAX);
         turnPID.setAbsoluteTolerance(Constants.Drive.TURN_TOLERANCE);
 
-        usPID = new PIDController(Constants.Drive.DISTANCE_P, Constants.Drive.DISTANCE_I, 
-            Constants.Drive.DISTANCE_D, ultrasonic, 
-            (double output)->
-            {
-                setLeft(-output);
-                setRight(-output);
-            });
-        usPID.setAbsoluteTolerance(Constants.Drive.DISTANCE_TOLERANCE);
-        usPID.setInputRange(Constants.Drive.DISTANCE_INPUT_MIN, Constants.Drive.DISTANCE_INPUT_MAX);
-        usPID.setOutputRange(Constants.Drive.DISTANCE_OUTPUT_MIN, Constants.Drive.DISTANCE_OUTPUT_MAX);
-
-        leftStraightPID = new PIDController(Constants.Drive.RATE_P, Constants.Drive.RATE_I, 
+        lRatePID = new PIDController(Constants.Drive.RATE_P, Constants.Drive.RATE_I, 
             Constants.Drive.RATE_D, lEncoder, 
             (double output)->
             {
                 setLeft(output);
             });
-        leftStraightPID.setAbsoluteTolerance(Constants.Drive.RATE_TOLERANCE);
-        leftStraightPID.setInputRange(Constants.Drive.RATE_INPUT_MIN, Constants.Drive.RATE_INPUT_MAX);
-        leftStraightPID.setOutputRange(Constants.Drive.RATE_OUTPUT_MIN, Constants.Drive.RATE_OUTPUT_MAX);
+        lRatePID.setAbsoluteTolerance(Constants.Drive.RATE_TOLERANCE);
+        lRatePID.setInputRange(Constants.Drive.RATE_INPUT_MIN, Constants.Drive.RATE_INPUT_MAX);
+        lRatePID.setOutputRange(Constants.Drive.RATE_OUTPUT_MIN, Constants.Drive.RATE_OUTPUT_MAX);
 
-        rightStraightPID = new PIDController(Constants.Drive.RATE_P, Constants.Drive.RATE_I, 
+        rRatePID = new PIDController(Constants.Drive.RATE_P, Constants.Drive.RATE_I, 
         Constants.Drive.RATE_D, rEncoder, 
             (double output)->
             {
                 setRight(output);
             });
-        rightStraightPID.setAbsoluteTolerance(Constants.Drive.RATE_TOLERANCE);
-        rightStraightPID.setInputRange(Constants.Drive.RATE_INPUT_MIN, Constants.Drive.RATE_INPUT_MAX);
-        rightStraightPID.setOutputRange(Constants.Drive.RATE_OUTPUT_MIN, Constants.Drive.RATE_OUTPUT_MAX);
+        rRatePID.setAbsoluteTolerance(Constants.Drive.RATE_TOLERANCE);
+        rRatePID.setInputRange(Constants.Drive.RATE_INPUT_MIN, Constants.Drive.RATE_INPUT_MAX);
+        rRatePID.setOutputRange(Constants.Drive.RATE_OUTPUT_MIN, Constants.Drive.RATE_OUTPUT_MAX);
 
         encoderDrive = true;
         
@@ -199,7 +164,6 @@ public class Drive
         //     {
         //         SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
         //         SmartDashboard.putNumber("Navx Angle: ", getNavxAngle());
-        //         // SmartDashboard.putNumber("Ultrasonic: ", ultrasonic.getRangeInches());
         //         // SmartDashboard.putNumber("Left Encoder: ", lEncoder.getDistance());
         //         // SmartDashboard.putNumber("Right Encoder: ", rEncoder.getDistance());
         //         SmartDashboard.putNumber("Limelight Area: ", limelight.getEntry("ta").getDouble(0));
@@ -252,13 +216,13 @@ public class Drive
      */
     public void driveEncoderLeft(double power, boolean begin)
     {
-        if(begin)
-        {
-            leftStraightPID.enable();
-        }
-
         if(encoderDrive) 
         {
+            if(begin)
+            {
+                lRatePID.enable();
+            }
+
             //Drive using encoders
             //Check motor current and wheel rates to deicde if encoders are functioning
             if(lMotor1.getOutputCurrent() > Constants.Drive.ENCODER_CURRENT_THRESHOLD && lEncoder.getRate() == 0)
@@ -267,15 +231,15 @@ public class Drive
                 {
                     //Save time when encoder is first suspected broken
                     lRateTime = System.currentTimeMillis();
-                    leftStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
+                    lRatePID.setSetpoint(Constants.Drive.MAX_SPEED * power);
                 }
                 else if(System.currentTimeMillis() - lRateTime > Constants.Drive.ENCODER_TIMEOUT)
                 {
                     //Drive by power if encoder is suspected to not be working
                     //Wheel rate is 0 while motor is getting a current for a 
                     //given amount of time
-                    leftStraightPID.disable();
-                    rightStraightPID.disable();
+                    lRatePID.disable();
+                    rRatePID.disable();
                     encoderDrive = false;
                     setLeft(power);
                     DriverStation.reportWarning("Encoders seem to not be working at the moment :(", false);
@@ -283,14 +247,14 @@ public class Drive
                 else
                 {
                     //Set setpoint if everything is working for now
-                    leftStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
+                    lRatePID.setSetpoint(Constants.Drive.MAX_SPEED * power);
                 }
             }
             else
             {
                 //Sets PID at specified rate and resets encoder timeout
                 lRateTime = 0;
-                leftStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
+                lRatePID.setSetpoint(Constants.Drive.MAX_SPEED * power);
             }
         }
         else
@@ -310,13 +274,13 @@ public class Drive
      */
     public void driveEncoderRight(double power, boolean begin)
     {
-        if(begin)
-        {
-            rightStraightPID.enable();
-        }
-
         if(encoderDrive)
         {
+            if(begin)
+            {
+                rRatePID.enable();
+            }
+
             //Drive using encoders
             //Check motor current and wheel rates to deicde if encoders are functioning
             if(rMotor1.getOutputCurrent() > Constants.Drive.ENCODER_CURRENT_THRESHOLD && rEncoder.getRate() == 0)
@@ -325,15 +289,15 @@ public class Drive
                 {
                     //Save time when encoder is first suspected broken
                     rRateTime = System.currentTimeMillis();
-                    rightStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
+                    rRatePID.setSetpoint(Constants.Drive.MAX_SPEED * power);
                 }
                 else if(System.currentTimeMillis() - rRateTime > Constants.Drive.ENCODER_TIMEOUT)
                 {
                     //Drive by power if encoder is suspected to not be working
                     //Wheel rate is 0 while motor is getting a current for a 
                     //given amount of time
-                    leftStraightPID.disable();
-                    rightStraightPID.disable();
+                    lRatePID.disable();
+                    rRatePID.disable();
                     encoderDrive = false;
                     setRight(power);
                     DriverStation.reportWarning("Encoders seem to not be working at the moment :(", false);
@@ -341,14 +305,14 @@ public class Drive
                 else
                 {
                     //Set setpoint if everything is working for now
-                    rightStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
+                    rRatePID.setSetpoint(Constants.Drive.MAX_SPEED * power);
                 }
             }
             else
             {
                 //Sets PID at specified rate and resets encoder timeout
                 rRateTime = 0;
-                rightStraightPID.setSetpoint(Constants.Drive.MAX_SPEED * power);
+                rRatePID.setSetpoint(Constants.Drive.MAX_SPEED * power);
             }
         }
         else
@@ -404,20 +368,8 @@ public class Drive
     }
 
     /**
-     * Moves the robot forwards until it is a set distance away from the object in front of it
-     * @param distance
-     *  The distance from the object you want to reach (in inches)
-     */
-    public void moveToDistance(double distance)
-    {
-        usPID.setSetpoint(distance);
-        usPID.enable();
-    }
-
-    /**
      * Makes the robot drive straight by using PID to control the speed the
      * wheels while using the Navx  to correct for any drift.
-     * \]
      * @param power
      *  The multiplier for the max speed from -1 to 1 to set the set point to
      * @param begin
@@ -429,17 +381,12 @@ public class Drive
         if(begin)
         {
             zeroNavx();
-            if(encoderDrive)
-            {
-                leftStraightPID.enable();
-                rightStraightPID.enable();
-            }
         }
          
         double adjust = navx.getYaw() * 0.01;
         
-        driveEncoderLeft(power - adjust, false); 
-        driveEncoderRight(power + adjust, false);
+        driveEncoderLeft(power - adjust, begin); 
+        driveEncoderRight(power + adjust, begin);
     }
      
      /**
@@ -498,9 +445,8 @@ public class Drive
     public void disableDriverAssist()
     {
         turnPID.disable();
-        usPID.disable();
-        leftStraightPID.disable();
-        rightStraightPID.disable();
+        lRatePID.disable();
+        rRatePID.disable();
         limelight.getEntry("ledMode").setNumber(1);
         limelight.getEntry("camMode").setNumber(1);
         backingUp = false;
@@ -513,11 +459,9 @@ public class Drive
      */
     public boolean limeLightAlign()
     {
-        turnPID.disable();
-        usPID.disable();
         limelight.getEntry("ledMode").setNumber(3);
         limelight.getEntry("camMode").setNumber(0);
-
+        
         if(limelight.getEntry("tv").getDouble(0.0) == 0) 
         {
             //Exit if no target is detected
@@ -549,6 +493,7 @@ public class Drive
 
             if(limelight.getEntry("ty").getDouble(0) < -2)
             {
+                //Stop backing up when far enough away
                 backingUp = false;
             }
         }
@@ -570,12 +515,7 @@ public class Drive
         else
         {
             //Start lining up with proportional correction amount to the amount offset of tx
-            double offset = limelight.getEntry("tx").getDouble(0.0);
-            double p = 0.025;// + 0.01 / limelight.getEntry("ta").getDouble(0.0);
-            double adjust = p * offset;
-            //Get amount of power to add/subtract
-            // double diff = Math.min(offset * p, 0.5);
-            // diff = Math.max(diff, 0.1);
+            double adjust = 0.025 * limelight.getEntry("tx").getDouble(0.0);
 
             //Add left side subtract right to turn
             setLeft(0.3 + adjust);
@@ -592,58 +532,10 @@ public class Drive
      */
     private double getAngleOffset()
     {
+        //Find nearest 45 since all vision targets are on a 45
         int target = 45 * (int) Math.round(navx.getAngle() / 45);
 
+        //Return difference from nearest 45
         return target - navx.getAngle();
     }
-
-    // /**
-    //  * Returns an estimated angle of the rotation of the robot to a target
-    //  * using the distortion of the image.
-    //  * @return
-    //  *  An estimated angle of the roatation of the robot from the target
-    //  */
-    // private double getAngleOffset()
-    // {
-    //     double[] xs = limelight.getEntry("tcornx").getDoubleArray(new double[0]);
-    //     double[] ys = limelight.getEntry("tcorny").getDoubleArray(new double[0]);
-        
-    //     // for(int i = 0; i < xs.length; i++)
-    //     // {
-    //     //     System.out.println("x: " + xs[i] + " y: " + ys[i]);
-    //     // }
-    //     if(xs.length >= 8 && ys.length >= 8) //Check if Limelight is sending data
-    //     {
-    //         //Calculate first angle from triangle with hypotenuse from point 1 to 7
-    //         double xDist1 = xs[7] - xs[1];
-    //         double yDist1 = ys[1] - ys[7];
-    //         double angle1 = Math.tanh(yDist1 / xDist1);
-
-    //         //Calculate first angle from triangle with hypotenuse from point 0 to 6
-    //         double xDist2 = xs[0] - xs[6];
-    //         double yDist2 = ys[0] - ys[6];
-    //         double angle2 = Math.tanh(yDist2 / xDist2);
-    //         //System.out.println("angle 1:" + angle1 + " \n angle2: " + angle2 + "\n diff: " + (angle1 - angle2));
-    //         //Return calculated angle from experimetally generated equation
-    //         return Math.PI / 2 - (-0.7861 * (angle1 - angle2) + 1.215);
-    //     }
-
-    //     return 0.0;
-    // }
-
-    /**
-     * check to see if panelButton has been pressed down
-     * @return  
-     * A long value if it has been pressed, 0 otherwise
-     */
-    //private long checklongPress()
-    //{
-        //if (panelButton == 1) 
-        //{
-            //return System.currentTimeMillis();
-        //}
-        //else
-        //{
-            //return 0;
-        //}
-    }
+}

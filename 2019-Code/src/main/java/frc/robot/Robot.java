@@ -158,19 +158,19 @@ public class Robot extends TimedRobot
         // //Makes camera image into black and white and sends to driver station.
         new Thread(()->
             {
-                CvSink frontSink = CameraServer.getInstance().getVideo(cam);
-                CvSource frontOutputStream = CameraServer.getInstance().putVideo("Wide BW", 160, 120);
+                CvSink sink = CameraServer.getInstance().getVideo(cam);
+                CvSource stream = CameraServer.getInstance().putVideo("Wide BW", 160, 120);
 
                 Mat source = new Mat();
                 Mat output = new Mat();
 
                 while(true)
                 {
-                    frontSink.grabFrame(source);
+                    sink.grabFrame(source);
                     if(source.size().area() > 2)
                     {
                         Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
-                        frontOutputStream.putFrame(output);                    
+                        stream.putFrame(output);                    
                     }
                 }
             }).start();
@@ -225,27 +225,22 @@ public class Robot extends TimedRobot
             || rJoy.getRawButton(Constants.RJoy.LIMELIGHT_ALIGN_BUTTON)) 
         {
             //Line up with bay and deliver panel
-            initDriverAssist = false;
+            if(initDriverAssist)
+            {
+                //Make sure PIDs are turned off 
+                drive.disableDriverAssist();
+                initDriverAssist = false;
+            }
+
             if(!deliverDone && drive.limeLightAlign()) 
             {
-                //Deploy panel if not already deployed and is lined up
+                //Drive into object if lined up
                 drive.disableDriverAssist();
-                //Ram
-                drive.driveEncoderLeft(0.7, true);
-                drive.driveEncoderRight(0.7, true);
+                
+                //Drive forward into object
+                drive.driveStraight(0.7, true);
                 Util.threadSleep(300);
-                panelTransport.setPanelHold(false);
-                panelTransport.setPushersOut(true);
-                drive.driveEncoderLeft(-0.5, false);
-                drive.driveEncoderRight(-0.5, false);
-                Util.threadSleep(200);
-                drive.driveEncoderLeft(0.0, false);
-                drive.driveEncoderRight(0.0, false);
                 drive.disableDriverAssist();
-
-                panelTransport.setPanelHold(false);
-                panelTransport.setPushersOut(true);
-                Util.threadSleep(10);
 
                 deliverDone = true;
             }
@@ -365,10 +360,11 @@ public class Robot extends TimedRobot
                 }
 
                 //Set powers equal to go straight if joysticks are close enough together
-                //TODO see if Joel likes this
                 if(Math.abs(rPower - lPower) < 0.05)
                 {
-                    rPower = lPower;
+                    double power = (rPower + lPower) / 2;
+                    rPower = power;
+                    lPower = power;
                 }
 
                 //Set motor power using joysticks
@@ -406,7 +402,7 @@ public class Robot extends TimedRobot
         }
 
         //Panel transport control
-        //drive.checkLongPress();
+        //panelTransport.checkLongPress();
         if(xBox.getRawAxis(Constants.XBox.OUTTAKE_PANEL_AXIS) > 0.5)
         {
             panelTransport.setPanelHold(false);
@@ -414,7 +410,7 @@ public class Robot extends TimedRobot
             panelTransport.setPushersOut(true);
             holdOverride = false;
         }
-        //else if((System.currentTimeMillis()-drive.checkLongPress()) > 1500 && drive.checkLongPress() != 0)
+        //else if((System.currentTimeMillis()-panelTransport.checkLongPress()) > 1500 && panelTransport.checkLongPress() != 0)
         //{
             //panelTransport.setPanelHold(false);
             //Util.threadSleep(Constants.Robot.HOLD_PUSH_WAIT);
@@ -425,7 +421,7 @@ public class Robot extends TimedRobot
         {
             panelTransport.setPushersOut(false);
 
-            if(panelTransport.getButton() && xBox.getRawButton(Constants.XBox.INTAKE_CARGO_BUTTON) && usePanelButton)
+            if(panelTransport.getButton() && xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON) && usePanelButton)
             {
                 panelTransport.setPanelHold(true);
                 holdOverride = true;

@@ -35,6 +35,11 @@ public class PanelTransport
     private DigitalInput button;
 
     /**
+     * The system's most recent time, in milliseconds, when the robot panel button has last been pressed. 
+     */
+    //private long startTime;
+
+    /**
      * Constructor for panel transport.
      */
     public PanelTransport()
@@ -60,6 +65,23 @@ public class PanelTransport
     {
         return !button.get();
     }
+
+    /**
+     * check to see if panelButton has been pressed down
+     * @return  
+     * A long value if it has been pressed, 0 otherwise
+     */
+    //private long checklongPress()
+    //{
+        //if (panelButton == 1) 
+        //{
+            //return System.currentTimeMillis();
+        //}
+        //else
+        //{
+            //return 0;
+        //}
+    //}
 
     /**
      * Turns the pushing solenoid in or out with the given value.

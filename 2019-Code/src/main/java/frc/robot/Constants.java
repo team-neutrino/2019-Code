@@ -113,15 +113,6 @@ public class Constants
         public static final double TURN_OUTPUT_MIN = -1.0;
         public static final double TURN_OUTPUT_MAX = 1.0;
 
-        public static final double DISTANCE_P = 0.01;
-        public static final double DISTANCE_I = 0.0;
-        public static final double DISTANCE_D = -0.01;
-        public static final double DISTANCE_TOLERANCE = 1.0;
-        public static final double DISTANCE_INPUT_MIN = 50;
-        public static final double DISTANCE_INPUT_MAX = 700;
-        public static final double DISTANCE_OUTPUT_MIN = -1.0;
-        public static final double DISTANCE_OUTPUT_MAX = 1.0;
-
         public static final int  MAX_SPEED = 80;
 
         public static final double RATE_P = 0.0013;
