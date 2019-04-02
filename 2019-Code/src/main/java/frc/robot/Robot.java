@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.CargoTransport.ArmPosition;
@@ -117,7 +118,7 @@ public class Robot extends TimedRobot
      * True if the panel holder is in hold override and not to be put down, false to 
      * have complete control from the button monkey
      */
-    private boolean holdOverride;
+    //private boolean holdOverride;
 
     /**
      * Stores whether the lidar is in use or not.
@@ -236,11 +237,11 @@ public class Robot extends TimedRobot
             {
                 //Drive into object if lined up
                 drive.disableDriverAssist();
-                
-                //Drive forward into object
-                drive.driveStraight(0.7, true);
+                NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setDouble(2);
+
+                 drive.driveStraight(0.7, true);
                 Util.threadSleep(300);
-                drive.disableDriverAssist();
+                drive.driveStraight(0.0, false);
 
                 deliverDone = true;
             }
@@ -402,43 +403,44 @@ public class Robot extends TimedRobot
         }
 
         //Panel transport control
+        panelTransport.setPanelHold(xBox.getRawAxis(Constants.XBox.OUTTAKE_PANEL_AXIS) < 0.25);
+        panelTransport.setPusherOut(xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
         //panelTransport.checkLongPress();
-        if(xBox.getRawAxis(Constants.XBox.OUTTAKE_PANEL_AXIS) > 0.5)
-        {
-            panelTransport.setPanelHold(false);
-            Util.threadSleep(Constants.Robot.HOLD_PUSH_WAIT);
-            panelTransport.setPushersOut(true);
-            holdOverride = false;
-        }
-        //else if((System.currentTimeMillis()-panelTransport.checkLongPress()) > 1500 && panelTransport.checkLongPress() != 0)
-        //{
-            //panelTransport.setPanelHold(false);
-            //Util.threadSleep(Constants.Robot.HOLD_PUSH_WAIT);
-            //panelTransport.setPushersOut(true);
-            //holdOverride = false;
-        //}
-        else
-        {
-            panelTransport.setPushersOut(false);
+        // if(xBox.getRawAxis(Constants.XBox.OUTTAKE_PANEL_AXIS) > 0.5)
+        // {
+        //     panelTransport.setPanelHold(false);
+        //     panelTransport.setPushersOut(true);
+        //     holdOverride = false;
+        // }
+        // //else if((System.currentTimeMillis()-panelTransport.checkLongPress()) > 1500 && panelTransport.checkLongPress() != 0)
+        // //{
+        //     //panelTransport.setPanelHold(false);
+        //     //Util.threadSleep(Constants.Robot.HOLD_PUSH_WAIT);
+        //     //panelTransport.setPushersOut(true);
+        //     //holdOverride = false;
+        // //}
+        // if(Constants.XBox.INTAKE_PANEL_BUTTON)
+        // {
+        //     panelTransport.setPushersOut(false);
 
-            if(panelTransport.getButton() && xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON) && usePanelButton)
-            {
-                panelTransport.setPanelHold(true);
-                holdOverride = true;
-            }
-            else
-            {
-                // if(!xBox.getRawButton(Constants.XBox.INTAKE_CARGO_BUTTON))
-                // {
-                //     holdOverride = false;
-                // }
+        //     if(panelTransport.getButton() && xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON) && usePanelButton)
+        //     {
+        //         panelTransport.setPanelHold(true);
+        //         holdOverride = true;
+        //     }
+        //     else
+        //     {
+        //         // if(!xBox.getRawButton(Constants.XBox.INTAKE_CARGO_BUTTON))
+        //         // {
+        //         //     holdOverride = false;
+        //         // }
 
-                if(!holdOverride)
-                {
-                    panelTransport.setPanelHold(!xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
-                }
-            }
-        }
+        //         if(!holdOverride)
+        //         {
+        //             panelTransport.setPanelHold(!xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
+        //         }
+        //     }
+        // }
 
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect

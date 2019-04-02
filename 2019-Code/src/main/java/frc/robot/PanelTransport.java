@@ -22,7 +22,7 @@ public class PanelTransport
     /**
      * Double solenoid to deploy the panel
      */
-    private DoubleSolenoid pushers;
+    private DoubleSolenoid pusher;
    
     /**
      * Double solenoid to hold the panel in place or release it
@@ -35,16 +35,11 @@ public class PanelTransport
     private DigitalInput button;
 
     /**
-     * The system's most recent time, in milliseconds, when the robot panel button has last been pressed. 
-     */
-    //private long startTime;
-
-    /**
      * Constructor for panel transport.
      */
     public PanelTransport()
     {
-        pushers = new DoubleSolenoid(Constants.PanelTransport.PUSHER_CHANNEL_1, Constants.PanelTransport.PUSHER_CHANNEL_2);
+        pusher = new DoubleSolenoid(Constants.PanelTransport.PUSHER_CHANNEL_1, Constants.PanelTransport.PUSHER_CHANNEL_2);
         holder = new DoubleSolenoid(Constants.PanelTransport.HOLDER_CHANNEL_1, Constants.PanelTransport.HOLDER_CHANNEL_2);
         button = new DigitalInput(Constants.PanelTransport.BUTTON_CHANNEL);
 
@@ -67,36 +62,19 @@ public class PanelTransport
     }
 
     /**
-     * check to see if panelButton has been pressed down
-     * @return  
-     * A long value if it has been pressed, 0 otherwise
-     */
-    //private long checklongPress()
-    //{
-        //if (panelButton == 1) 
-        //{
-            //return System.currentTimeMillis();
-        //}
-        //else
-        //{
-            //return 0;
-        //}
-    //}
-
-    /**
      * Turns the pushing solenoid in or out with the given value.
      * @param out
      *  Ture if the cylinders should be out, false if in
      */
-    public void setPushersOut(boolean out)
+    public void setPusherOut(boolean out)
     {
         if(out)
         {
-            pushers.set(DoubleSolenoid.Value.kForward);
+            pusher.set(DoubleSolenoid.Value.kForward);
         }
         else
         {
-            pushers.set(DoubleSolenoid.Value.kReverse);
+            pusher.set(DoubleSolenoid.Value.kReverse);
         }
     }
 
