@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
- * Class for the panel transport to hold and deliver panels.
+ * Class for the panel transport.
  * 
  * @author Team Neutrino
  * 
@@ -20,17 +20,17 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 public class PanelTransport 
 {    
     /**
-     * Double solenoid to deploy the panel
+     * Double solenoid to push the panel out
      */
     private DoubleSolenoid pusher;
    
     /**
-     * Double solenoid to hold the panel in place or release it
+     * Double solenoid to hold the panel
      */
     private DoubleSolenoid holder;
 
     /**
-     * Button for telling whether there is a panel bein
+     * Button for telling whether there is a panel or not
      */
     private DigitalInput button;
 
@@ -79,7 +79,7 @@ public class PanelTransport
     }
 
     /**
-     * Sets the solenoids to hold the panel.
+     * Sets the solenoid to hold or release the panel.
      * @param hold
      *  True to hold the panel, false to release
      */

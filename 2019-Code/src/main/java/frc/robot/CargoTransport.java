@@ -50,7 +50,7 @@ public class CargoTransport implements PIDOutput
     }
 
     /**
-     * Motor to control the intake and outtake of cargo transport
+     * Motor to control the intake and outtake of cargo
      */
     private TalonSRX rollerMotor;
     
@@ -107,7 +107,7 @@ public class CargoTransport implements PIDOutput
      * Sets the power of the roller motor with current sensing so the motor does
      * not stall for more than 100 milliseconds.
      * @param power
-     *  The power to set roller motor to, -1 out 1 in
+     *  The power to set roller motor to, -1 out to 1 in
      */
     public void setRoller(double power)
     {
@@ -143,7 +143,7 @@ public class CargoTransport implements PIDOutput
     /**
      * Sets the position of the cargo arm.
      * @param position
-     *  The position to hold the arm at
+     *  The ArmPosition the arm will be held at
      */
     public void setArmPosition(ArmPosition position)
     {

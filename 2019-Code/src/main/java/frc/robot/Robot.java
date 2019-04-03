@@ -113,17 +113,6 @@ public class Robot extends TimedRobot
      * True if override has been toggled, false if it has not been toggled
      */
     private boolean tempIsOverride;
-    
-    /**
-     * True if the panel holder is in hold override and not to be put down, false to 
-     * have complete control from the button monkey
-     */
-    //private boolean holdOverride;
-
-    /**
-     * Stores whether the lidar is in use or not.
-     */
-    private boolean lidarInUse;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -140,7 +129,7 @@ public class Robot extends TimedRobot
         cargoTransport = new CargoTransport();
         panelTransport = new PanelTransport();
         climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
-        antiClimber = new Solenoid(5);
+        antiClimber = new Solenoid(Constants.Robot.ANTI_CLIMBER_CHANNEL);
         climber.set(false);
         antiClimber.set(true);
         
@@ -151,7 +140,6 @@ public class Robot extends TimedRobot
         cam.setResolution(160, 120);
 
         lidar = new LidarRaspberry(drive);
-        lidarInUse = false;
 
         //TODO do stuff with odometry
         //odometry = new Odometry(drive);
@@ -191,9 +179,7 @@ public class Robot extends TimedRobot
     public void autonomousInit() 
     {
         drive.resetNavx();
-        // lidar.enable();
-        // lidarInUse = true;
-        //drive.driveStraight(0.0, true);
+        lidar.enable();
     }
 
     /**
@@ -202,11 +188,8 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic() 
     {
-       // drive.driveStraight(0.4, false);
-
-        //Util.threadSleep(2);
-         teleopPeriodic();
-        // lidar.update();
+        teleopPeriodic();
+        lidar.update();
     }
 
     @Override
@@ -222,8 +205,7 @@ public class Robot extends TimedRobot
     public void teleopPeriodic() 
     {
         //Drivetrain control and driver assist
-        if(lJoy.getRawButton(Constants.LJoy.LIMELIGHT_ALIGN_BUTTON) 
-            || rJoy.getRawButton(Constants.RJoy.LIMELIGHT_ALIGN_BUTTON)) 
+        if(lJoy.getRawButton(Constants.LJoy.LIMELIGHT_ALIGN_BUTTON) || rJoy.getRawButton(Constants.RJoy.LIMELIGHT_ALIGN_BUTTON)) 
         {
             //Line up with bay and deliver panel
             if(initDriverAssist)
@@ -239,7 +221,7 @@ public class Robot extends TimedRobot
                 drive.disableDriverAssist();
                 NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setDouble(2);
 
-                 drive.driveStraight(0.7, true);
+                drive.driveStraight(0.5, true);
                 Util.threadSleep(300);
                 drive.driveStraight(0.0, false);
 
@@ -403,50 +385,15 @@ public class Robot extends TimedRobot
         }
 
         //Panel transport control
-        panelTransport.setPanelHold(xBox.getRawAxis(Constants.XBox.OUTTAKE_PANEL_AXIS) < 0.25);
-        panelTransport.setPusherOut(xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
-        //panelTransport.checkLongPress();
-        // if(xBox.getRawAxis(Constants.XBox.OUTTAKE_PANEL_AXIS) > 0.5)
-        // {
-        //     panelTransport.setPanelHold(false);
-        //     panelTransport.setPushersOut(true);
-        //     holdOverride = false;
-        // }
-        // //else if((System.currentTimeMillis()-panelTransport.checkLongPress()) > 1500 && panelTransport.checkLongPress() != 0)
-        // //{
-        //     //panelTransport.setPanelHold(false);
-        //     //Util.threadSleep(Constants.Robot.HOLD_PUSH_WAIT);
-        //     //panelTransport.setPushersOut(true);
-        //     //holdOverride = false;
-        // //}
-        // if(Constants.XBox.INTAKE_PANEL_BUTTON)
-        // {
-        //     panelTransport.setPushersOut(false);
-
-        //     if(panelTransport.getButton() && xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON) && usePanelButton)
-        //     {
-        //         panelTransport.setPanelHold(true);
-        //         holdOverride = true;
-        //     }
-        //     else
-        //     {
-        //         // if(!xBox.getRawButton(Constants.XBox.INTAKE_CARGO_BUTTON))
-        //         // {
-        //         //     holdOverride = false;
-        //         // }
-
-        //         if(!holdOverride)
-        //         {
-        //             panelTransport.setPanelHold(!xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
-        //         }
-        //     }
-        // }
+        panelTransport.setPanelHold(xBox.getRawAxis(Constants.XBox.PANEL_HOLDER_AXIS) < 0.25);
+        panelTransport.setPusherOut(xBox.getRawButton(Constants.XBox.PANEL_PUSHER_BUTTON));
 
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
         if((DriverStation.getInstance().getMatchTime() <= 20 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
             || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON))
-            || (lJoy.getRawButton(1) && lJoy.getRawButton(2) && rJoy.getRawButton(1) && rJoy.getRawButton(2)))
+            || (lJoy.getRawButton(1) && lJoy.getRawButton(2) && rJoy.getRawButton(1) 
+            && rJoy.getRawButton(2)) && DriverStation.getInstance().getMatchTime() <= 10)
         {
             antiClimber.set(false);
             climber.set(true);
@@ -490,15 +437,17 @@ public class Robot extends TimedRobot
             cargoTransport.overrideArm(xBox.getRawAxis(Constants.XBox.ARM_OVERRIDE_AXIS));
         }
 
+        if(lJoy.getRawButton(Constants.LJoy.RESET_NAVX_BUTTON) || rJoy.getRawButton(Constants.RJoy.RESET_NAVX_BUTTON))
+        {
+            drive.resetNavx();
+        }
+
         Util.threadSleep(1);
     }
 
     @Override
     public void disabledInit()
     {
-        if (lidarInUse) 
-        {
-            lidar.disable();
-        }
+        lidar.disable();
     }
 }

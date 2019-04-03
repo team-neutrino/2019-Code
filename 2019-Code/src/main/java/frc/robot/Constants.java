@@ -20,9 +20,7 @@ public class Constants
         public static final int XBOX_CONTROLLER_PORT = 2;
 
         public static final int CLIMBER_CHANNEL = 6;
-        public static final int CLIMB_DISTANCE = 12;
-
-        public static final int HOLD_PUSH_WAIT = 10;
+        public static final int ANTI_CLIMBER_CHANNEL = 5;
     }
 
     /**
@@ -38,8 +36,8 @@ public class Constants
         public static final int INTAKE_CARGO_BUTTON = 6;
         public static final int OUTTAKE_CARGO_AXIS = 3;
 
-        public static final int INTAKE_PANEL_BUTTON = 5;
-        public static final int OUTTAKE_PANEL_AXIS = 2;
+        public static final int PANEL_PUSHER_BUTTON = 5;
+        public static final int PANEL_HOLDER_AXIS = 2;
 
         public static final int CLIMB_BUTTON = 8;
         public static final int CLIMB_OVERRIDE_BUTTON = 7;
@@ -64,6 +62,8 @@ public class Constants
         public static final int TURN_FIELD_BUTTON_270 = 7;
         public static final int TURN_FIELD_BUTTON_90 = 10;
         public static final int TURN_FIELD_BUTTON_180 = 11;
+
+        public static final int RESET_NAVX_BUTTON = 2;
     }
 
     /**
@@ -81,6 +81,8 @@ public class Constants
         public static final int TURN_ROBOT_BUTTON_NEG45 = 7;
         public static final int TURN_ROBOT_BUTTON_90 = 11;
         public static final int TURN_ROBOT_BUTTON_45 = 10;
+
+        public static final int RESET_NAVX_BUTTON = LJoy.RESET_NAVX_BUTTON;
     }
 
     /**
@@ -94,9 +96,6 @@ public class Constants
         public static final int RIGHT_MOTOR_TWO_PORT = 3;
    
         public static final SPI.Port NAVX_PORT = SPI.Port.kMXP;
-
-        public static final int ULTRASONIC_PORT_1 = 0;
-        public static final int ULTRASONIC_PORT_2 = 1;
         
         public static final int LEFT_ENCODER_PORT_ONE = 2;
         public static final int LEFT_ENCODER_PORT_TWO = 3;
