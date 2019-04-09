@@ -101,7 +101,7 @@ public class Robot extends TimedRobot
     /**
      * Stops two second autonomous drive
      */
-    private boolean stopAuton = false;
+    private boolean stopAuton;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -146,6 +146,8 @@ public class Robot extends TimedRobot
     {
         drive.resetNavx();
         lidar.enable();
+
+        //Begin drive straight autonomous portion
         if(Math.abs(lJoy.getY()) < 0.25 && Math.abs(rJoy.getY()) < 0.25)
         {
             new Thread(()->
@@ -153,6 +155,7 @@ public class Robot extends TimedRobot
                     Util.threadSleep(2125);
                     stopAuton = true;
                 }).start();
+
             drive.driveStraight(-1, true);
             initDriverAssist = false;
             stopAuton = false;
@@ -167,17 +170,23 @@ public class Robot extends TimedRobot
     {
         if(stopAuton)
         {
+            //Manual control
             teleopPeriodic();
         }
         else
         {
-            drive.driveStraight(-1, false);
+            //Check to end autonomouns portion
             if(Math.abs(lJoy.getY()) > 0.25 || Math.abs(rJoy.getY()) < -0.25)
             {
                 stopAuton = true;
             }
+
+            //Drive straight
+            drive.driveStraight(-1, false);
+
+            Util.threadSleep(1);
         }
-        Util.threadSleep(1);
+
         lidar.update();
     }
 

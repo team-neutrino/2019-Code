@@ -44,7 +44,6 @@ public class Constants
 
         public static final int TOGGLE_ARM_OVERRIDE_BUTTON = 9;
         public static final int ARM_OVERRIDE_AXIS = 1;
-        public static final int TOGGLE_PANEL_OVERRIDE_BUTTON = 10;
     }
 
     /**
@@ -169,8 +168,6 @@ public class Constants
         public static final int HOLDER_CHANNEL_2 = 1;
         public static final int PUSHER_CHANNEL_1 = 2;
         public static final int PUSHER_CHANNEL_2 = 3;
- 
-        public static final int BUTTON_CHANNEL = 9;
     }
 
     /**
