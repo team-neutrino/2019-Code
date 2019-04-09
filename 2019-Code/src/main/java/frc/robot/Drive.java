@@ -72,12 +72,12 @@ public class Drive
     private PIDController turnPID;      
 
     /**
-     * The PID Controller for the left side drive train when driving straight
+     * The PID Controller for the left side drive train to maintain a given rate
      */
     private PIDController lRatePID;
 
     /**
-     * The PID Controller for the right side drive train when driving straight
+     * The PID Controller for the right side drive train to maintain a given rate
      */
     private PIDController rRatePID;
 
@@ -88,7 +88,7 @@ public class Drive
 
     /**
      * True if driving should use the encoders, false if the encoders
-     * should not be used probably due to not functioning
+     * should not be used
      */
     private boolean encoderDrive;
 
@@ -187,7 +187,7 @@ public class Drive
     /**
      * Sets the power for the left side of the drive train.
      * @param power
-     *  The power to set the motor to from -1 to 1     
+     *  The power to set the left motors to from -1 to 1     
      */
     public void setLeft(double power)
     {
@@ -198,7 +198,7 @@ public class Drive
     /**
      * Sets the power for the right side of the drive train.
      * @param power
-     *  The power to set the motor to from -1 to 1     
+     *  The power to set the right motors to from -1 to 1     
      */
     public void setRight(double power)
     {
@@ -207,7 +207,7 @@ public class Drive
     }
     
     /**
-     * Drives the left side at the given rates using encoders and a PID Controller
+     * Drives the left side at the given rates using encoders with a PID Controller
      * or sets the motor power if the encoders are suspected to not be functioning.
      * @param power
      *  The power to drive the wheels at from -1 to 1
@@ -265,7 +265,7 @@ public class Drive
     }
 
     /**
-     * Drives the right side at the given rates using encoders and a PID Controller
+     * Drives the right side at the given rates using encoders with a PID Controller
      * or sets the motor power if the encoders are suspected to not be functioning.
      * @param power
      *  The power to drive the wheels at from -1 to 1
@@ -335,7 +335,8 @@ public class Drive
     }
 
     /**
-     * Rotates the robot to the specified angle (relative to field)
+     * Rotates the robot to the specified angle relative to the robot's angle 
+     * at the beginning of the match.
      * @param targetAngle
      *  The angle to turn to relative to robot at the start of the match
      */
@@ -369,7 +370,7 @@ public class Drive
 
     /**
      * Makes the robot drive straight by using PID to control the speed the
-     * wheels while using the Navx  to correct for any drift.
+     * wheels while using the Navx to correct for any drift.
      * @param power
      *  The multiplier for the max speed from -1 to 1 to set the set point to
      * @param begin
@@ -411,7 +412,7 @@ public class Drive
 
     /**
      * Returns the continuous yaw angle from the navx. Zeroing the yaw during 
-     * a relative turn does not have an effect on this.
+     * a relative turn does not have an effect 
      * @return
      *  The degrees recorded by the Navx yaw
      */
@@ -440,13 +441,15 @@ public class Drive
     }
 
     /**
-     * Disables the PIDs and sets limelight in streaming mode.
+     * Disables the PIDs and sets limelight to streaming mode.
      */
     public void disableDriverAssist()
     {
         turnPID.disable();
         lRatePID.disable();
         rRatePID.disable();
+        lRatePID.setSetpoint(0.0);
+        rRatePID.setSetpoint(0.0);
         limelight.getEntry("ledMode").setNumber(1);
         limelight.getEntry("camMode").setNumber(1);
         backingUp = false;
