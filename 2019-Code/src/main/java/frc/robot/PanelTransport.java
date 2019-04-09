@@ -7,12 +7,11 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
- * Class for the panel transport to hold and deliver panels.
+ * Class for the panel transport.
  * 
  * @author Team Neutrino
  * 
@@ -20,19 +19,14 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 public class PanelTransport 
 {    
     /**
-     * Double solenoid to deploy the panel
+     * Double solenoid to push the panel out
      */
     private DoubleSolenoid pusher;
    
     /**
-     * Double solenoid to hold the panel in place or release it
+     * Double solenoid to hold the panel
      */
     private DoubleSolenoid holder;
-
-    /**
-     * Button for telling whether there is a panel bein
-     */
-    private DigitalInput button;
 
     /**
      * Constructor for panel transport.
@@ -41,7 +35,6 @@ public class PanelTransport
     {
         pusher = new DoubleSolenoid(Constants.PanelTransport.PUSHER_CHANNEL_1, Constants.PanelTransport.PUSHER_CHANNEL_2);
         holder = new DoubleSolenoid(Constants.PanelTransport.HOLDER_CHANNEL_1, Constants.PanelTransport.HOLDER_CHANNEL_2);
-        button = new DigitalInput(Constants.PanelTransport.BUTTON_CHANNEL);
 
         // new ValuePrinter(()->
         //     {
@@ -49,16 +42,6 @@ public class PanelTransport
         //         SmartDashboard.putString("Holder state: ", holder.get().toString());
         //     }, 
         //     ValuePrinter.NORMAL_PRIORITY);
-    }
-
-    /**
-     * Returns the button state, true if being pushed, false if not.
-     * @return
-     *  The state of the button true if pushed, false if not
-     */
-    public boolean getButton()
-    {
-        return !button.get();
     }
 
     /**
@@ -79,7 +62,7 @@ public class PanelTransport
     }
 
     /**
-     * Sets the solenoids to hold the panel.
+     * Sets the solenoid to hold or release the panel.
      * @param hold
      *  True to hold the panel, false to release
      */

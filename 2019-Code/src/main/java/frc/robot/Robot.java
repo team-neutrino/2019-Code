@@ -14,13 +14,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.CargoTransport.ArmPosition;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
-
-import edu.wpi.cscore.CvSink;
-import edu.wpi.cscore.CvSource;
-import edu.wpi.cscore.UsbCamera;
+ 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -95,35 +89,19 @@ public class Robot extends TimedRobot
     private boolean deliverDone;
 
     /**
-     * The USB camera for driver vision 
-     */
-    private UsbCamera cam;
-
-    /**
      * True if the cargo arm control is overriden, false if not
      */
     private boolean armOverride;
 
     /**
-     * True if the panel button is being used, false if not
-     */
-    private boolean usePanelButton;
-
-    /**
      * True if override has been toggled, false if it has not been toggled
      */
     private boolean tempIsOverride;
-    
-    /**
-     * True if the panel holder is in hold override and not to be put down, false to 
-     * have complete control from the button monkey
-     */
-    //private boolean holdOverride;
 
     /**
-     * Stores whether the lidar is in use or not.
+     * Stops two second autonomous drive
      */
-    private boolean lidarInUse;
+    private boolean stopAuton = false;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -140,41 +118,17 @@ public class Robot extends TimedRobot
         cargoTransport = new CargoTransport();
         panelTransport = new PanelTransport();
         climber = new Solenoid(Constants.Robot.CLIMBER_CHANNEL);
-        antiClimber = new Solenoid(5);
+        antiClimber = new Solenoid(Constants.Robot.ANTI_CLIMBER_CHANNEL);
         climber.set(false);
         antiClimber.set(true);
         
-        usePanelButton = true;
-
-        cam = CameraServer.getInstance().startAutomaticCapture("Wide angle", 0);
-        cam.setFPS(15);
-        cam.setResolution(160, 120);
+        CameraServer.getInstance().startAutomaticCapture("Wide angle", 0);
 
         lidar = new LidarRaspberry(drive);
-        lidarInUse = false;
 
+        stopAuton = true;
         //TODO do stuff with odometry
         //odometry = new Odometry(drive);
-
-        // //Makes camera image into black and white and sends to driver station.
-        new Thread(()->
-            {
-                CvSink sink = CameraServer.getInstance().getVideo(cam);
-                CvSource stream = CameraServer.getInstance().putVideo("Wide BW", 160, 120);
-
-                Mat source = new Mat();
-                Mat output = new Mat();
-
-                while(true)
-                {
-                    sink.grabFrame(source);
-                    if(source.size().area() > 2)
-                    {
-                        Imgproc.cvtColor(source, output, Imgproc.COLOR_RGB2GRAY);
-                        stream.putFrame(output);                    
-                    }
-                }
-            }).start();
 
         // new ValuePrinter(()->
         //     {
@@ -191,9 +145,18 @@ public class Robot extends TimedRobot
     public void autonomousInit() 
     {
         drive.resetNavx();
-        // lidar.enable();
-        // lidarInUse = true;
-        //drive.driveStraight(0.0, true);
+        lidar.enable();
+        if(Math.abs(lJoy.getY()) < 0.25 && Math.abs(rJoy.getY()) < 0.25)
+        {
+            new Thread(()->
+                {
+                    Util.threadSleep(2125);
+                    stopAuton = true;
+                }).start();
+            drive.driveStraight(-1, true);
+            initDriverAssist = false;
+            stopAuton = false;
+        }
     }
 
     /**
@@ -202,11 +165,20 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic() 
     {
-       // drive.driveStraight(0.4, false);
-
-        //Util.threadSleep(2);
-         teleopPeriodic();
-        // lidar.update();
+        if(stopAuton)
+        {
+            teleopPeriodic();
+        }
+        else
+        {
+            drive.driveStraight(-1, false);
+            if(Math.abs(lJoy.getY()) > 0.25 || Math.abs(rJoy.getY()) < -0.25)
+            {
+                stopAuton = true;
+            }
+        }
+        Util.threadSleep(1);
+        lidar.update();
     }
 
     @Override
@@ -222,8 +194,7 @@ public class Robot extends TimedRobot
     public void teleopPeriodic() 
     {
         //Drivetrain control and driver assist
-        if(lJoy.getRawButton(Constants.LJoy.LIMELIGHT_ALIGN_BUTTON) 
-            || rJoy.getRawButton(Constants.RJoy.LIMELIGHT_ALIGN_BUTTON)) 
+        if(lJoy.getRawButton(Constants.LJoy.LIMELIGHT_ALIGN_BUTTON) || rJoy.getRawButton(Constants.RJoy.LIMELIGHT_ALIGN_BUTTON)) 
         {
             //Line up with bay and deliver panel
             if(initDriverAssist)
@@ -239,7 +210,7 @@ public class Robot extends TimedRobot
                 drive.disableDriverAssist();
                 NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setDouble(2);
 
-                 drive.driveStraight(0.7, true);
+                drive.driveStraight(0.5, true);
                 Util.threadSleep(300);
                 drive.driveStraight(0.0, false);
 
@@ -403,50 +374,15 @@ public class Robot extends TimedRobot
         }
 
         //Panel transport control
-        panelTransport.setPanelHold(xBox.getRawAxis(Constants.XBox.OUTTAKE_PANEL_AXIS) < 0.25);
-        panelTransport.setPusherOut(xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
-        //panelTransport.checkLongPress();
-        // if(xBox.getRawAxis(Constants.XBox.OUTTAKE_PANEL_AXIS) > 0.5)
-        // {
-        //     panelTransport.setPanelHold(false);
-        //     panelTransport.setPushersOut(true);
-        //     holdOverride = false;
-        // }
-        // //else if((System.currentTimeMillis()-panelTransport.checkLongPress()) > 1500 && panelTransport.checkLongPress() != 0)
-        // //{
-        //     //panelTransport.setPanelHold(false);
-        //     //Util.threadSleep(Constants.Robot.HOLD_PUSH_WAIT);
-        //     //panelTransport.setPushersOut(true);
-        //     //holdOverride = false;
-        // //}
-        // if(Constants.XBox.INTAKE_PANEL_BUTTON)
-        // {
-        //     panelTransport.setPushersOut(false);
-
-        //     if(panelTransport.getButton() && xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON) && usePanelButton)
-        //     {
-        //         panelTransport.setPanelHold(true);
-        //         holdOverride = true;
-        //     }
-        //     else
-        //     {
-        //         // if(!xBox.getRawButton(Constants.XBox.INTAKE_CARGO_BUTTON))
-        //         // {
-        //         //     holdOverride = false;
-        //         // }
-
-        //         if(!holdOverride)
-        //         {
-        //             panelTransport.setPanelHold(!xBox.getRawButton(Constants.XBox.INTAKE_PANEL_BUTTON));
-        //         }
-        //     }
-        // }
+        panelTransport.setPanelHold(!xBox.getRawButton(Constants.XBox.PANEL_HOLDER_BUTTON));
+        panelTransport.setPusherOut(xBox.getRawAxis(Constants.XBox.PANEL_PUSHER_AXIS) > 0.25);
 
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
         if((DriverStation.getInstance().getMatchTime() <= 20 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
             || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON))
-            || (lJoy.getRawButton(1) && lJoy.getRawButton(2) && rJoy.getRawButton(1) && rJoy.getRawButton(2)))
+            || (lJoy.getRawButton(1) && lJoy.getRawButton(2) && rJoy.getRawButton(1) 
+            && rJoy.getRawButton(2)) && DriverStation.getInstance().getMatchTime() <= 10)
         {
             antiClimber.set(false);
             climber.set(true);
@@ -469,15 +405,6 @@ public class Robot extends TimedRobot
                 tempIsOverride = false;
             }
         }
-        else if(xBox.getRawButton(Constants.XBox.TOGGLE_PANEL_OVERRIDE_BUTTON))
-        {            
-            //Only toggle once per button push
-            if(tempIsOverride)
-            {
-                usePanelButton = !usePanelButton;
-                tempIsOverride = false;
-            }
-        }
         else
         {
             //Allow for toggle after button is released
@@ -490,15 +417,17 @@ public class Robot extends TimedRobot
             cargoTransport.overrideArm(xBox.getRawAxis(Constants.XBox.ARM_OVERRIDE_AXIS));
         }
 
+        if(lJoy.getRawButton(Constants.LJoy.RESET_NAVX_BUTTON) || rJoy.getRawButton(Constants.RJoy.RESET_NAVX_BUTTON))
+        {
+            drive.resetNavx();
+        }
+
         Util.threadSleep(1);
     }
 
     @Override
     public void disabledInit()
     {
-        if (lidarInUse) 
-        {
-            lidar.disable();
-        }
+        lidar.disable();
     }
 }

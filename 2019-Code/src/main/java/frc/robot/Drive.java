@@ -471,39 +471,42 @@ public class Drive
         if(backingUp)
         {
             //Back up until far enough away
-            double offset = getAngleOffset();
-            if(Math.abs(offset) < 3)
-            {
-                //Correct for tx offset
-                double xOffset = limelight.getEntry("tx").getDouble(0.0);
-                double p = 0.025;
-                double adjust = p * xOffset;
+            // double offset = getAngleOffset();
+            // if(Math.abs(offset) < 3)
+            // {
+            //     //Correct for tx offset
+            //     double xOffset = limelight.getEntry("tx").getDouble(0.0);
+            //     double p = 0.025;
+            //     double adjust = p * xOffset;
     
-                //Go faster on left to  
-                setLeft(-0.4 - adjust);
-                setRight(-0.4 + adjust);
-            }
-            else
-            {
-                //Correct for angle offset
-                double correction = getAngleOffset() * -0.01;
-                setLeft(-0.4 - correction);
-                setRight(-0.4 + correction);
-            }
+            //     //Go faster on left to  
+            //     setLeft(-0.4 - adjust);
+            //     setRight(-0.4 + adjust);
+            // }
+            // else
+            // {
+            //     //Correct for angle offset
+            //     double correction = getAngleOffset() * -0.01;
+            //     setLeft(-0.4 - correction);
+            //     setRight(-0.4 + correction);
+            // }
 
-            if(limelight.getEntry("ty").getDouble(0) < -2)
+            driveStraight(-0.5, false);
+
+            if(limelight.getEntry("ty").getDouble(0) < 2)
             {
                 //Stop backing up when far enough away
                 backingUp = false;
             }
         }
-        else if(limelight.getEntry("ty").getDouble(0) > 15) 
+        else if(limelight.getEntry("ty").getDouble(0) > 16) 
         {
             //Robot is too close to keep going forward
-            if(Math.abs(limelight.getEntry("tx").getDouble(0)) > 7 || Math.abs(getAngleOffset()) > 7)
+            if(Math.abs(limelight.getEntry("tx").getDouble(0)) > 7)
             {
                 //Back up if target is not centered or not flat against the target
                 backingUp = true;
+                driveStraight(-0.5, true);
             }
             else
             {
@@ -515,27 +518,13 @@ public class Drive
         else
         {
             //Start lining up with proportional correction amount to the amount offset of tx
-            double adjust = 0.025 * limelight.getEntry("tx").getDouble(0.0);
+            double adjust = 0.04 * limelight.getEntry("tx").getDouble(0.0);
 
             //Add left side subtract right to turn
-            setLeft(0.3 + adjust);
-            setRight(0.3 - adjust);
+            setLeft(0.4 + adjust);
+            setRight(0.4 - adjust);
         }
 
         return false;
-    }
-
-    /**
-     * Returns the offset of robot angle to the nearest 45.
-     * @return
-     *  The offset of the robot
-     */
-    private double getAngleOffset()
-    {
-        //Find nearest 45 since all vision targets are on a 45
-        int target = 45 * (int) Math.round(navx.getAngle() / 45);
-
-        //Return difference from nearest 45
-        return target - navx.getAngle();
     }
 }

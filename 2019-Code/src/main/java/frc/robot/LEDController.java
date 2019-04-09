@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 /**
  * Controller for the LEDs through the PCM.
  * 
- * Warning: Make sure PCM and LED voltage are the same.
+ * Warning: Make sure PCM and LED voltage are the same or add a resistor.
  * 
  * @author JoelNeppel
  * 
