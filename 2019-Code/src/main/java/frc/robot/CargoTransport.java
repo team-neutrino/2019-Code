@@ -75,6 +75,8 @@ public class CargoTransport implements PIDOutput
      */
     private long currentOverTime;
 
+    private boolean stalled;
+
     /**
      * Contructor for the cargo manipulator.
      */
@@ -97,8 +99,9 @@ public class CargoTransport implements PIDOutput
 
         // new ValuePrinter(()-> 
         //     {
-        //         SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
-        //         SmartDashboard.putNumber("Arm setpoint: ", armPID.getSetpoint());
+        //         //SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
+        //         //SmartDashboard.putNumber("Arm setpoint: ", armPID.getSetpoint());
+        //         SmartDashboard.putNumber("Arm current: ", rollerMotor.getOutputCurrent());
         //     }, 
         //     ValuePrinter.NORMAL_PRIORITY);
     }
@@ -115,8 +118,13 @@ public class CargoTransport implements PIDOutput
 		{
             //Turn off motor and reset stall time if power is low
 			power = 0.0;
-			currentOverTime = 0;
-		}
+            currentOverTime = 0;
+            stalled = false;
+        }
+        else if(stalled)
+        {
+            power = 0.0;
+        }
 		else if(rollerMotor.getOutputCurrent() > Constants.CargoTransport.STALLED_CURRENT) 
 		{
             if(currentOverTime == 0)
@@ -129,12 +137,14 @@ public class CargoTransport implements PIDOutput
                 //Turn off motor if current has been high for a 
                 //while indicating stall
                 power = 0.0;
+                stalled = true;
             }
         }
         else
         {
             //Set time back to 0 since motor is not stalled
             currentOverTime = 0;
+            stalled = false;
         }
 		
         rollerMotor.set(ControlMode.PercentOutput, power);
