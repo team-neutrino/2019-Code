@@ -329,6 +329,7 @@ public class Drive
      */
     public void beginRelativeTurn(double degrees)
     {
+        disableDriverAssist();
         zeroNavx();
         turnPID.setSetpoint(degrees);
         turnPID.enable();
@@ -342,6 +343,8 @@ public class Drive
      */
     public void rotateToAngle(double targetAngle)
     {
+        disableDriverAssist();
+
         //Get current position from 0 to 360
         double modAngle = getNavxAngle() % 360;
         if(modAngle < 0)
@@ -381,6 +384,7 @@ public class Drive
     {
         if(begin)
         {
+            disableDriverAssist();
             zeroNavx();
         }
          
