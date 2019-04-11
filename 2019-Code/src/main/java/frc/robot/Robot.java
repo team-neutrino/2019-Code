@@ -338,6 +338,8 @@ public class Robot extends TimedRobot
                     drive.disableDriverAssist();
                     initDriverAssist = true;
                     deliverDone = false;
+                    drive.lRatePID.enable();
+                    drive.rRatePID.enable();
                 }
 
                 //Set powers equal to go straight if joysticks are close enough together
@@ -349,9 +351,11 @@ public class Robot extends TimedRobot
                 }
 
                 //Set motor power using joysticks
-                drive.setRight(rPower);
-                drive.setLeft(lPower);
-            }
+                // drive.setRight(rPower);
+                // drive.setLeft(lPower);
+                drive.driveEncoderLeft(lPower, false);
+                drive.driveEncoderRight(rPower, false);
+            } 
         }
 
         //Arm position control

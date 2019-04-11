@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DriverStation;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -75,6 +76,9 @@ public class CargoTransport implements PIDOutput
      */
     private long currentOverTime;
 
+    /**
+     * True if the roller motor was stalled, false otherwise
+     */
     private boolean stalled;
 
     /**
@@ -138,6 +142,7 @@ public class CargoTransport implements PIDOutput
                 //while indicating stall
                 power = 0.0;
                 stalled = true;
+                DriverStation.reportWarning("Stalled: Roller Motor", false);
             }
         }
         else

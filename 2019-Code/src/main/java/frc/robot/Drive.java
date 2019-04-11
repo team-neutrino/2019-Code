@@ -74,12 +74,12 @@ public class Drive
     /**
      * The PID Controller for the left side drive train to maintain a given rate
      */
-    private PIDController lRatePID;
+    public PIDController lRatePID;
 
     /**
      * The PID Controller for the right side drive train to maintain a given rate
      */
-    private PIDController rRatePID;
+    public PIDController rRatePID;
 
     /**
      * True if the robot is backing up while using the limelight, false if still aligning forawrd
@@ -253,7 +253,7 @@ public class Drive
             else
             {
                 //Sets PID at specified rate and resets encoder timeout
-                lRateTime = 0;
+                lRateTime = 0; 
                 lRatePID.setSetpoint(Constants.Drive.MAX_SPEED * power);
             }
         }
