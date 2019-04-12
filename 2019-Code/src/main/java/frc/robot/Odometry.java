@@ -17,9 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * 
  */
 public class Odometry implements Runnable
-{
-	//TODO integrate with Lidar & make image/map
-	
+{	
 	/**
 	 * X position of the robot
 	 */
@@ -133,7 +131,6 @@ public class Odometry implements Runnable
     @Override
     public void run() 
     {
-		//TODO test
 		while(true)
 		{
 			if(firstFrame)

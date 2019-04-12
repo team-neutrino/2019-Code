@@ -73,11 +73,6 @@ public class Robot extends TimedRobot
      */
     private boolean initDriverAssist;
 
-    // /**
-    //  * The odometry object
-    //  */
-    private Odometry odometry;
-
     /**
      * A connection to the lidar
      */
@@ -128,7 +123,7 @@ public class Robot extends TimedRobot
 
         stopAuton = true;
 
-        odometry = new Odometry(drive);
+        new Odometry(drive);
         
          new ValuePrinter(()->
              {
@@ -442,5 +437,11 @@ public class Robot extends TimedRobot
     public void disabledInit()
     {
         lidar.disable();
+    }
+
+    @Override
+    public void testInit()
+    {
+        panelTransport.systemTest();
     }
 }
