@@ -116,6 +116,7 @@ public class Constants
         public static final double RATE_P = 0.0013;
         public static final double RATE_I = 0.0005;
         public static final double RATE_D = 0.001;
+        public static final double RATE_F = 0.0;//0.002;
         public static final double RATE_TOLERANCE = 1.0;
         public static final double RATE_INPUT_MIN = -MAX_SPEED;
         public static final double RATE_INPUT_MAX = MAX_SPEED;

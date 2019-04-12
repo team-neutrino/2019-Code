@@ -7,7 +7,7 @@
 
 package frc.robot;
 
-//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Odometry class for tracking the position of the robot using encoders 
@@ -75,16 +75,16 @@ public class Odometry implements Runnable
 
         new Thread(this).start();
         
-        // new ValuePrinter(()->
-		// 	{
-		// 		SmartDashboard.putNumber("X Position: ", positionX);
-		// 		SmartDashboard.putNumber("Y Position: ", positionY);
-		// 		SmartDashboard.putNumber("Current Left Distance: ", currentLeftDistance);
-		// 		SmartDashboard.putNumber("Current Right Distance: ", currentRightDistance);
-		// 		SmartDashboard.putNumber("Former Left Distance: ", formerLeftDistance);
-		// 		SmartDashboard.putNumber("Former Right Distance: ", formerRightDistance);
-		// 	},
-		// 	ValuePrinter.HIGH_PRIORITY);   
+        new ValuePrinter(()->
+		{
+			SmartDashboard.putNumber("X Position: ", positionX);
+			SmartDashboard.putNumber("Y Position: ", positionY);
+			SmartDashboard.putNumber("Current Left Distance: ", currentLeftDistance);
+			SmartDashboard.putNumber("Current Right Distance: ", currentRightDistance);
+			SmartDashboard.putNumber("Former Left Distance: ", formerLeftDistance);
+			SmartDashboard.putNumber("Former Right Distance: ", formerRightDistance);
+		},
+		ValuePrinter.HIGH_PRIORITY);   
 	}
 
 	/**
@@ -147,7 +147,8 @@ public class Odometry implements Runnable
 			formerRightDistance = drive.getRightDistance();
 			totalDistance = (currentLeftDistance + currentRightDistance)/2;
 			positionX += totalDistance * Math.sin(Math.toRadians(drive.getNavxAngle()));
-			positionY += totalDistance * Math.cos(Math.toRadians(drive.getNavxAngle()));
+            positionY += totalDistance * Math.cos(Math.toRadians(drive.getNavxAngle()));
+            Util.threadSleep(1);
 		}
 	}
 }

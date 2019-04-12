@@ -13,7 +13,7 @@ import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.CargoTransport.ArmPosition;
-//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -76,7 +76,7 @@ public class Robot extends TimedRobot
     // /**
     //  * The odometry object
     //  */
-    // private Odometry odometry;
+    private Odometry odometry;
 
     /**
      * A connection to the lidar
@@ -127,15 +127,15 @@ public class Robot extends TimedRobot
         lidar = new LidarRaspberry(drive);
 
         stopAuton = true;
-        //TODO do stuff with odometry
-        //odometry = new Odometry(drive);
 
-        // new ValuePrinter(()->
-        //     {
-        //         SmartDashboard.putNumber("Left Joystick: ", lJoy.getY());
-        //         SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
-        //     }, 
-        //     ValuePrinter.NORMAL_PRIORITY);        
+        odometry = new Odometry(drive);
+        
+         new ValuePrinter(()->
+             {
+                 SmartDashboard.putNumber("Left Joystick: ", lJoy.getY());
+                 SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
+             }, 
+             ValuePrinter.NORMAL_PRIORITY);        
     }
 
     /**
@@ -338,8 +338,8 @@ public class Robot extends TimedRobot
                     drive.disableDriverAssist();
                     initDriverAssist = true;
                     deliverDone = false;
-                    drive.lRatePID.enable();
-                    drive.rRatePID.enable();
+                    // drive.driveEncoderLeft(0.0, true);
+                    // drive.driveEncoderRight(0.0, true);
                 }
 
                 //Set powers equal to go straight if joysticks are close enough together
@@ -351,10 +351,10 @@ public class Robot extends TimedRobot
                 }
 
                 //Set motor power using joysticks
-                // drive.setRight(rPower);
-                // drive.setLeft(lPower);
-                drive.driveEncoderLeft(lPower, false);
-                drive.driveEncoderRight(rPower, false);
+                drive.setRight(rPower);
+                drive.setLeft(lPower);
+                //drive.driveEncoderLeft(lPower, false);
+                //drive.driveEncoderRight(rPower, false);
             } 
         }
 
