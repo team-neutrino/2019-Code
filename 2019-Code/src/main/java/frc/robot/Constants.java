@@ -76,9 +76,7 @@ public class Constants
 
         public static final int LIMELIGHT_ALIGN_BUTTON = 9;
 
-        public static final int TURN_ROBOT_BUTTON_NEG90 = 6;
         public static final int TURN_ROBOT_BUTTON_NEG45 = 7;
-        public static final int TURN_ROBOT_BUTTON_90 = 11;
         public static final int TURN_ROBOT_BUTTON_45 = 10;
 
         public static final int RESET_NAVX_BUTTON = LJoy.RESET_NAVX_BUTTON;
@@ -116,7 +114,7 @@ public class Constants
         public static final double RATE_P = 0.0013;
         public static final double RATE_I = 0.0005;
         public static final double RATE_D = 0.001;
-        public static final double RATE_F = 0.0;//0.002;
+        public static final double RATE_F = 0.017;
         public static final double RATE_TOLERANCE = 1.0;
         public static final double RATE_INPUT_MIN = -MAX_SPEED;
         public static final double RATE_INPUT_MAX = MAX_SPEED;

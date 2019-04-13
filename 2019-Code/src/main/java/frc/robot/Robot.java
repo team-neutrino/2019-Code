@@ -13,7 +13,7 @@ import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.CargoTransport.ArmPosition;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -99,6 +99,14 @@ public class Robot extends TimedRobot
     private boolean stopAuton;
 
     /**
+     * Constructor to set Watchdog timeout to 30 ms
+     */
+    // public Robot()
+    // {
+    //     super(35);
+    // }
+
+    /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
@@ -123,14 +131,14 @@ public class Robot extends TimedRobot
 
         stopAuton = true;
 
-        new Odometry(drive);
+        //new Odometry(drive);
         
-         new ValuePrinter(()->
-             {
-                 SmartDashboard.putNumber("Left Joystick: ", lJoy.getY());
-                 SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
-             }, 
-             ValuePrinter.NORMAL_PRIORITY);        
+        //  new ValuePrinter(()->
+        //      {
+        //          SmartDashboard.putNumber("Left Joystick: ", lJoy.getY());
+        //          SmartDashboard.putNumber("Right Joystick: ", rJoy.getY());
+        //      }, 
+        //      ValuePrinter.NORMAL_PRIORITY);        
     }
 
     /**
@@ -139,6 +147,9 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit() 
     {
+        antiClimber.set(true);
+        climber.set(false);
+
         drive.resetNavx();
         lidar.enable();
 
@@ -253,27 +264,11 @@ public class Robot extends TimedRobot
                 initDriverAssist= false;
             }
         }
-        else if(rJoy.getRawButton(Constants.RJoy.TURN_ROBOT_BUTTON_NEG90))
-        {
-            if(initDriverAssist)
-            {
-                drive.beginRelativeTurn(-90);
-                initDriverAssist = false;
-            }
-        }
         else if(rJoy.getRawButton(Constants.RJoy.TURN_ROBOT_BUTTON_NEG45))
         {
             if(initDriverAssist)
             {
                 drive.beginRelativeTurn(-45);
-                initDriverAssist = false;
-            }
-        }
-        else if(rJoy.getRawButton(Constants.RJoy.TURN_ROBOT_BUTTON_90))
-        {
-            if(initDriverAssist)
-            {
-                drive.beginRelativeTurn(90);
                 initDriverAssist = false;
             }
         }
@@ -299,8 +294,8 @@ public class Robot extends TimedRobot
             {
                 lPower = 0.0;
             }
-            
-            //Drive straight
+
+            // Drive straight
             if(rJoy.getRawButton(Constants.RJoy.DRIVE_STRAIGHT_BUTTON))
             {
                 if(initDriverAssist)
@@ -346,10 +341,27 @@ public class Robot extends TimedRobot
                 }
 
                 //Set motor power using joysticks
-                drive.setRight(rPower);
-                drive.setLeft(lPower);
-                //drive.driveEncoderLeft(lPower, false);
-                //drive.driveEncoderRight(rPower, false);
+                // drive.setRight(rPower);
+                // drive.setLeft(lPower);
+                if(lPower < 0)
+                {
+                    drive.driveEncoderLeft(-lPower * lPower, false);
+                }
+                else
+                {
+                    drive.driveEncoderLeft(lPower * lPower, false);
+                }
+
+                if(rPower < 0)
+                {
+                    drive.driveEncoderRight(-rPower * rPower, false);
+                }
+                else
+                {
+                    drive.driveEncoderRight(rPower * rPower, false);
+                }
+                // drive.driveEncoderLeft(lPower, false);
+                // drive.driveEncoderRight(rPower, false);
             } 
         }
 
@@ -387,18 +399,12 @@ public class Robot extends TimedRobot
 
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
-        if((DriverStation.getInstance().getMatchTime() <= 20 && xBox.getRawButton(Constants.XBox.CLIMB_BUTTON))
+        if((xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && DriverStation.getInstance().getMatchTime() <= 20)
             || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON))
-            || (lJoy.getRawButton(1) && lJoy.getRawButton(2) && rJoy.getRawButton(1) 
-            && rJoy.getRawButton(2)) && DriverStation.getInstance().getMatchTime() <= 10)
-        {
+            || (lJoy.getRawButton(1) && lJoy.getRawButton(2) && rJoy.getRawButton(1) && rJoy.getRawButton(2)))
+        {    
             antiClimber.set(false);
             climber.set(true);
-        }
-        else
-        {
-            antiClimber.set(true);
-            climber.set(false);
         }
        
         //Override Control

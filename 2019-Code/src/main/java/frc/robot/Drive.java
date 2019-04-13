@@ -176,7 +176,7 @@ public class Drive
         rRatePID.setOutputRange(Constants.Drive.RATE_OUTPUT_MIN, Constants.Drive.RATE_OUTPUT_MAX);
         rRatePID.setPIDSourceType(PIDSourceType.kRate);
 
-        encoderDrive = true;
+        //encoderDrive = true;
         
         new ValuePrinter(()-> 
             {
@@ -231,6 +231,7 @@ public class Drive
      */
     public void driveEncoderLeft(double power, boolean begin)
     {
+        
         if(encoderDrive) 
         {
             if(begin)
@@ -275,7 +276,7 @@ public class Drive
         else
         {
             //Set motor power if encoders are suspected to not be working
-            setLeft(power);
+            //setLeft(power);
         }
     }
 
@@ -333,7 +334,7 @@ public class Drive
         else
         {
             //Set motor power if encoders are suspected to not be working
-            setRight(power);
+            //setRight(power);
         }
     }
 
@@ -484,6 +485,7 @@ public class Drive
     {
         if((getAngleOffset() >= 12 || getAngleOffset() <= -12) && adjusted == Adjusted.NO)
         {
+            DriverStation.reportError("Not lined up enough for limelight", false);
             return false;
         }
         limelight.getEntry("ledMode").setNumber(3);
