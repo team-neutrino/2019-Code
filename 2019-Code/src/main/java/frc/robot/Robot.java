@@ -9,7 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.CargoTransport.ArmPosition;
@@ -99,11 +98,11 @@ public class Robot extends TimedRobot
     private boolean stopAuton;
 
     /**
-     * Constructor to set Watchdog timeout to 30 ms
+     * Constructor to set Watchdog timeout to 35 ms
      */
     // public Robot()
     // {
-    //     super(35);
+    //     super(0.035);
     // }
 
     /**
@@ -153,6 +152,9 @@ public class Robot extends TimedRobot
         drive.resetNavx();
         lidar.enable();
 
+        drive.driveEncoderLeft(0.0, true);
+        drive.driveEncoderRight(0.0, true);
+        
         //Begin drive straight autonomous portion
         if(Math.abs(lJoy.getY()) < 0.25 && Math.abs(rJoy.getY()) < 0.25)
         {
@@ -187,7 +189,6 @@ public class Robot extends TimedRobot
                 stopAuton = true;
             }
 
-            //Drive straight
             drive.driveStraight(-1, false);
 
             Util.threadSleep(1);
@@ -221,14 +222,7 @@ public class Robot extends TimedRobot
 
             if(!deliverDone && drive.limeLightAlign()) 
             {
-                //Drive into object if lined up
-                drive.disableDriverAssist();
-                NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setDouble(2);
-
-                drive.driveStraight(0.5, true);
-                Util.threadSleep(300);
-                drive.driveStraight(0.0, false);
-
+                //Stop lining up with limelight when done.
                 deliverDone = true;
             }
         } 
@@ -284,15 +278,32 @@ public class Robot extends TimedRobot
         { 
             //Control drive train using joysticks with a dead zone
             //Get joystick values and make correct direction and with a dead zone
+            //Square powers while maintaining negatives
             double rPower = -rJoy.getY();
             if(Math.abs(rPower) < Constants.RJoy.DEAD_ZONE)
             {
                 rPower = 0.0;
             }
+            else if(rPower > 0)
+            {
+                rPower *= rPower;
+            }
+            else
+            {
+                rPower *= -rPower;
+            }
             double lPower = -lJoy.getY();
             if(Math.abs(lPower) < Constants.LJoy.DEAD_ZONE)
             {
                 lPower = 0.0;
+            }
+            else if(lPower > 0)
+            {
+                lPower *= lPower;
+            }
+            else
+            {
+                lPower *= -lPower;
             }
 
             // Drive straight
@@ -328,8 +339,9 @@ public class Robot extends TimedRobot
                     drive.disableDriverAssist();
                     initDriverAssist = true;
                     deliverDone = false;
-                    // drive.driveEncoderLeft(0.0, true);
-                    // drive.driveEncoderRight(0.0, true);
+
+                    drive.driveEncoderLeft(0.0, true);
+                    drive.driveEncoderRight(0.0, true);
                 }
 
                 //Set powers equal to go straight if joysticks are close enough together
@@ -343,25 +355,9 @@ public class Robot extends TimedRobot
                 //Set motor power using joysticks
                 // drive.setRight(rPower);
                 // drive.setLeft(lPower);
-                if(lPower < 0)
-                {
-                    drive.driveEncoderLeft(-lPower * lPower, false);
-                }
-                else
-                {
-                    drive.driveEncoderLeft(lPower * lPower, false);
-                }
-
-                if(rPower < 0)
-                {
-                    drive.driveEncoderRight(-rPower * rPower, false);
-                }
-                else
-                {
-                    drive.driveEncoderRight(rPower * rPower, false);
-                }
-                // drive.driveEncoderLeft(lPower, false);
-                // drive.driveEncoderRight(rPower, false);
+            
+                drive.driveEncoderLeft(lPower, false);
+                drive.driveEncoderRight(rPower, false);
             } 
         }
 
@@ -415,9 +411,14 @@ public class Robot extends TimedRobot
             {
                 //Toggle cargo arm PID
                 cargoTransport.togglePID();
-                armOverride =! armOverride;
+                armOverride = !armOverride;
                 tempIsOverride = false;
             }
+        }
+        else if(lJoy.getRawButton(Constants.LJoy.TOGGLE_ENCODER_DRIVE) || rJoy.getRawButton(Constants.RJoy.TOGGLE_ENCODER_DRIVE))
+        {
+            drive.toggleEncoderDrive();
+            tempIsOverride = false;
         }
         else
         {

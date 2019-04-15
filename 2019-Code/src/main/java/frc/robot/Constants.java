@@ -63,6 +63,7 @@ public class Constants
         public static final int TURN_FIELD_BUTTON_180 = 11;
 
         public static final int RESET_NAVX_BUTTON = 2;
+        public static final int TOGGLE_ENCODER_DRIVE = 1;
     }
 
     /**
@@ -80,6 +81,7 @@ public class Constants
         public static final int TURN_ROBOT_BUTTON_45 = 10;
 
         public static final int RESET_NAVX_BUTTON = LJoy.RESET_NAVX_BUTTON;
+        public static final int TOGGLE_ENCODER_DRIVE = LJoy.TOGGLE_ENCODER_DRIVE;
     }
 
     /**
