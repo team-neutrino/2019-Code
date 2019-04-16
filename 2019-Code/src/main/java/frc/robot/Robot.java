@@ -417,8 +417,12 @@ public class Robot extends TimedRobot
         }
         else if(lJoy.getRawButton(Constants.LJoy.TOGGLE_ENCODER_DRIVE) || rJoy.getRawButton(Constants.RJoy.TOGGLE_ENCODER_DRIVE))
         {
-            drive.toggleEncoderDrive();
-            tempIsOverride = false;
+            if(tempIsOverride)
+            {
+                drive.toggleEncoderDrive();
+                tempIsOverride = false;
+                initDriverAssist = false;
+            }
         }
         else
         {
