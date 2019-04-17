@@ -103,9 +103,9 @@ public class Drive
     private enum Adjusted
     {
         NO,
-        STARTED_TURNING,
-        FINISHED_TURNING,
-        BACK_UP
+        TURNING,
+        MOVING_FORWARD,
+        BACKING_UP
     }
 
     /**
@@ -118,7 +118,6 @@ public class Drive
      */
     public Drive()
     {
-        adjusted = Adjusted.NO;
         lMotor1 = new TalonSRX(Constants.Drive.LEFT_MOTOR_ONE_PORT);
         lMotor2 = new TalonSRX(Constants.Drive.LEFT_MOTOR_TWO_PORT);
         rMotor1 = new TalonSRX(Constants.Drive.RIGHT_MOTOR_ONE_PORT);
@@ -174,6 +173,8 @@ public class Drive
 
         encoderDrive = true;
         
+        adjusted = Adjusted.NO;
+
         // new ValuePrinter(()-> 
         //     {
         //         // SmartDashboard.putNumber("Navx Yaw: ", navx.getYaw());
@@ -227,7 +228,6 @@ public class Drive
      */
     public void driveEncoderLeft(double power, boolean begin)
     {
-        
         if(encoderDrive) 
         {
             if(begin)
@@ -364,8 +364,6 @@ public class Drive
      */
     public void rotateToAngle(double targetAngle)
     {
-        disableDriverAssist();
-
         //Get current position from 0 to 360
         double modAngle = getNavxAngle() % 360;
         if(modAngle < 0)
@@ -503,7 +501,7 @@ public class Drive
             return false;
         }
 
-        if(adjusted == Adjusted.BACK_UP)
+        if(adjusted == Adjusted.BACKING_UP)
         {
             //Back up until far enough away
             // double offset = getAngleOffset();
@@ -531,7 +529,9 @@ public class Drive
             if(limelight.getEntry("ty").getDouble(0) < 2)
             {
                 //Stop backing up when far enough away
-                adjusted = Adjusted.FINISHED_TURNING;
+                adjusted = Adjusted.TURNING;
+                lRatePID.disable();
+                rRatePID.disable();
             }
         }
         else if(limelight.getEntry("ty").getDouble(0) > 13) 
@@ -540,7 +540,7 @@ public class Drive
             if(Math.abs(limelight.getEntry("tx").getDouble(0)) > 7)
             {
                 //Back up if target is not centered with the target
-                adjusted = Adjusted.BACK_UP;
+                adjusted = Adjusted.BACKING_UP;
                 driveStraight(-0.5, true);
             }
             else
@@ -551,7 +551,7 @@ public class Drive
                 return true;
             }
         }
-        else if(adjusted == Adjusted.FINISHED_TURNING)
+        else if(adjusted == Adjusted.MOVING_FORWARD)
         {
             //Move towards target and correct if not centered
             double adjust = 0.025 * limelight.getEntry("tx").getDouble(0.0);
@@ -575,11 +575,7 @@ public class Drive
             setRight(-adjust);
             if(Math.abs(limelight.getEntry("tx").getDouble(0.0)) <3)
             {
-                adjusted = Adjusted.FINISHED_TURNING;
-            }
-            else
-            {
-                adjusted = Adjusted.STARTED_TURNING;
+                adjusted = Adjusted.MOVING_FORWARD;
             }
         }
 

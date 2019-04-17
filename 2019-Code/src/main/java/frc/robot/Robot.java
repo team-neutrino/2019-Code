@@ -395,9 +395,9 @@ public class Robot extends TimedRobot
 
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
-        if((xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && DriverStation.getInstance().getMatchTime() <= 20)
-            || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON))
-            || (lJoy.getRawButton(1) && lJoy.getRawButton(2) && rJoy.getRawButton(1) && rJoy.getRawButton(2)))
+        if(((xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) || (lJoy.getRawButton(1) && lJoy.getRawButton(2) && rJoy.getRawButton(1) && rJoy.getRawButton(2)))
+            && DriverStation.getInstance().getMatchTime() <= 20)
+            || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
         {    
             antiClimber.set(false);
             climber.set(true);
