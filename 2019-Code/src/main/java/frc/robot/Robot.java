@@ -100,10 +100,10 @@ public class Robot extends TimedRobot
     /**
      * Constructor to set Watchdog timeout to 35 ms
      */
-    // public Robot()
-    // {
-    //     super(0.035);
-    // }
+    public Robot()
+    {
+        super(0.035);
+    }
 
     /**
      * This function is run when the robot is first started up and should be
@@ -130,6 +130,8 @@ public class Robot extends TimedRobot
 
         stopAuton = true;
 
+        drive.resetNavx();
+
         //new Odometry(drive);
         
         //  new ValuePrinter(()->
@@ -149,7 +151,6 @@ public class Robot extends TimedRobot
         antiClimber.set(true);
         climber.set(false);
 
-        drive.resetNavx();
         lidar.enable();
 
         drive.driveEncoderLeft(0.0, true);
@@ -160,7 +161,7 @@ public class Robot extends TimedRobot
         {
             new Thread(()->
                 {
-                    Util.threadSleep(2125);
+                    Util.threadSleep(1825);
                     stopAuton = true;
                 }).start();
 
@@ -340,8 +341,8 @@ public class Robot extends TimedRobot
                     initDriverAssist = true;
                     deliverDone = false;
 
-                    drive.driveEncoderLeft(0.0, true);
-                    drive.driveEncoderRight(0.0, true);
+                    // drive.driveEncoderLeft(0.0, true);
+                    // drive.driveEncoderRight(0.0, true);
                 }
 
                 //Set powers equal to go straight if joysticks are close enough together
@@ -353,11 +354,11 @@ public class Robot extends TimedRobot
                 }
 
                 //Set motor power using joysticks
-                // drive.setRight(rPower);
-                // drive.setLeft(lPower);
+                drive.setRight(rPower);
+                drive.setLeft(lPower);
             
-                drive.driveEncoderLeft(lPower, false);
-                drive.driveEncoderRight(rPower, false);
+                // drive.driveEncoderLeft(lPower, false);
+                // drive.driveEncoderRight(rPower, false);
             } 
         }
 
@@ -395,9 +396,9 @@ public class Robot extends TimedRobot
 
         //Climb if match time is in last 30 seconds and button is pushed
         //or when 2 buttons are pushed in case match time is incorrect
-        if(((xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) || (lJoy.getRawButton(1) && lJoy.getRawButton(2) && rJoy.getRawButton(1) && rJoy.getRawButton(2)))
-            && DriverStation.getInstance().getMatchTime() <= 20)
-            || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON)))
+        if((xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && DriverStation.getInstance().getMatchTime() <= 20)
+            || (xBox.getRawButton(Constants.XBox.CLIMB_BUTTON) && xBox.getRawButton(Constants.XBox.CLIMB_OVERRIDE_BUTTON))
+            || (lJoy.getRawButton(1) && lJoy.getRawButton(2) && rJoy.getRawButton(1) && rJoy.getRawButton(2)))
         {    
             antiClimber.set(false);
             climber.set(true);
@@ -417,12 +418,8 @@ public class Robot extends TimedRobot
         }
         else if(lJoy.getRawButton(Constants.LJoy.TOGGLE_ENCODER_DRIVE) || rJoy.getRawButton(Constants.RJoy.TOGGLE_ENCODER_DRIVE))
         {
-            if(tempIsOverride)
-            {
-                drive.toggleEncoderDrive();
-                tempIsOverride = false;
-                initDriverAssist = false;
-            }
+            drive.toggleEncoderDrive();
+            tempIsOverride = false;
         }
         else
         {
