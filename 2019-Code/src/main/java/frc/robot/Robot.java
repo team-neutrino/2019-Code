@@ -98,6 +98,11 @@ public class Robot extends TimedRobot
     private boolean stopAuton;
 
     /**
+     * True to drive using the encoders, false to directly set power
+     */
+    private boolean encoderDrive;
+
+    /**
      * Constructor to set Watchdog timeout to 35 ms
      */
     public Robot()
@@ -279,32 +284,15 @@ public class Robot extends TimedRobot
         { 
             //Control drive train using joysticks with a dead zone
             //Get joystick values and make correct direction and with a dead zone
-            //Square powers while maintaining negatives
             double rPower = -rJoy.getY();
             if(Math.abs(rPower) < Constants.RJoy.DEAD_ZONE)
             {
                 rPower = 0.0;
             }
-            else if(rPower > 0)
-            {
-                rPower *= rPower;
-            }
-            else
-            {
-                rPower *= -rPower;
-            }
             double lPower = -lJoy.getY();
             if(Math.abs(lPower) < Constants.LJoy.DEAD_ZONE)
             {
                 lPower = 0.0;
-            }
-            else if(lPower > 0)
-            {
-                lPower *= lPower;
-            }
-            else
-            {
-                lPower *= -lPower;
             }
 
             // Drive straight
@@ -341,8 +329,11 @@ public class Robot extends TimedRobot
                     initDriverAssist = true;
                     deliverDone = false;
 
-                    // drive.driveEncoderLeft(0.0, true);
-                    // drive.driveEncoderRight(0.0, true);
+                    if(encoderDrive)
+                    {
+                        drive.driveEncoderLeft(0.0, true);
+                        drive.driveEncoderRight(0.0, true);
+                    }
                 }
 
                 //Set powers equal to go straight if joysticks are close enough together
@@ -354,11 +345,33 @@ public class Robot extends TimedRobot
                 }
 
                 //Set motor power using joysticks
-                drive.setRight(rPower);
-                drive.setLeft(lPower);
-            
-                // drive.driveEncoderLeft(lPower, false);
-                // drive.driveEncoderRight(rPower, false);
+                if(encoderDrive)
+                {
+                    //Square powers while maintaining negatives for encoder drive only
+                    if(rPower > 0)
+                    {
+                        rPower *= rPower;
+                    }
+                    else
+                    {
+                        rPower *= -rPower;
+                    }
+                    if(lPower > 0)
+                    {
+                        lPower *= lPower;
+                    }
+                    else
+                    {
+                        lPower *= -lPower;
+                    }
+                    drive.driveEncoderLeft(lPower, false);
+                    drive.driveEncoderRight(rPower, false);
+                }
+                else
+                {
+                    drive.setRight(rPower);
+                    drive.setLeft(lPower);
+                }
             } 
         }
 
@@ -418,8 +431,12 @@ public class Robot extends TimedRobot
         }
         else if(lJoy.getRawButton(Constants.LJoy.TOGGLE_ENCODER_DRIVE) || rJoy.getRawButton(Constants.RJoy.TOGGLE_ENCODER_DRIVE))
         {
-            drive.toggleEncoderDrive();
-            tempIsOverride = false;
+            if(tempIsOverride)
+            {
+                tempIsOverride = false;
+                encoderDrive = !encoderDrive;
+                initDriverAssist = false;
+            }
         }
         else
         {
@@ -451,5 +468,7 @@ public class Robot extends TimedRobot
     public void testInit()
     {
         panelTransport.systemTest();
+        cargoTransport.systemTest();
+        
     }
 }

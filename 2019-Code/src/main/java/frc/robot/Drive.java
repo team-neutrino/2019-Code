@@ -335,15 +335,6 @@ public class Drive
     }
 
     /**
-     * Toggles the use of encoder drive.
-     */
-    public void toggleEncoderDrive()
-    {
-        encoderDrive = !encoderDrive;
-        DriverStation.reportWarning("Encoder drive set to: " + encoderDrive, false);
-    }
-
-    /**
      * Zeros the yaw and turns the robot the given amount of degrees.
      * @param degrees
      *  The amount of degrees to turn from -180 to 180
@@ -579,7 +570,7 @@ public class Drive
             }
         }
 
-        return false;
+        return false; 
     }
 
     /**
@@ -592,5 +583,17 @@ public class Drive
         int target = 45 * (int) Math.round(navx.getAngle() / 45);
 
         return target - navx.getAngle();
+    }
+
+    /**
+     * Tests systems for drive.
+     */
+    public void systemTest()
+    {
+        setLeft(-0.3);
+        setRight(0.3);
+
+        Util.threadSleep(10);
+    
     }
 }

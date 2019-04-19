@@ -10,7 +10,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
-//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -101,13 +101,13 @@ public class CargoTransport implements PIDOutput
 
         currentOverTime = 0;
 
-        // new ValuePrinter(()-> 
-        //     {
-        //         //SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
-        //         //SmartDashboard.putNumber("Arm setpoint: ", armPID.getSetpoint());
-        //         SmartDashboard.putNumber("Arm current: ", rollerMotor.getOutputCurrent());
-        //     }, 
-        //     ValuePrinter.NORMAL_PRIORITY);
+        new ValuePrinter(()-> 
+            {
+                //SmartDashboard.putNumber("Arm Encoder Value", armEncoder.get());
+                //SmartDashboard.putNumber("Arm setpoint: ", armPID.getSetpoint());
+                SmartDashboard.putNumber("Roller current: ", rollerMotor.getOutputCurrent());
+            }, 
+            ValuePrinter.NORMAL_PRIORITY);
     }
 
     /**

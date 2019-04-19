@@ -9,7 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * Class for the panel transport.
@@ -84,9 +83,7 @@ public class PanelTransport
      */
     public void systemTest()
     {
-        if(pusher.isFwdSolenoidBlackListed())
-        {
-            DriverStation.reportError("Solenoid " + Constants.PanelTransport.PUSHER_CHANNEL_1 + " is black listed.", false);
-        }
+        Util.testSolenoid(holder, "holder", Constants.PanelTransport.HOLDER_CHANNEL_1, Constants.PanelTransport.HOLDER_CHANNEL_2);
+        Util.testSolenoid(pusher, "pusher", Constants.PanelTransport.PUSHER_CHANNEL_1, Constants.PanelTransport.PUSHER_CHANNEL_2);
     }
 } 

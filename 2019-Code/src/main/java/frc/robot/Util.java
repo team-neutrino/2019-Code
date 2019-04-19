@@ -7,6 +7,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+
 /**
  * Utility class for Thread.sleep() without having a try catch block.
  * 
@@ -30,5 +34,28 @@ public class Util
 		{
 			e.printStackTrace();
 		}
+    }
+
+    public static void testDisconnect(double result, String name, int deviceID)
+    {
+
+    }
+
+    public static void testSolenoid(DoubleSolenoid s, String name, int fwdCh, int revCh)
+    {
+        s.set(Value.kForward);
+        threadSleep(100);
+        s.set(Value.kReverse);
+        threadSleep(100);
+        s.set(Value.kOff);
+
+        if(s.isFwdSolenoidBlackListed())
+        {
+            DriverStation.reportError("Solenoid " + name + " with channel " + fwdCh + " is blacklisted.", false);
+        }
+        if(s.isRevSolenoidBlackListed())
+        {
+            DriverStation.reportError("Solenoid " + name + " with channel " + revCh + " is blacklisted.", false);
+        }
     }
 }
