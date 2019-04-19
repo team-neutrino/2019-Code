@@ -132,6 +132,7 @@ public class PaintThread extends Thread
 					gc.strokeOval(150, 150, 300, 300);
 					
 					//Draw last rotation
+					/*
                     if(pxList.size()>1) 
                     {
                         for(int i = 0; i < pxList.size(); i++) 
@@ -140,11 +141,11 @@ public class PaintThread extends Thread
 							
 						}
 					}
-					
+					*/
 					gc.setFill(Color.BLACK);
 					
 					
-					gc.beginPath(); //Might not need this
+					//gc.beginPath(); //Might not need this
 					
 					//Draw current rotation
 					gc.moveTo(xList.get(xList.size()-1), yList.get(yList.size()-1));
@@ -158,7 +159,7 @@ public class PaintThread extends Thread
 					
 					
 					gc.setStroke(Color.BLACK);
-                    gc.stroke(); //See line 148
+                    //gc.stroke(); //See line 148
                     
                     //TODO: Test lines
 
@@ -176,14 +177,14 @@ public class PaintThread extends Thread
 					pxList.clear(); //Clear past rotation buffers
 					pyList.clear();
 					
-					pxList.addAll(xList); //Copy current rotation buffers to past rotation buffers
-					pyList.addAll(yList);
+					//pxList.addAll(xList); //Copy current rotation buffers to past rotation buffers
+					//pyList.addAll(yList);
 					
 					xList.clear(); //Clear current rotation buffers
 					yList.clear();
 					
 				}
-				System.out.println(parsedPacket[0] + " : " + Double.parseDouble(parsedPacket[1]) + " : " + Double.parseDouble(parsedPacket[2])); //Optional console display
+				//System.out.println(parsedPacket[0] + " : " + Double.parseDouble(parsedPacket[1]) + " : " + Double.parseDouble(parsedPacket[2])); //Optional console display
 				currentX = Double.parseDouble(parsedPacket[1]); //Added in-between for ease to read.
 				currentY = Double.parseDouble(parsedPacket[2]);
 				xList.add(clamp(currentX/10,-300,300)+300);

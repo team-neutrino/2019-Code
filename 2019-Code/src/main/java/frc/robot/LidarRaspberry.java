@@ -8,6 +8,7 @@
 package frc.robot;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.io.IOException;
 import java.net.*;
 
@@ -45,6 +46,11 @@ public class LidarRaspberry
     private InetAddress piAddr;
 
     /**
+     * Buffer for inverting endianess of angle
+     */
+    private ByteBuffer byteBuf;
+
+    /**
      * Creates a link to the Raspberry Pi to control the lidar
      * @param drive
      *  The drive instance
@@ -54,6 +60,9 @@ public class LidarRaspberry
         this.drive = drive;
 
         message = new byte[5];
+
+        
+        byteBuf= ByteBuffer.allocate(4);
 
         try
         {
@@ -74,7 +83,14 @@ public class LidarRaspberry
      */
     private float getAngle()
     {
-        return (float) (drive.getNavxAngle()%360);
+        
+        byteBuf.clear();
+        byteBuf.order(ByteOrder.BIG_ENDIAN);
+        byteBuf.putFloat((float) drive.getNavxAngle()%360);
+        byteBuf.order(ByteOrder.LITTLE_ENDIAN);
+        return byteBuf.getFloat(0);
+        
+        //return (float) (drive.getNavxAngle()%360);
     }
 
     /**
