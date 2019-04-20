@@ -569,7 +569,7 @@ public class Drive
                 adjusted = Adjusted.MOVING_FORWARD;
             }
         }
-
+        
         return false; 
     }
 
@@ -592,8 +592,22 @@ public class Drive
     {
         setLeft(-0.3);
         setRight(0.3);
-
         Util.threadSleep(10);
-    
+        
+        Util.testTalonSRX(lMotor1, "left drive 1");
+        Util.testTalonSRX(lMotor2, "left drive 2");
+        Util.testTalonSRX(rMotor1, "right drive 1");
+        Util.testTalonSRX(rMotor2, "right drive 2");
+
+        Util.testEncoder(lEncoder, "left drive");
+        Util.testEncoder(rEncoder, "right drive");
+        
+        setLeft(0.0);
+        setRight(0.0);
+
+        if(!navx.isConnected())
+        {
+            DriverStation.reportError("Navx is disconnected.", false);
+        }
     }
 }

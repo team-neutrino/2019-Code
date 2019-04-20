@@ -220,21 +220,15 @@ public class CargoTransport implements PIDOutput
      */
     public void systemTest()    
     {
-        if(armMotor.getOutputCurrent() == 0)
-        {
-            DriverStation.reportError("Arm Motor disconnected. Motor ID: " + armMotor.getBaseID(), false);
-        }
-        else if(Math.abs(armPID.getError()) > 7)
+        Util.testTalonSRX(armMotor, "arm motor");
+        if(Math.abs(armPID.getError()) > 7)
         {
             DriverStation.reportError("Arm encoder incorrect. Setpoint error: " + armPID.getError(), false);
         }
 
         setRoller(0.3);
-        Util.threadSleep(500);
-        if(rollerMotor.getOutputCurrent() == 0)
-        {
-            DriverStation.reportError("Roller Motor disconnected. Motor ID: " + rollerMotor.getBaseID(), false);
-        }
+        Util.threadSleep(10);
+        Util.testTalonSRX(rollerMotor, "roller");
         setRoller(0.0);
     }
 }

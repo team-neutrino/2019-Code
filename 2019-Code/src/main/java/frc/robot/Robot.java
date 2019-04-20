@@ -160,9 +160,10 @@ public class Robot extends TimedRobot
 
         drive.driveEncoderLeft(0.0, true);
         drive.driveEncoderRight(0.0, true);
-        
+        initDriverAssist = false;
+
         //Begin drive straight autonomous portion
-        if(Math.abs(lJoy.getY()) < 0.25 && Math.abs(rJoy.getY()) < 0.25)
+        if(Math.abs(lJoy.getY()) < 0.15 && Math.abs(rJoy.getY()) < 0.15)
         {
             new Thread(()->
                 {
@@ -171,7 +172,6 @@ public class Robot extends TimedRobot
                 }).start();
 
             drive.driveStraight(-1, true);
-            initDriverAssist = false;
             stopAuton = false;
         }
     }
@@ -190,7 +190,7 @@ public class Robot extends TimedRobot
         else
         {
             //Check to end autonomouns portion
-            if(Math.abs(lJoy.getY()) > 0.25 || Math.abs(rJoy.getY()) < -0.25)
+            if(Math.abs(lJoy.getY()) > 0.15 || Math.abs(rJoy.getY()) > 0.15)
             {
                 stopAuton = true;
             }
@@ -206,6 +206,8 @@ public class Robot extends TimedRobot
     @Override
     public void teleopInit()
     {
+        antiClimber.set(true);
+        climber.set(false);
         lidar.disable();
     }
 
@@ -416,7 +418,7 @@ public class Robot extends TimedRobot
             antiClimber.set(false);
             climber.set(true);
         }
-       
+        
         //Override Control
         if(xBox.getRawButton(Constants.XBox.TOGGLE_ARM_OVERRIDE_BUTTON))
         {  
@@ -467,8 +469,11 @@ public class Robot extends TimedRobot
     @Override
     public void testInit()
     {
-        panelTransport.systemTest();
+        antiClimber.set(true);
+        climber.set(false);
+
         cargoTransport.systemTest();
-        
+        drive.systemTest();
+        panelTransport.systemTest();
     }
 }
