@@ -73,11 +73,6 @@ public class Robot extends TimedRobot
     private boolean initDriverAssist;
 
     /**
-     * A connection to the lidar
-     */
-    private LidarRaspberry lidar;
-
-    /**
      * Whether the panel was delivered during the driver assist or not
      */
     private boolean deliverDone;
@@ -131,8 +126,6 @@ public class Robot extends TimedRobot
         
         CameraServer.getInstance().startAutomaticCapture("Wide angle", 0);
 
-        lidar = new LidarRaspberry(drive);
-
         stopAuton = true;
 
         drive.resetNavx();
@@ -155,8 +148,6 @@ public class Robot extends TimedRobot
     {
         antiClimber.set(true);
         climber.set(false);
-
-        lidar.enable();
 
         drive.driveEncoderLeft(0.0, true);
         drive.driveEncoderRight(0.0, true);
@@ -199,8 +190,6 @@ public class Robot extends TimedRobot
 
             Util.threadSleep(1);
         }
-
-        lidar.update();
     }
 
     @Override
@@ -208,7 +197,6 @@ public class Robot extends TimedRobot
     {
         antiClimber.set(true);
         climber.set(false);
-        lidar.disable();
     }
 
     /**
@@ -458,12 +446,6 @@ public class Robot extends TimedRobot
         }
 
         Util.threadSleep(1);
-    }
-
-    @Override
-    public void disabledInit()
-    {
-        lidar.disable();
     }
 
     @Override
